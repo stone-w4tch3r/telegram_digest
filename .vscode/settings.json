@@ -1,0 +1,16 @@
+{
+    "cSpell.words": [
+        "autoflush",
+        "sessionmaker",
+        "fastapi",
+        "uvicorn",
+        "pydantic",
+        "aiohttp",
+        "aiosmtplib",
+        "beautifulsoup4",
+        "aiocron",
+        "sqlalchemy",
+        "feedparser",
+        "dotenv"
+    ]
+}

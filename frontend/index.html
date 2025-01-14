@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Telegram Digest</title>
+</head>
+<body>
+    <h1>Latest Summaries</h1>
+    <ul>
+        {% for summary in summaries %}
+        <li>
+            <h2>{{ summary.title }}</h2>
+            <p>{{ summary.summary }}</p>
+            <a href="/summary/{{ summary.id }}">Read more</a>
+        </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

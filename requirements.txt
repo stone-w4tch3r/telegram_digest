@@ -1,0 +1,12 @@
+fastapi
+uvicorn
+pydantic
+aiohttp
+aiosmtplib
+jinja2
+beautifulsoup4
+aiocron
+sqlalchemy
+openai
+feedparser
+python-dotenv

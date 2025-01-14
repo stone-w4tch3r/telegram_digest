@@ -6,7 +6,7 @@ from typing import List
 import aiosmtplib
 from jinja2 import Environment, FileSystemLoader
 
-from .models import Summary
+from .database import Summary
 
 SMTP_HOST = os.getenv("SMTP_HOST")
 SMTP_PORT = int(os.getenv("SMTP_PORT", 587))

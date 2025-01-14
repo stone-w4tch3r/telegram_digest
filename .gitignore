@@ -967,3 +967,5 @@ FodyWeavers.xsd
 /.idea/inspectionProfiles/profiles_settings.xml
 *.log
 .aider*
+
+summaries.db

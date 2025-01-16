@@ -218,3 +218,50 @@ classDiagram
     DigestRepository -- Database
 
 ```
+
+### Project structure
+
+```
+telegram_digest/
+│
+├── app/                             # Main application package
+│   ├── __init__.py                  # Initialize package
+│   ├── api.py                       # FastAPI routes
+│   ├── web_ui.py                    # Web UI
+│   ├── models.py                    # Data models using Pydantic
+│   ├── summary_generator.py         # Summary generation logic
+│   ├── email_service.py             # Email sending logic
+│   ├── scheduler.py                 # Task scheduling logic
+│   ├── channels_repository.py       # Data access for channels
+│   ├── digests_repository.py        # Data access for digests
+│   ├── database.py                  # Database access
+│   ├── channel_reader.py            # RSS feed reader
+│   ├── logger.py                    # Logger
+│   └── settings.py                  # Load and save settings
+│
+├── templates/                       # Jinja2 templates for web UI
+│   ├── base.html
+│   ├── channels.html
+│   ├── settings.html
+│   ├── digest_history.html
+│   └── digest_page.html
+│
+├── static/                          # Static files (CSS, images, etc.)
+│   ├── css/
+│   │   └── style.css
+│   └── images/
+│       └── logo.png
+│
+├── tests/                           # Test cases using pytest
+│   ├── __init__.py
+│   ├── test_api.py
+│   ├── test_services.py
+│   └── test_repositories.py
+│
+├── Dockerfile                       # Docker build configuration
+├── docker-compose.yml               # Docker Compose setup
+├── requirements.txt                 # Python package dependencies
+├── main.py                          # Entry point for the application
+├── README.md                        # Project documentation
+└── prompting.md                     # Additional documentation
+```

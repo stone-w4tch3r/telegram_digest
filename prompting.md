@@ -92,3 +92,25 @@ I have created a draft of contracts of an application.
 //draft contracts goes here
 
 Finish the contracts. If you have significant improvements, add them.
+
+---
+
+# 5. Implementation - project structure
+
+Look at the description of an application that I am building:
+
+//readme and architecture goes here
+
+Create a project structure for the application. Do not create any files, just structure.
+
+---
+
+# 6. Implementation - files creation
+
+Look at the description of an application that I am building:
+
+//readme and architecture goes here
+
+Create api.py, web_ui.py, models.py, summary_generator.py Use separate code blocks for each file.
+
+Do not be lazy, write all the required code, do not leave any TODOs.

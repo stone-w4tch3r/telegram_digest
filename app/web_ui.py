@@ -1,18 +1,19 @@
-from fastapi import Request, Form
+from fastapi import Request, Form, APIRouter
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from typing import List
 import httpx
 
 from .models import Channel, Settings, DigestPreview, Digest
-from .api import app
+
+# Create router instead of app
+router = APIRouter()
 
 # Setup templates
 templates = Jinja2Templates(directory="templates")
-app.mount("/static", StaticFiles(directory="static"), name="static")
 
-@app.get("/", response_class=HTMLResponse)
+@router.get("/", response_class=HTMLResponse)
 async def home(request: Request):
     """Render the home page."""
     async with httpx.AsyncClient() as client:
@@ -28,7 +29,7 @@ async def home(request: Request):
         }
     )
 
-@app.get("/settings", response_class=HTMLResponse)
+@router.get("/settings", response_class=HTMLResponse)
 async def settings_page(request: Request):
     """Render the settings page."""
     async with httpx.AsyncClient() as client:
@@ -44,7 +45,7 @@ async def settings_page(request: Request):
         }
     )
 
-@app.get("/history", response_class=HTMLResponse)
+@router.get("/history", response_class=HTMLResponse)
 async def digest_history(request: Request):
     """Render the digest history page."""
     async with httpx.AsyncClient() as client:
@@ -60,7 +61,7 @@ async def digest_history(request: Request):
         }
     )
 
-@app.get("/digest/{digest_id}", response_class=HTMLResponse)
+@router.get("/digest/{digest_id}", response_class=HTMLResponse)
 async def digest_page(request: Request, digest_id: str):
     """Render a specific digest page."""
     async with httpx.AsyncClient() as client:
@@ -84,7 +85,7 @@ async def digest_page(request: Request, digest_id: str):
         }
     )
 
-@app.post("/channels/add")
+@router.post("/channels/add")
 async def add_channel_form(
     request: Request,
     channel_name: str = Form(...),
@@ -111,7 +112,7 @@ async def add_channel_form(
 
     return RedirectResponse(url="/", status_code=303)
 
-@app.post("/settings/update")
+@router.post("/settings/update")
 async def update_settings_form(
     request: Request,
     openai_api_key: str = Form(...),

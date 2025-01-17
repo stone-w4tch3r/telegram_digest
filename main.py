@@ -7,8 +7,8 @@ import logging
 import sys
 from datetime import datetime
 
-from app.api import app as api_router
-from app.web_ui import app as web_router
+from app.api import router as api_router
+from app.web_ui import router as web_router
 from app.logger import LoggerSetup
 from app.settings import SettingsManager
 from app.scheduler import Scheduler
@@ -20,6 +20,14 @@ app = FastAPI(
     description="A service that creates daily digests from Telegram channels",
     version="1.0.0"
 )
+app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
 
 def setup_logging():
     """Setup application logging."""
@@ -37,16 +45,6 @@ def setup_static_files():
     static_dir = Path("static")
     static_dir.mkdir(exist_ok=True)
     app.mount("/static", StaticFiles(directory="static"), name="static")
-
-def setup_middleware():
-    """Setup CORS and other middleware."""
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=["*"],
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
 
 def setup_routes():
     """Setup application routes."""
@@ -79,7 +77,6 @@ def initialize_application():
     logging.info("Starting Telegram Digest application")
 
     setup_static_files()
-    setup_middleware()
     setup_routes()
     setup_database()
     setup_scheduler()

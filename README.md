@@ -250,6 +250,7 @@ telegram_digest/
 │   ├── css/
 │   │   └── style.css
 │   └── images/
+│       ├── logo.svg
 │       └── logo.png
 │
 ├── tests/                           # Test cases using pytest

@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends
 from fastapi.responses import JSONResponse
 from typing import List
 from datetime import datetime, timedelta
@@ -15,7 +15,7 @@ from .summary_generator import SummaryGenerator
 from .email_service import EmailSender
 from .channel_reader import ChannelReader
 
-app = FastAPI(title="Telegram Digest API")
+router = APIRouter()
 
 # Dependencies
 def get_channels_repo():
@@ -27,11 +27,11 @@ def get_digests_repo():
 def get_settings():
     return SettingsManager().load_settings()
 
-@app.get("/api/channels", response_model=List[Channel])
+@router.get("/channels", response_model=List[Channel])
 async def get_channels(repo: ChannelsRepository = Depends(get_channels_repo)):
     return repo.get_channels()
 
-@app.post("/api/channels", response_model=APIResponse)
+@router.post("/channels", response_model=APIResponse)
 async def add_channel(
     channel: Channel,
     repo: ChannelsRepository = Depends(get_channels_repo)
@@ -46,7 +46,7 @@ async def add_channel(
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@app.delete("/api/channels/{channel_id}", response_model=APIResponse)
+@router.delete("/channels/{channel_id}", response_model=APIResponse)
 async def remove_channel(
     channel_id: UUID,
     repo: ChannelsRepository = Depends(get_channels_repo)
@@ -60,11 +60,11 @@ async def remove_channel(
     except Exception as e:
         raise HTTPException(status_code=404, detail=str(e))
 
-@app.get("/api/settings", response_model=Settings)
+@router.get("/settings", response_model=Settings)
 async def get_settings_endpoint(settings: Settings = Depends(get_settings)):
     return settings
 
-@app.post("/api/settings", response_model=APIResponse)
+@router.post("/settings", response_model=APIResponse)
 async def update_settings(settings: Settings):
     try:
         SettingsManager().save_settings(settings)
@@ -75,7 +75,7 @@ async def update_settings(settings: Settings):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@app.get("/api/digests", response_model=List[DigestPreview])
+@router.get("/digests", response_model=List[DigestPreview])
 async def get_digest_history(
     days: int = 7,
     repo: DigestsRepository = Depends(get_digests_repo)
@@ -83,7 +83,7 @@ async def get_digest_history(
     from_date = datetime.utcnow() - timedelta(days=days)
     return repo.get_digests(from_date, datetime.utcnow())
 
-@app.get("/api/digests/{digest_id}", response_model=Digest)
+@router.get("/digests/{digest_id}", response_model=Digest)
 async def get_digest(
     digest_id: UUID,
     repo: DigestsRepository = Depends(get_digests_repo)
@@ -93,7 +93,7 @@ async def get_digest(
         raise HTTPException(status_code=404, detail="Digest not found")
     return digest
 
-@app.post("/api/digests/generate", response_model=Digest)
+@router.post("/digests/generate", response_model=Digest)
 async def generate_digest(
     channel_id: UUID,
     settings: Settings = Depends(get_settings)
@@ -124,7 +124,7 @@ async def generate_digest(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.post("/api/digests/{digest_id}/send", response_model=APIResponse)
+@router.post("/digests/{digest_id}/send", response_model=APIResponse)
 async def send_digest(
     digest_id: UUID,
     settings: Settings = Depends(get_settings)

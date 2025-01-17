@@ -1,7 +1,19 @@
 {
     "cSpell.words": [
+        "aiofiles",
+        "asyncio",
+        "beautifulsoup",
+        "dateutil",
+        "fastapi",
+        "feedparser",
+        "httpx",
         "mypy",
         "Pydantic",
-        "pytest"
+        "pytest",
+        "pytz",
+        "rsshub",
+        "smtplib",
+        "structlog",
+        "uvicorn"
     ]
 }

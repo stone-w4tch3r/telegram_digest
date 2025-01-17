@@ -114,3 +114,46 @@ Look at the description of an application that I am building:
 Create api.py, web_ui.py, models.py, summary_generator.py Use separate code blocks for each file.
 
 Do not be lazy, write all the required code, do not leave any TODOs.
+
+---
+
+# 7. Implementation - files creation 2
+
+Create email_service.py, scheduler.py, channels_repository.py, digests_repository.py.
+Do not be lazy, write all the required code, do not leave any TODOs.
+
+---
+
+# 8. Implementation - files creation 3
+
+Create database.py, channel_reader.py, logger.py, settings.py.
+
+Do not be lazy, write all the required code, do not leave any TODOs.
+
+---
+
+# 9. Implementation - files creation 4
+
+Cool! Now let's create html templates for the web UI.
+
+First create base.html, channels.html and style.css.
+
+Look at api.py and web_ui.py to understand how to create templates.
+
+---
+
+# 10. Implementation - files creation 5
+
+Yes, create digest_history.html, settings.html and digest_page.html.
+
+Look at api.py and web_ui.py to understand how to create templates.
+
+---
+
+# 11. Implementation - logo
+
+Look at description of an application that I am building:
+
+//readme goes here
+
+Create a simple svg logo for it. Give me three different versions, describe them.

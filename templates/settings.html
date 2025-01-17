@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}Settings - Telegram Digest{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">Settings</h2>
+    </div>
+
+    <form action="/settings/update" method="POST" class="settings-form">
+        <div class="settings-section">
+            <h3>API Settings</h3>
+            <div class="form-group">
+                <label for="openai_api_key">OpenAI API Key</label>
+                <input 
+                    type="password" 
+                    id="openai_api_key" 
+                    name="openai_api_key" 
+                    value="{{ settings.openai_api_key }}"
+                    required
+                >
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <h3>Email Settings</h3>
+            <div class="form-group">
+                <label for="email_from">From Email</label>
+                <input 
+                    type="email" 
+                    id="email_from" 
+                    name="email_from" 
+                    value="{{ settings.email_from }}"
+                    required
+                >
+            </div>
+            <div class="form-group">
+                <label for="email_to">To Email</label>
+                <input 
+                    type="email" 
+                    id="email_to" 
+                    name="email_to" 
+                    value="{{ settings.email_to }}"
+                    required
+                >
+            </div>
+            <div class="form-group">
+                <label for="email_password">Email Password</label>
+                <input 
+                    type="password" 
+                    id="email_password" 
+                    name="email_password" 
+                    value="{{ settings.email_password }}"
+                    required
+                >
+            </div>
+            <div class="form-group">
+                <label for="email_server">SMTP Server</label>
+                <input 
+                    type="text" 
+                    id="email_server" 
+                    name="email_server" 
+                    value="{{ settings.email_server }}"
+                    required
+                >
+            </div>
+            <div class="form-group">
+                <label for="email_port">SMTP Port</label>
+                <input 
+                    type="number" 
+                    id="email_port" 
+                    name="email_port" 
+                    value="{{ settings.email_port }}"
+                    required
+                    min="1"
+                    max="65535"
+                >
+            </div>
+        </div>
+
+        <div class="settings-section">
+            <h3>Schedule Settings</h3>
+            <div class="form-group">
+                <label for="digest_schedule_hour">Daily Digest Hour (0-23)</label>
+                <input 
+                    type="number" 
+                    id="digest_schedule_hour" 
+                    name="digest_schedule_hour" 
+                    value="{{ settings.digest_schedule_hour }}"
+                    required
+                    min="0"
+                    max="23"
+                >
+            </div>
+            <div class="form-group">
+                <label for="digest_schedule_minute">Daily Digest Minute (0-59)</label>
+                <input 
+                    type="number" 
+                    id="digest_schedule_minute" 
+                    name="digest_schedule_minute" 
+                    value="{{ settings.digest_schedule_minute }}"
+                    required
+                    min="0"
+                    max="59"
+                >
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Save Settings</button>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .settings-section {
+        margin-bottom: 2rem;
+        padding-bottom: 2rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .settings-section:last-child {
+        border-bottom: none;
+    }
+
+    .settings-section h3 {
+        margin-bottom: 1rem;
+        color: var(--primary-color);
+    }
+</style>
+{% endblock %}

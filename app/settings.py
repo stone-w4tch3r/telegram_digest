@@ -1,40 +1,41 @@
 import json
-from pathlib import Path
-from typing import Optional
 import logging
-from pydantic import ValidationError
+from pathlib import Path
 
 from .models import Settings
 
+SETTINGS_FILE = "runtime/settings.json"
+
 logger = logging.getLogger(__name__)
 
+
 class SettingsManager:
-    def __init__(self, settings_file: str = "settings.json"):
+    def __init__(self, settings_file: str = SETTINGS_FILE):
         self.settings_file = settings_file
         self.settings_path = Path(settings_file)
 
     def load_settings(self) -> Settings:
         """
         Load settings from JSON file.
-        If file doesn't exist or is invalid, return default settings.
+        Raises FileNotFoundError if settings file doesn't exist.
+        Raises ValidationError if settings are invalid.
         """
         try:
-            if self.settings_path.exists():
-                with open(self.settings_path, 'r') as f:
-                    data = json.load(f)
-                    return Settings(**data)
-            else:
-                logger.warning(
+            if not self.settings_path.exists():
+                raise FileNotFoundError(
                     f"Settings file not found: {self.settings_file}"
                 )
-                return self._create_default_settings()
 
-        except ValidationError as e:
-            logger.error(f"Invalid settings format: {str(e)}")
-            return self._create_default_settings()
+            with open(self.settings_path, "r") as f:
+                data = json.load(f)
+                return Settings(**data)
+
+        except json.JSONDecodeError as e:
+            logger.error(f"Invalid JSON in settings file: {str(e)}")
+            raise
         except Exception as e:
             logger.error(f"Failed to load settings: {str(e)}")
-            return self._create_default_settings()
+            raise
 
     def save_settings(self, settings: Settings) -> None:
         """Save settings to JSON file."""
@@ -43,7 +44,7 @@ class SettingsManager:
             self.settings_path.parent.mkdir(parents=True, exist_ok=True)
 
             # Save settings
-            with open(self.settings_path, 'w') as f:
+            with open(self.settings_path, "w") as f:
                 json.dump(settings.dict(), f, indent=4)
 
             logger.info("Settings saved successfully")
@@ -51,26 +52,6 @@ class SettingsManager:
         except Exception as e:
             logger.error(f"Failed to save settings: {str(e)}")
             raise
-
-    def _create_default_settings(self) -> Settings:
-        """Create default settings."""
-        settings = Settings(
-            openai_api_key="",
-            email_from="",
-            email_to="",
-            email_password="",
-            email_server="smtp.gmail.com",
-            email_port=587,
-            digest_schedule_hour=8,
-            digest_schedule_minute=0
-        )
-
-        try:
-            self.save_settings(settings)
-        except Exception:
-            pass
-
-        return settings
 
     def update_settings(self, **kwargs) -> Settings:
         """

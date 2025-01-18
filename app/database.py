@@ -1,16 +1,17 @@
+import logging
 import sqlite3
 from contextlib import contextmanager
-from typing import Type, List, Any, Dict, Optional
 from datetime import datetime
-import json
-import logging
+from typing import Any, List, Optional, Type
 from uuid import UUID
-from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
+DATABASE_FILE = "runtime/telegram_digest.db"
+
+
 class Database:
-    def __init__(self, db_path: str = "telegram_digest.db"):
+    def __init__(self, db_path: str = DATABASE_FILE):
         self.db_path = db_path
         self._init_db()
 
@@ -30,27 +31,32 @@ class Database:
             cursor = conn.cursor()
 
             # Create channels table
-            cursor.execute("""
+            cursor.execute(
+                """
                 CREATE TABLE IF NOT EXISTS channels (
                     id TEXT PRIMARY KEY,
                     name TEXT UNIQUE NOT NULL,
                     url TEXT NOT NULL,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
-            """)
+            """
+            )
 
             # Create digests table
-            cursor.execute("""
+            cursor.execute(
+                """
                 CREATE TABLE IF NOT EXISTS digests (
                     id TEXT PRIMARY KEY,
                     channel_id TEXT NOT NULL,
                     created_date TIMESTAMP NOT NULL,
                     FOREIGN KEY (channel_id) REFERENCES channels (id)
                 )
-            """)
+            """
+            )
 
             # Create post_summaries table
-            cursor.execute("""
+            cursor.execute(
+                """
                 CREATE TABLE IF NOT EXISTS post_summaries (
                     id TEXT PRIMARY KEY,
                     digest_id TEXT NOT NULL,
@@ -59,15 +65,18 @@ class Database:
                     usefulness INTEGER NOT NULL,
                     FOREIGN KEY (digest_id) REFERENCES digests (id)
                 )
-            """)
+            """
+            )
 
             # Create settings table
-            cursor.execute("""
+            cursor.execute(
+                """
                 CREATE TABLE IF NOT EXISTS settings (
                     key TEXT PRIMARY KEY,
                     value TEXT NOT NULL
                 )
-            """)
+            """
+            )
 
             conn.commit()
 
@@ -79,13 +88,13 @@ class Database:
 
                 # Convert object to dictionary
                 data = obj.dict()
-                table_name = obj.__class__.__name__.lower() + 's'
+                table_name = obj.__class__.__name__.lower() + "s"
 
                 # Prepare SQL statement
-                fields = ', '.join(data.keys())
-                placeholders = ', '.join(['?' for _ in data])
+                fields = ", ".join(data.keys())
+                placeholders = ", ".join(["?" for _ in data])
                 values = tuple(
-                    str(v) if isinstance(v, (UUID, datetime)) else v 
+                    str(v) if isinstance(v, (UUID, datetime)) else v
                     for v in data.values()
                 )
 
@@ -109,11 +118,8 @@ class Database:
             with self._get_connection() as conn:
                 cursor = conn.cursor()
 
-                table_name = cls.__name__.lower() + 's'
-                cursor.execute(
-                    f"SELECT * FROM {table_name} WHERE id = ?",
-                    (obj_id,)
-                )
+                table_name = cls.__name__.lower() + "s"
+                cursor.execute(f"SELECT * FROM {table_name} WHERE id = ?", (obj_id,))
 
                 row = cursor.fetchone()
                 if row:
@@ -130,21 +136,23 @@ class Database:
             with self._get_connection() as conn:
                 cursor = conn.cursor()
 
-                table_name = cls.__name__.lower() + 's'
+                table_name = cls.__name__.lower() + "s"
 
                 # Build WHERE clause
                 where_clauses = []
                 values = []
                 for key, value in kwargs.items():
-                    if '_gte' in key:
-                        field = key.replace('_gte', '')
+                    if "_gte" in key:
+                        field = key.replace("_gte", "")
                         where_clauses.append(f"{field} >= ?")
-                    elif '_lte' in key:
-                        field = key.replace('_lte', '')
+                    elif "_lte" in key:
+                        field = key.replace("_lte", "")
                         where_clauses.append(f"{field} <= ?")
                     else:
                         where_clauses.append(f"{key} = ?")
-                    values.append(str(value) if isinstance(value, (UUID, datetime)) else value)
+                    values.append(
+                        str(value) if isinstance(value, (UUID, datetime)) else value
+                    )
 
                 where_sql = " AND ".join(where_clauses) if where_clauses else "1=1"
 
@@ -163,11 +171,8 @@ class Database:
             with self._get_connection() as conn:
                 cursor = conn.cursor()
 
-                table_name = cls.__name__.lower() + 's'
-                cursor.execute(
-                    f"DELETE FROM {table_name} WHERE id = ?",
-                    (obj_id,)
-                )
+                table_name = cls.__name__.lower() + "s"
+                cursor.execute(f"DELETE FROM {table_name} WHERE id = ?", (obj_id,))
                 conn.commit()
 
                 logger.debug(f"Deleted {table_name[:-1]}: {obj_id}")

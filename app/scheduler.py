@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime, timedelta
 
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
@@ -6,7 +7,6 @@ from apscheduler.triggers.cron import CronTrigger
 from .channel_reader import ChannelReader
 from .channels_repository import ChannelsRepository
 from .digest_service import DigestService
-from .digests_repository import DigestsRepository
 from .email_sender import EmailSender
 from .models import Settings
 
@@ -17,7 +17,7 @@ class Scheduler:
     def __init__(self) -> None:
         self.scheduler = BackgroundScheduler()
         self.channels_repo = ChannelsRepository()
-        self.digests_repo = DigestsRepository()
+        self.digest_service = DigestService()
         self.channel_reader = ChannelReader()
         self.email_sender = EmailSender()
 
@@ -59,27 +59,27 @@ class Scheduler:
             raise
 
     async def _generate_and_send_digests(self, settings: Settings) -> None:
-        """Generate and send digests for all channels."""
+        """Generate and send digest containing summaries from all channels."""
         try:
-            channels = self.channels_repo.get_channels()
-            digest_service = DigestService()
+            # TODO: 00:00 bugs
+            digest_date_time = datetime.now().replace(
+                hour=settings.digest_schedule_hour,
+                minute=settings.digest_schedule_minute,
+                second=0,
+                microsecond=0,
+            )
+            # Generate single digest for all channels
+            digest = await self.digest_service.generate_digest(
+                settings,
+                from_date=digest_date_time - timedelta(days=1),
+                to_date=digest_date_time,
+            )
 
-            for channel in channels:
-                try:
-                    # Generate digest
-                    digest = await digest_service.generate_digest(channel.id, settings)
+            # Send email
+            self.digest_service.send_digest(digest.id, settings)
 
-                    # Send email
-                    digest_service.send_digest(digest.id, settings)
-
-                    logger.info(
-                        f"Successfully generated and sent digest for channel: {channel.name}"
-                    )
-
-                except Exception as e:
-                    logger.error(f"Failed to process channel {channel.name}: {str(e)}")
-                    continue
+            logger.info("Successfully generated and sent digest")
 
         except Exception as e:
-            logger.error(f"Failed to generate and send digests: {str(e)}")
+            logger.error(f"Failed to generate and send digest: {str(e)}")
             raise

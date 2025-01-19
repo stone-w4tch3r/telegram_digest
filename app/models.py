@@ -30,6 +30,7 @@ class PostSummary(BaseModel):
     id: UUID = Field(default_factory=uuid4)
     summary: str
     usefulness: int
+    channel_id: UUID
     post_id: UUID
 
     @validator("usefulness")
@@ -43,7 +44,6 @@ class Digest(BaseModel):
     id: UUID = Field(default_factory=uuid4)
     created_date: datetime = Field(default_factory=datetime.utcnow)
     summaries: List[PostSummary]
-    channel_id: UUID
 
 
 class Settings(BaseModel):
@@ -53,8 +53,8 @@ class Settings(BaseModel):
     email_password: str
     email_server: str
     email_port: int = Field(ge=1, le=65535)
-    digest_schedule_hour: int = Field(ge=0, le=23, default=8)
-    digest_schedule_minute: int = Field(ge=0, le=59, default=0)
+    digest_schedule_hour: int = Field(ge=0, le=23)
+    digest_schedule_minute: int = Field(ge=0, le=59)
 
 
 class ChannelMetadata(BaseModel):
@@ -66,7 +66,6 @@ class ChannelMetadata(BaseModel):
 class DigestPreview(BaseModel):
     id: UUID
     created_date: datetime
-    channel_name: str
     summary_count: int
 
 

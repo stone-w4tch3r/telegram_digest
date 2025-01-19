@@ -3,6 +3,7 @@ from datetime import datetime
 from uuid import UUID
 
 from .channel_reader import ChannelReader
+from .channels_repository import ChannelsRepository
 from .digests_repository import DigestsRepository
 from .email_sender import EmailSender
 from .models import Digest, Settings
@@ -16,33 +17,44 @@ class DigestService:
         self.channel_reader = ChannelReader()
         self.digests_repo = DigestsRepository()
         self.email_sender = EmailSender()
+        self.channels_repo = ChannelsRepository()
 
-    async def generate_digest(self, channel_id: UUID, settings: Settings) -> Digest:
-        """Generate a digest for a specific channel."""
+    async def generate_digest(
+        self,
+        settings: Settings,
+        from_date: datetime,
+        to_date: datetime,
+    ) -> Digest:
+        """Generate a digest containing summaries from all channels."""
         try:
             summary_generator = SummaryGenerator(settings.openai_api_key)
+            channels = self.channels_repo.get_channels()
+            all_summaries = []
 
-            # Get posts
-            posts = await self.channel_reader.get_channel_posts(
-                channel_id, datetime.utcnow()
-            )
+            # Get posts and generate summaries for each channel
+            for channel in channels:
+                try:
+                    posts = await self.channel_reader.get_channel_posts(
+                        channel.id, from_date, to_date
+                    )
 
-            # Generate summaries
-            summaries = []
-            for post in posts:
-                summary = summary_generator.generate_summary(post)
-                summaries.append(summary)
+                    # Generate summaries for this channel's posts
+                    for post in posts:
+                        summary = summary_generator.generate_summary(post)
+                        all_summaries.append(summary)
 
-            # Create and save digest
-            digest = Digest(channel_id=channel_id, summaries=summaries)
+                except Exception as e:
+                    logger.error(f"Failed to process channel {channel.name}: {str(e)}")
+                    continue
+
+            # Create and save digest with all summaries
+            digest = Digest(summaries=all_summaries)
             self.digests_repo.add_digest(digest)
 
             return digest
 
         except Exception as e:
-            logger.error(
-                f"Failed to generate digest for channel {channel_id}: {str(e)}"
-            )
+            logger.error(f"Failed to generate digest: {str(e)}")
             raise
 
     def send_digest(self, digest_id: UUID, settings: Settings) -> None:

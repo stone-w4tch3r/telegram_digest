@@ -50,7 +50,7 @@ async def add_channel(
             data={"channel_id": str(channel.id)},
         )
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.delete("/channels/{channel_id}", response_model=APIResponse)
@@ -61,7 +61,7 @@ async def remove_channel(
         repo.remove_channel(channel_id)
         return APIResponse(success=True, message="Channel removed successfully")
     except Exception as e:
-        raise HTTPException(status_code=404, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.get("/settings", response_model=Settings)
@@ -127,11 +127,15 @@ async def get_digest(
 
 @router.post("/digests/generate", response_model=Digest)
 async def generate_digest(
-    channel_id: UUID, settings: Settings = Depends(get_settings_manager)
+    from_date: datetime,
+    to_date: datetime,
+    settings_manager: SettingsManager = Depends(get_settings_manager),
+    digest_service: DigestService = Depends(get_digest_service),
 ) -> Digest:
     try:
-        digest_generator = DigestService()
-        digest = await digest_generator.generate_digest(channel_id, settings)
+        digest = await digest_service.generate_digest(
+            settings_manager.load_settings(), from_date, to_date
+        )
         return digest
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

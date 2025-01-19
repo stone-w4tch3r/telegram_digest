@@ -130,7 +130,7 @@ async def generate_digest(
         summary_generator = SummaryGenerator(settings.openai_api_key)
 
         # Get posts
-        posts = channel_reader.get_channel_posts(channel_id, datetime.utcnow())
+        posts = await channel_reader.get_channel_posts(channel_id, datetime.utcnow())
 
         # Generate summaries
         summaries = []

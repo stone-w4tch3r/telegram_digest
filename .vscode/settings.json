@@ -8,12 +8,14 @@
         "feedparser",
         "httpx",
         "mypy",
+        "pycache",
         "Pydantic",
         "pytest",
         "pytz",
         "rsshub",
         "smtplib",
         "structlog",
-        "uvicorn"
+        "uvicorn",
+        "venv"
     ]
 }

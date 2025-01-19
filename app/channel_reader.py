@@ -1,25 +1,23 @@
-import feedparser
+import logging
 from datetime import datetime
 from typing import List
-import httpx
 from urllib.parse import urljoin
-import logging
 from uuid import UUID
+
+import feedparser
+import httpx
 
 from .models import Channel, Post
 
 logger = logging.getLogger(__name__)
+
 
 class ChannelReader:
     def __init__(self, rsshub_base_url: str = "https://rsshub.app"):
         self.rsshub_base_url = rsshub_base_url
         self.logger = logging.getLogger(__name__)
 
-    async def get_channel_posts(
-        self,
-        channel_id: UUID,
-        since: datetime
-    ) -> List[Post]:
+    async def get_channel_posts(self, channel_id: UUID, since: datetime) -> List[Post]:
         """
         Fetch posts from a Telegram channel via RSS feed.
         Returns posts newer than the specified datetime.
@@ -44,27 +42,20 @@ class ChannelReader:
                             title=entry.title,
                             content=entry.description,
                             published_date=published_date,
-                            channel_id=channel_id
+                            channel_id=channel_id,
                         )
                         posts.append(post)
 
-                logger.info(
-                    f"Retrieved {len(posts)} posts from channel {channel.name}"
-                )
+                logger.info(f"Retrieved {len(posts)} posts from channel {channel.name}")
                 return posts
 
         except Exception as e:
-            logger.error(
-                f"Failed to get posts for channel {channel_id}: {str(e)}"
-            )
+            logger.error(f"Failed to get posts for channel {channel_id}: {str(e)}")
             raise
 
     def _build_feed_url(self, channel_name: str) -> str:
         """Build RSS feed URL for a Telegram channel."""
-        return urljoin(
-            self.rsshub_base_url,
-            f"/telegram/channel/{channel_name}"
-        )
+        return urljoin(self.rsshub_base_url, f"/telegram/channel/{channel_name}")
 
     def _parse_date(self, date_str: str) -> datetime:
         """Parse date string from RSS feed."""

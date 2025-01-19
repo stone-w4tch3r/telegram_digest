@@ -1,6 +1,7 @@
 {
     "cSpell.words": [
         "aiofiles",
+        "apscheduler",
         "asyncio",
         "beautifulsoup",
         "dateutil",

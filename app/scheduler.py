@@ -1,28 +1,27 @@
+import logging
+
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
-from datetime import datetime
-import logging
-from typing import List
-from uuid import UUID
 
-from .models import Settings, Channel, Digest
-from .channels_repository import ChannelsRepository
-from .digests_repository import DigestsRepository
 from .channel_reader import ChannelReader
-from .summary_generator import SummaryGenerator
-from .email_service import EmailSender
+from .channels_repository import ChannelsRepository
+from .digest_service import DigestService
+from .digests_repository import DigestsRepository
+from .email_sender import EmailSender
+from .models import Settings
 
 logger = logging.getLogger(__name__)
 
+
 class Scheduler:
-    def __init__(self):
+    def __init__(self) -> None:
         self.scheduler = BackgroundScheduler()
         self.channels_repo = ChannelsRepository()
         self.digests_repo = DigestsRepository()
         self.channel_reader = ChannelReader()
         self.email_sender = EmailSender()
 
-    def start(self, settings: Settings):
+    def start(self, settings: Settings) -> None:
         """Start the scheduler with the given settings."""
         try:
             # Remove existing jobs
@@ -33,12 +32,12 @@ class Scheduler:
                 self._generate_and_send_digests,
                 CronTrigger(
                     hour=settings.digest_schedule_hour,
-                    minute=settings.digest_schedule_minute
+                    minute=settings.digest_schedule_minute,
                 ),
                 args=[settings],
-                id='digest_job',
-                name='Generate and send digests',
-                replace_existing=True
+                id="digest_job",
+                name="Generate and send digests",
+                replace_existing=True,
             )
 
             if not self.scheduler.running:
@@ -49,7 +48,7 @@ class Scheduler:
             logger.error(f"Failed to start scheduler: {str(e)}")
             raise
 
-    def stop(self):
+    def stop(self) -> None:
         """Stop the scheduler."""
         try:
             if self.scheduler.running:
@@ -59,37 +58,23 @@ class Scheduler:
             logger.error(f"Failed to stop scheduler: {str(e)}")
             raise
 
-    async def _generate_and_send_digests(self, settings: Settings):
+    async def _generate_and_send_digests(self, settings: Settings) -> None:
         """Generate and send digests for all channels."""
         try:
             channels = self.channels_repo.get_channels()
-            summary_generator = SummaryGenerator(settings.openai_api_key)
+            digest_service = DigestService()
 
             for channel in channels:
                 try:
                     # Generate digest
-                    posts = self.channel_reader.get_channel_posts(
-                        channel.id,
-                        datetime.utcnow()
-                    )
-
-                    summaries = []
-                    for post in posts:
-                        summary = summary_generator.generate_summary(post)
-                        summaries.append(summary)
-
-                    digest = Digest(
-                        channel_id=channel.id,
-                        summaries=summaries
-                    )
-
-                    # Save digest
-                    self.digests_repo.add_digest(digest)
+                    digest = await digest_service.generate_digest(channel.id, settings)
 
                     # Send email
-                    self.email_sender.send_digest(digest, settings)
+                    digest_service.send_digest(digest.id, settings)
 
-                    logger.info(f"Successfully generated and sent digest for channel: {channel.name}")
+                    logger.info(
+                        f"Successfully generated and sent digest for channel: {channel.name}"
+                    )
 
                 except Exception as e:
                     logger.error(f"Failed to process channel {channel.name}: {str(e)}")

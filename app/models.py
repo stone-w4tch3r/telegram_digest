@@ -1,18 +1,21 @@
 from datetime import datetime
 from typing import List, Optional
-from pydantic import BaseModel, Field, EmailStr, HttpUrl, validator
 from uuid import UUID, uuid4
+
+from pydantic import BaseModel, EmailStr, Field, HttpUrl, validator
+
 
 class Channel(BaseModel):
     id: UUID = Field(default_factory=uuid4)
     name: str
     url: HttpUrl
 
-    @validator('name')
-    def name_must_be_valid(cls, v):
+    @validator("name")
+    def name_must_be_valid(cls, v: str) -> str:
         if not v or len(v) < 3:
-            raise ValueError('Channel name must be at least 3 characters')
+            raise ValueError("Channel name must be at least 3 characters")
         return v
+
 
 class Post(BaseModel):
     id: UUID = Field(default_factory=uuid4)
@@ -22,23 +25,26 @@ class Post(BaseModel):
     published_date: datetime
     channel_id: UUID
 
+
 class PostSummary(BaseModel):
     id: UUID = Field(default_factory=uuid4)
     summary: str
     usefulness: int
     post_id: UUID
 
-    @validator('usefulness')
-    def usefulness_range(cls, v):
+    @validator("usefulness")
+    def usefulness_range(cls, v: int) -> int:
         if not 0 <= v <= 10:
-            raise ValueError('Usefulness must be between 0 and 10')
+            raise ValueError("Usefulness must be between 0 and 10")
         return v
+
 
 class Digest(BaseModel):
     id: UUID = Field(default_factory=uuid4)
     created_date: datetime = Field(default_factory=datetime.utcnow)
     summaries: List[PostSummary]
     channel_id: UUID
+
 
 class Settings(BaseModel):
     openai_api_key: str
@@ -50,16 +56,19 @@ class Settings(BaseModel):
     digest_schedule_hour: int = Field(ge=0, le=23, default=8)
     digest_schedule_minute: int = Field(ge=0, le=59, default=0)
 
+
 class ChannelMetadata(BaseModel):
     id: UUID
     img_url: Optional[HttpUrl]
     description: Optional[str]
+
 
 class DigestPreview(BaseModel):
     id: UUID
     created_date: datetime
     channel_name: str
     summary_count: int
+
 
 class APIResponse(BaseModel):
     success: bool

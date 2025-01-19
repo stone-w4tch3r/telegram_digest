@@ -30,7 +30,7 @@ app.add_middleware(
 )
 
 
-def setup_logging():
+def setup_logging() -> None:
     """Setup application logging."""
     log_dir = Path("logs")
     log_dir.mkdir(exist_ok=True)
@@ -39,20 +39,20 @@ def setup_logging():
     LoggerSetup.setup_logger(log_file=str(log_file), log_level=logging.INFO)
 
 
-def setup_static_files():
+def setup_static_files() -> None:
     """Setup static files serving."""
     static_dir = Path("static")
     static_dir.mkdir(exist_ok=True)
     app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
-def setup_routes():
+def setup_routes() -> None:
     """Setup application routes."""
     app.include_router(api_router, prefix="/api")
     app.include_router(web_router)
 
 
-def setup_database():
+def setup_database() -> None:
     """Initialize database."""
     try:
         Database()
@@ -62,7 +62,7 @@ def setup_database():
         sys.exit(1)
 
 
-def setup_scheduler():
+def setup_scheduler() -> None:
     """Setup task scheduler."""
     try:
         settings = SettingsManager().load_settings()
@@ -74,7 +74,7 @@ def setup_scheduler():
         # Continue without scheduler
 
 
-def initialize_application():
+def initialize_application() -> None:
     """Initialize all application components."""
     setup_logging()
     logging.info("Starting Telegram Digest application")
@@ -88,13 +88,13 @@ def initialize_application():
 
 
 @app.on_event("startup")
-async def startup_event():
+async def startup_event() -> None:
     """Handle application startup."""
     initialize_application()
 
 
 @app.on_event("shutdown")
-async def shutdown_event():
+async def shutdown_event() -> None:
     """Handle application shutdown."""
     logging.info("Shutting down Telegram Digest application")
     try:
@@ -107,7 +107,7 @@ async def shutdown_event():
 
 # Health check endpoint
 @app.get("/health")
-async def health_check():
+async def health_check() -> dict[str, str]:
     """Health check endpoint."""
     return {
         "status": "healthy",

@@ -1,5 +1,7 @@
+import traceback
+
 import httpx
-from fastapi import APIRouter, Form, Request
+from fastapi import APIRouter, Form, Request, Response
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 
@@ -10,12 +12,37 @@ router = APIRouter()
 templates = Jinja2Templates(directory="templates")
 
 
+def _pretty_exception(e: Exception) -> str:
+    """Pretty print an exception with pretty traceback."""
+    return f"{e.__class__.__name__}: {e}\n{traceback.format_exc()}"
+
+
+def _render_error(request: Request, errors: list[str]) -> Response:
+    """Render an error page with the given error messages."""
+    return templates.TemplateResponse(
+        "base.html",
+        {
+            "request": request,
+            "messages": [{"type": "error", "text": error} for error in errors],
+        },
+    )
+
+
+def _render_error_from_exception(request: Request, e: Exception) -> Response:
+    """Render an error page from an exception."""
+    return _render_error(request, [f"An error occurred: {_pretty_exception(e)}"])
+
+
 @router.get("/", response_class=HTMLResponse)
-async def home(request: Request):
+async def home(request: Request) -> Response:
     """Render the home page."""
-    async with httpx.AsyncClient() as client:
-        response = await client.get(f"{request.base_url}api/channels")
-        channels = response.json()
+
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(f"{request.base_url}api/channels")
+            channels = response.json()
+    except Exception as e:
+        return _render_error_from_exception(request, e)˝
 
     return templates.TemplateResponse(
         "channels.html",
@@ -24,7 +51,7 @@ async def home(request: Request):
 
 
 @router.get("/settings", response_class=HTMLResponse)
-async def settings_page(request: Request):
+async def settings_page(request: Request) -> Response:
     """Render the settings page."""
     async with httpx.AsyncClient() as client:
         response = await client.get(f"{request.base_url}api/settings")
@@ -36,7 +63,7 @@ async def settings_page(request: Request):
                 {
                     "request": request,
                     "settings": None,
-                    "error": error_data.get("detail", "Unknown error occurred"),
+                    "messages": error_data.get("detail", "Unknown error occurred"),
                     "active_page": "settings",
                 },
             )
@@ -55,7 +82,7 @@ async def settings_page(request: Request):
 
 
 @router.get("/history", response_class=HTMLResponse)
-async def digest_history(request: Request):
+async def digest_history(request: Request) -> Response:
     """Render the digest history page."""
     async with httpx.AsyncClient() as client:
         response = await client.get(f"{request.base_url}api/digests")
@@ -68,7 +95,7 @@ async def digest_history(request: Request):
 
 
 @router.get("/digest/{digest_id}", response_class=HTMLResponse)
-async def digest_page(request: Request, digest_id: str):
+async def digest_page(request: Request, digest_id: str) -> Response:
     """Render a specific digest page."""
     async with httpx.AsyncClient() as client:
         response = await client.get(f"{request.base_url}api/digests/{digest_id}")
@@ -87,7 +114,7 @@ async def digest_page(request: Request, digest_id: str):
 @router.post("/channels/add")
 async def add_channel_form(
     request: Request, channel_name: str = Form(...), channel_url: str = Form(...)
-):
+) -> Response:
     """Handle channel addition form submission."""
     async with httpx.AsyncClient() as client:
         response = await client.post(
@@ -115,7 +142,7 @@ async def update_settings_form(
     email_port: int = Form(...),
     digest_schedule_hour: int = Form(...),
     digest_schedule_minute: int = Form(...),
-):
+) -> Response:
     """Handle settings update form submission."""
     async with httpx.AsyncClient() as client:
         response = await client.post(

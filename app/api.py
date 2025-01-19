@@ -1,3 +1,4 @@
+import traceback
 from datetime import datetime, timedelta
 from typing import List
 from uuid import UUID
@@ -31,11 +32,24 @@ def get_digest_service() -> DigestService:
     return DigestService()
 
 
+def _exception_to_dict(e: Exception) -> dict:
+    return {
+        "error": {
+            "type": e.__class__.__name__,
+            "message": str(e),
+            "traceback": traceback.format_exc(),
+        }
+    }
+
+
 @router.get("/channels", response_model=List[Channel])
 async def get_channels(
     repo: ChannelsRepository = Depends(get_channels_repo),
 ) -> List[Channel]:
-    return repo.get_channels()
+    try:
+        return repo.get_channels()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=_exception_to_dict(e))
 
 
 @router.post("/channels", response_model=APIResponse)
@@ -50,7 +64,7 @@ async def add_channel(
             data={"channel_id": str(channel.id)},
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=_exception_to_dict(e))
 
 
 @router.delete("/channels/{channel_id}", response_model=APIResponse)
@@ -61,7 +75,7 @@ async def remove_channel(
         repo.remove_channel(channel_id)
         return APIResponse(success=True, message="Channel removed successfully")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=_exception_to_dict(e))
 
 
 @router.get("/settings", response_model=Settings)
@@ -112,7 +126,10 @@ async def get_digest_history(
     days: int = 7, repo: DigestsRepository = Depends(get_digests_repo)
 ) -> List[Digest]:
     from_date = datetime.utcnow() - timedelta(days=days)
-    return repo.get_digests(from_date, datetime.utcnow())
+    try:
+        return repo.get_digests(from_date, datetime.utcnow())
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=_exception_to_dict(e))
 
 
 @router.get("/digests/{digest_id}", response_model=Digest)
@@ -138,7 +155,7 @@ async def generate_digest(
         )
         return digest
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=_exception_to_dict(e))
 
 
 @router.post("/digests/{digest_id}/send", response_model=APIResponse)
@@ -151,6 +168,6 @@ async def send_digest(
         digest_service.send_digest(digest_id, settings_manager.load_settings())
         return APIResponse(success=True, message="Digest sent successfully")
     except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
+        raise HTTPException(status_code=404, detail=_exception_to_dict(e))
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=_exception_to_dict(e))

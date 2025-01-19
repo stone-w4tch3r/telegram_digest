@@ -228,8 +228,7 @@ class Database:
                 return self.connection_pool.pop()
 
             # Create new connection if pool is empty
-            db_path = Path("data/database.db")
-            connection = sqlite3.connect(str(db_path))
+            connection = sqlite3.connect(str(DATABASE_FILE))
             connection.row_factory = sqlite3.Row
             return connection
 

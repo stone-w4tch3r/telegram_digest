@@ -1,13 +1,15 @@
+# Attempt 1 (python)
+
 
 ---
 
-# 1. Initial prompt
+## 1. Initial prompt
 
-### Brief description
+#### Brief description
 
 I need to create a simple application that will create a summary digest from multiple Telegram channels and send this digest daily to my email.
 
-### Features
+#### Features
 
 - Simple web UI
   - Channels list
@@ -26,7 +28,7 @@ I need to create a simple application that will create a summary digest from mul
 - Management and deployment
   - Settings are stored in json file
 
-### Technologies
+#### Technologies
 
 - Python 13
 - FastAPI
@@ -36,7 +38,7 @@ I need to create a simple application that will create a summary digest from mul
 - RSSHub as a way to get RSS feed from Telegram channels
 - Docker Compose
 
-### Code style and practices
+#### Code style and practices
 
 - Type hints
 - Pydantic models
@@ -49,13 +51,13 @@ I need to create a simple application that will create a summary digest from mul
 - Readme and documentation
 - Feature-based directory structure
 
-### Task
+#### Task
 
 Now let's focus on high-level architecture of project. Project should be simple and time for implementation is one week. List components and their responsibilities and relations, use mermaid diagrams to visualize them.
 
 ---
 
-# 2. Contracts
+## 2. Contracts
 
 //previous response goes here
 
@@ -67,7 +69,7 @@ Based on our architecture, let's create contracts for each component. Use mermai
 
 ---
 
-# 3. Contracts restart
+## 3. Contracts restart
 
 Look at the description of an application that I am building:
 
@@ -81,7 +83,7 @@ Based on our architecture, let's create contracts for each component. Use mermai
 
 ---
 
-# 4. Contracts improvement
+## 4. Contracts improvement
 
 Look at the description of an application that I am building:
 
@@ -95,7 +97,7 @@ Finish the contracts. If you have significant improvements, add them.
 
 ---
 
-# 5. Implementation - project structure
+## 5. Implementation - project structure
 
 Look at the description of an application that I am building:
 
@@ -105,7 +107,7 @@ Create a project structure for the application. Do not create any files, just st
 
 ---
 
-# 6. Implementation - files creation
+## 6. Implementation - files creation
 
 Look at the description of an application that I am building:
 
@@ -117,14 +119,14 @@ Do not be lazy, write all the required code, do not leave any TODOs.
 
 ---
 
-# 7. Implementation - files creation 2
+## 7. Implementation - files creation 2
 
 Create email_service.py, scheduler.py, channels_repository.py, digests_repository.py.
 Do not be lazy, write all the required code, do not leave any TODOs.
 
 ---
 
-# 8. Implementation - files creation 3
+## 8. Implementation - files creation 3
 
 Create database.py, channel_reader.py, logger.py, settings.py.
 
@@ -132,7 +134,7 @@ Do not be lazy, write all the required code, do not leave any TODOs.
 
 ---
 
-# 9. Implementation - files creation 4
+## 9. Implementation - files creation 4
 
 Cool! Now let's create html templates for the web UI.
 
@@ -142,7 +144,7 @@ Look at api.py and web_ui.py to understand how to create templates.
 
 ---
 
-# 10. Implementation - files creation 5
+## 10. Implementation - files creation 5
 
 Yes, create digest_history.html, settings.html and digest_page.html.
 
@@ -150,10 +152,41 @@ Look at api.py and web_ui.py to understand how to create templates.
 
 ---
 
-# 11. Implementation - logo
+## 11. Implementation - logo
 
 Look at description of an application that I am building:
 
 //readme goes here
 
 Create a simple svg logo for it. Give me three different versions, describe them.
+
+---
+
+# Attempt 2 (C#)
+
+---
+
+## 1. Initial prompt
+
+Look at the description of an application that I am building:
+
+//readme goes here (but without contracts)
+
+It was initially planned to be implemented in Python, but I have decided to switch to C#.
+Please rewrite architecture for C#, based on provided list of technologies and approaches.
+
+---
+
+## 2. Initial prompt, attempt 2
+
+Look at the description of an application that I am building. Draw a mermaid diagram of the application architecture.
+
+//updated readme goes here (but without contracts)
+
+---
+
+## 3. Contracts
+
+Look at the description of an application that I am building. Create contracts for each component. Use mermaid class diagrams syntax. Put all into one diagram.
+
+//readme goes here

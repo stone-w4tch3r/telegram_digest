@@ -23,246 +23,226 @@ Telegram Digest is a simple application that will create a summary digest from m
 
 ### Technologies
 
-- Python 13
-- FastAPI
-- Jinja2
-- OpenAI API
-- Pydantic
+- .NET 8
+- C# 12
+- ASP.NET
+- Razor Pages
+- openai-dotnet package
+- EF Core (sqlite)
+- Swagger
 - RSSHub as a way to get RSS feed from Telegram channels
+- Built-in JSON tools
 - Docker Compose
 
 ### Code style and practices
 
-- Type hints
-- Pydantic models
-- Static analysis (mypy)
-- Linting (ruff)
-- Formatting (black)
-- Testing (pytest)
+- immutable data structures (record types)
+- Formatting (CSharpier)
+- Testing (nunit)
 - Logging
-- Error handling (global exception handlers)
+- Result pattern for error handling
+- Avoid exception-based error handling
+- Global exception handlers
 - Readme and documentation
-- Feature-based directory structure
+- Flat directory structure in each project
 - Avoiding primitive obsession
 
 ### Architecture
 
-The architecture for the Telegram digest application is designed to balance simplicity and modularity, suitable for a small project with a one-week implementation timeline. The components are grouped into services based on their functionalities and interdependencies.
+Application is split into two dotnet projects under one solution.
 
-1. **Application Service**
+1. **Application**
    - **Responsibilities:**
-     - **Web UI and API:** Provides the user interface and handles API requests.
-     - **Telegram Channel Reader:** Reads RSS feeds from Telegram channels.
-     - **Summary Generator:** Summarizes posts using the OpenAI API.
+     - **Channel Reader:** Reads RSS feeds from Telegram channels.
+     - **Summary Generator:** Summarizes posts using the dotnet openai package.
      - **Settings Manager:** Manages application settings stored in a JSON file.
      - **Scheduler:** Schedules daily digest generation and email sending.
-     - **Email Service:** Sends daily digest emails.
-     - **Logging and Error Handling:** Manages logging and error handling internally.
+     - **Email Sender:** Sends daily digest emails.
+     - **Digests Service:** Creates/reads/writes digests/summaries/posts and uses other services to do so.
+     - **Database** Stores summaries, channels list, digest history.
+     - **Main Service** Coordinates all services and contains business logic.
+     - **Public Facade** Serves as dotnet-level API for other dotnet projects.
    - **Technologies:**
-     - FastAPI for API and Web UI.
-     - Pydantic for data modeling.
-     - OpenAI API for summarization.
-     - APScheduler for scheduling tasks.
+     - dotnet openai package for summarization.
      - SMTP client for email sending.
-     - SQLAlchemy or an ORM for database interactions.
-
-2. **Database Service**
+     - Service-Repository pattern for db access.
+     - EF Core (sqlite)
+2. **Web UI**
    - **Responsibilities:**
-     - Stores summaries, channels list, digest history.
+     - Renders UI for the application.
+     - Interacts with Application via public facade.
    - **Technologies:**
-     - SQLite or PostgreSQL for database management.
+     - Separate dotnet project
+     - Razor Pages
 
 ```mermaid
-graph TD
-    subgraph ApplicationService[Application Service]
-        WebUI[Web UI] --> APIService[API Service]
-        APIService --> TelegramChannelReader[Telegram Channel Reader]
-        TelegramChannelReader --> RSSHub[RSSHub]
-        APIService --> SummaryGenerator[Summary Generator]
-        SummaryGenerator --> OpenAI[OpenAI API]
-        APIService --> EmailService[Email Service]
-        APIService --> SettingsManager[Settings Manager]
-        SettingsManager --> JSONFile[JSON File]
-        APIService --> Scheduler[Scheduler]
-        APIService --> ErrorHandling[Error Handling]
+
+graph TB
+    subgraph "Web UI Project"
+        UI[Razor Pages UI]
+        API[API Controllers]
     end
 
-    subgraph DatabaseService[Database Service]
-        Database[(Database)]
+    subgraph "Application Project"
+        PF[Public Facade]
+        MS[Main Service]
+
+        subgraph "Core Services"
+            CR[Channel Reader]
+            SG[Summary Generator]
+            SM[Settings Manager]
+            SCH[Scheduler]
+            ES[Email Sender]
+            DS[Digests Servise]
+            REP[Repositories]
+        end
+
+        DB[(SQLite Database)]
+        JSON[Settings.json]
+
+        RSS[Telegram Channels RSS]
+        SMTP[SMTP Server]
+        OAI[OpenAI Library]
     end
 
-    APIService --> Database
-    Scheduler --> APIService
+        
 
-    subgraph DockerCompose[Docker Compose]
-        ApplicationService --> DockerApp[app]
-        DatabaseService --> DockerDB[db]
-    end
+    UI --> API
+    API --> PF
+    PF --> MS
+    MS --> SM & SCH & ES & DS
+    CR --> RSS
+    SG --> OAI
+    ES --> SMTP
+    DS --> REP & CR & SG
+    REP --> DB
+    SM --> JSON
 ```
 
 ### Contracts
 
-```
+```mermaid
 classDiagram
+
+    class IPublicFacade {
+        <<interface>>
+        +GetChannels() Result~List~Channel~~
+        +AddChannel(Channel) Result~Unit~
+        +RemoveChannel(string channelId) Result~Unit~
+        +GetDigests() Result~List~Digest~~
+        +GetDigest(string digestId) Result~Digest~
+        +GetSettings() Result~Settings~
+        +UpdateSettings(Settings) Result~Unit~
+    }
+
+    class IMainService {
+        <<interface>>
+        +ProcessDailyDigest() Result~Digest~
+        +ManageChannels(ChannelOperation) Result~Unit~
+        +UpdateSettings(Settings) Result~Unit~
+    }
+
+    class IChannelReader {
+        <<interface>>
+        +FetchPosts(string channelUrl) Result~List~Post~~
+        +ValidateChannel(string channelUrl) Result~bool~
+    }
+
+    class ISummaryGenerator {
+        <<interface>>
+        +GenerateSummary(List~Post~ posts) Result~Summary~
+        +EvaluatePostImportance(Post) Result~int~
+    }
+
+    class ISettingsManager {
+        <<interface>>
+        +LoadSettings() Result~Settings~
+        +SaveSettings(Settings) Result~Unit~
+    }
+
+    class IScheduler {
+        <<interface>>
+        +ScheduleDigestGeneration(DateTime time)
+        +CancelScheduledTasks()
+    }
+
+    class IEmailSender {
+        <<interface>>
+        +SendDigest(Digest digest, string emailTo) Result~Unit~
+    }
+
+    class IDigestsService {
+        <<interface>>
+        +CreateDigest(List~Post~ posts) Result~Digest~
+        +GetDigest(string digestId) Result~Digest~
+        +GetAllDigests() Result~List~Digest~~
+    }
+
+    class IRepository~T~ {
+        <<interface>>
+        +GetById(string id) Result~T~
+        +GetAll() Result~List~T~~
+        +Add(T entity) Result~Unit~
+        +Update(T entity) Result~Unit~
+        +Delete(string id) Result~Unit~
+    }
+
     class Channel {
-        +id: str
-        +name: str
-    }
-
-    class PostSummary {
-        +id: str
-        +summary: str
-        +usefulness: int
-    }
-
-    class ChannelMetadata {
-        +id: str
-        +img_url: str
-        +description: str
-    }
-
-    class ChannelsRepository {
-        +add_channel(channel: Channel): void
-        +remove_channel(channel_id: str): void
-        +get_channels(): list[Channel]
-    }
-
-    class Database {
-        +save(obj: object): void
-        +retrieve(cls: Type, id: str): object
-        +query(cls: Type, **kwargs): list[object]
+        <<record>>
+        +string Id
+        +string Name
+        +string RssUrl
+        +DateTime LastFetched
     }
 
     class Post {
-        +id: str
-        +url: str
-        +title: str
-        +content: str
-        +published_date: datetime
-        +channel: Channel
+        <<record>>
+        +string Id
+        +string ChannelId
+        +string Content
+        +DateTime PublishedAt
+        +int Importance
     }
 
     class Digest {
-        +id: int
-        +created_date: datetime
-        +summaries: list[PostSummary]
-        +channel: Channel
+        <<record>>
+        +string Id
+        +DateTime CreatedAt
+        +List~Post~ Posts
+        +Summary Summary
     }
 
-    class DigestRepository {
-        +add_digest(digest: Digest): void
-        +get_digest(digest_id: int): Digest | None
-        +get_digests(from_date: datetime, to_date: datetime): list[Digest]
+    class Summary {
+        <<record>>
+        +string Id
+        +string Content
+        +int QualityScore
     }
 
     class Settings {
-        +openai_api_key: str
-        +email_from: str
-        +email_to: str
-        +email_password: str
-        +email_server: str
-        +email_port: int
+        <<record>>
+        +string EmailRecipient
+        +TimeSpan DigestTime
+        +SmtpSettings SmtpSettings
+        +OpenAiSettings OpenAiSettings
     }
 
-    class EmailSender {
-        +send_digest(digest: Digest, settings: Settings): bool
+    class Result~T~ {
+        <<record>>
+        +bool IsSuccess
+        +T Value
+        +string Error
     }
 
-    class Scheduler {
-        +schedule_digest_generation(settings: Settings): void
-    }
-
-    class WebUI {
-        +display_channels(channels: list[Channel]): void
-        +display_settings(settings: Settings): void
-        +display_digest_history(digests: list[Digest]): void
-        +display_digest(digest: Digest): void
-    }
-
-    class APIService {
-        +get_channels(): list[Channel]
-        +add_channel(channel: Channel): void
-        +remove_channel(channel_id: str): void
-        +get_settings(): Settings
-        +update_settings(settings: Settings): void
-        +get_digest_history(from_date: datetime, to_date: datetime): list[Digest]
-        +get_digest(digest_id: int): Digest | None
-        +generate_digest(channel_id: str): Digest
-        +trigger_email_sending(digest: Digest): bool
-    }
-
-    class ChannelReader {
-        +get_channel_metadata(channel: Channel): ChannelMetadata
-        +get_channel_posts(channel: Channel, date: datetime): list[Post]
-    }
-
-    class SummaryGenerator {
-        +generate_summary(post: Post): PostSummary
-    }
-
-    class SettingsManager {
-        +load_settings(): Settings
-        +save_settings(settings: Settings): void
-    }
-
-    APIService -- WebUI
-    APIService -- ChannelReader
-    APIService -- SummaryGenerator
-    APIService -- DigestRepository
-    APIService -- EmailSender
-    APIService -- SettingsManager
-    APIService -- Scheduler
-    APIService -- ChannelsRepository
-
-    ChannelsRepository -- Database
-    DigestRepository -- Database
+    IMainService --> IChannelReader
+    IMainService --> ISummaryGenerator
+    IMainService --> ISettingsManager
+    IMainService --> IScheduler
+    IMainService --> IEmailSender
+    IMainService --> IDigestsService
+    IPublicFacade --> IMainService
+    IDigestsService --> IRepository
 
 ```
 
 ### Project structure
-
-```
-telegram_digest/
-│
-├── app/                             # Main application package
-│   ├── __init__.py                  # Initialize package
-│   ├── api.py                       # FastAPI routes
-│   ├── web_ui.py                    # Web UI
-│   ├── models.py                    # Data models using Pydantic
-│   ├── summary_generator.py         # Summary generation logic
-│   ├── email_service.py             # Email sending logic
-│   ├── scheduler.py                 # Task scheduling logic
-│   ├── channels_repository.py       # Data access for channels
-│   ├── digests_repository.py        # Data access for digests
-│   ├── database.py                  # Database access
-│   ├── channel_reader.py            # RSS feed reader
-│   ├── logger.py                    # Logger
-│   └── settings.py                  # Load and save settings
-│
-├── templates/                       # Jinja2 templates for web UI
-│   ├── base.html
-│   ├── channels.html
-│   ├── settings.html
-│   ├── digest_history.html
-│   └── digest_page.html
-│
-├── static/                          # Static files (CSS, images, etc.)
-│   ├── css/
-│   │   └── style.css
-│   └── images/
-│       ├── logo.svg
-│       └── logo.png
-│
-├── tests/                           # Test cases using pytest
-│   ├── __init__.py
-│   ├── test_api.py
-│   ├── test_services.py
-│   └── test_repositories.py
-│
-├── Dockerfile                       # Docker build configuration
-├── docker-compose.yml               # Docker Compose setup
-├── requirements.txt                 # Python package dependencies
-├── main.py                          # Entry point for the application
-├── README.md                        # Project documentation
-└── prompting.md                     # Additional documentation
-```

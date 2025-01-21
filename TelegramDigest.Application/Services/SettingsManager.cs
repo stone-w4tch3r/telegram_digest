@@ -1,6 +1,5 @@
-using FluentResults;
-using Microsoft.Extensions.Logging;
 using System.Text.Json;
+using FluentResults;
 
 namespace TelegramDigest.Application.Services;
 
@@ -20,7 +19,7 @@ public class SettingsManager
         _jsonOptions = new JsonSerializerOptions
         {
             WriteIndented = true,
-            PropertyNameCaseInsensitive = true
+            PropertyNameCaseInsensitive = true,
         };
     }
 
@@ -36,8 +35,8 @@ public class SettingsManager
             var json = await File.ReadAllTextAsync(_settingsPath);
             var settings = JsonSerializer.Deserialize<SettingsModel>(json, _jsonOptions);
 
-            return settings is null 
-                ? Result.Fail(new Error("Invalid settings format")) 
+            return settings is null
+                ? Result.Fail(new Error("Invalid settings format"))
                 : Result.Ok(settings);
         }
         catch (Exception ex)

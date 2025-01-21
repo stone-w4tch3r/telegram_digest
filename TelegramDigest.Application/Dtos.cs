@@ -1,11 +1,8 @@
+using TelegramDigest.Application.Services;
+
 namespace TelegramDigest.Application;
 
-public record ChannelDto(
-    string ChannelName,
-    string Description,
-    string Name,
-    string ImageUrl
-);
+public record ChannelDto(string ChannelName, string Description, string Name, string ImageUrl);
 
 public record DigestPreviewDto(
     Guid DigestId,
@@ -28,25 +25,11 @@ public record PostSummaryDto(
     int Importance
 );
 
-public record DigestDto(
-    Guid DigestId,
-    List<PostSummaryDto> Posts,
-    DigestPreviewDto Summary
-);
+public record DigestDto(Guid DigestId, List<PostSummaryDto> Posts, DigestPreviewDto Summary);
 
-public record SmtpSettingsDto(
-    string Host,
-    int Port,
-    string Username,
-    string Password,
-    bool UseSsl
-);
+public record SmtpSettingsDto(string Host, int Port, string Username, string Password, bool UseSsl);
 
-public record OpenAiSettingsDto(
-    string ApiKey,
-    string Model,
-    int MaxTokens
-);
+public record OpenAiSettingsDto(string ApiKey, string Model, int MaxTokens);
 
 public record SettingsDto(
     string EmailRecipient,

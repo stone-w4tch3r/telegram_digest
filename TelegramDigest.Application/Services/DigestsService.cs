@@ -42,7 +42,9 @@ public class DigestsService
             var postsResult = await _channelReader.FetchPosts(channel.ChannelId);
             if (postsResult.IsSuccess)
             {
-                posts.AddRange(postsResult.Value.Where(p => p.PublishedAt >= from && p.PublishedAt <= to));
+                posts.AddRange(
+                    postsResult.Value.Where(p => p.PublishedAt >= from && p.PublishedAt <= to)
+                );
             }
         }
 

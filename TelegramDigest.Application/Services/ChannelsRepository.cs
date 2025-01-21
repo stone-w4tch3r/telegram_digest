@@ -1,6 +1,7 @@
 using FluentResults;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using TelegramDigest.Application.Database;
 
 namespace TelegramDigest.Application.Services;
 
@@ -27,7 +28,7 @@ public class ChannelsRepository
                 Id = channel.ChannelId.Value,
                 Name = channel.Name,
                 Description = channel.Description,
-                ImageUrl = channel.ImageUrl.ToString()
+                ImageUrl = channel.ImageUrl.ToString(),
             };
 
             var existing = await _dbContext.Channels.FindAsync(entity.Id);
@@ -55,12 +56,14 @@ public class ChannelsRepository
         try
         {
             var entities = await _dbContext.Channels.ToListAsync();
-            var channels = entities.Select(e => new ChannelModel(
-                ChannelId: ChannelId.From(e.Id),
-                Name: e.Name,
-                Description: e.Description,
-                ImageUrl: new Uri(e.ImageUrl)
-            )).ToList();
+            var channels = entities
+                .Select(e => new ChannelModel(
+                    ChannelId: ChannelId.From(e.Id),
+                    Name: e.Name,
+                    Description: e.Description,
+                    ImageUrl: new Uri(e.ImageUrl)
+                ))
+                .ToList();
 
             return Result.Ok(channels);
         }

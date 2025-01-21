@@ -1,6 +1,7 @@
 using FluentResults;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using TelegramDigest.Application.Database;
 
 namespace TelegramDigest.Application.Services;
 
@@ -22,8 +23,8 @@ public class DigestRepository
     {
         try
         {
-            var digest = await _dbContext.Digests
-                .Include(d => d.Posts)
+            var digest = await _dbContext
+                .Digests.Include(d => d.Posts)
                 .FirstOrDefaultAsync(d => d.Id == digestId.Value);
 
             if (digest == null)
@@ -86,6 +87,9 @@ public class DigestRepository
 
     // Mapping methods implementation would go here...
     private DigestModel MapToModel(DigestEntity entity) => throw new NotImplementedException();
+
     private DigestEntity MapToEntity(DigestModel model) => throw new NotImplementedException();
-    private DigestSummaryModel MapToSummaryModel(DigestSummaryEntity entity) => throw new NotImplementedException();
+
+    private DigestSummaryModel MapToSummaryModel(DigestSummaryEntity entity) =>
+        throw new NotImplementedException();
 }

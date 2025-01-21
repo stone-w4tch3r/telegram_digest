@@ -49,9 +49,7 @@ public class ChannelsService
             return Result.Fail(new Error($"Channel {channelId} not found"));
         }
 
-        var updatedChannels = channels.Value
-            .Where(c => c.ChannelId != channelId)
-            .ToList();
+        var updatedChannels = channels.Value.Where(c => c.ChannelId != channelId).ToList();
 
         foreach (var channel in updatedChannels)
         {

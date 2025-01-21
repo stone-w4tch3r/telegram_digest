@@ -309,6 +309,7 @@ TelegramDigest/
 │   │   ├── ChannelsService.cs
 │   │   ├── ChannelsRepository.cs
 │   │   ├── DigestsService.cs
+│   │   ├── Scheduler.cs
 │   │   ├── SummaryGenerator.cs
 │   │   ├── DigestRepository.cs
 │   │   ├── EmailSender.cs

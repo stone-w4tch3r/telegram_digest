@@ -1,7 +1,6 @@
-using FluentResults;
-using Microsoft.Extensions.Logging;
 using System.ServiceModel.Syndication;
 using System.Xml;
+using FluentResults;
 
 namespace TelegramDigest.Application.Services;
 
@@ -23,22 +22,23 @@ public class ChannelReader
             using var reader = XmlReader.Create(feedUrl);
             var feed = SyndicationFeed.Load(reader);
 
-            var posts = feed.Items.Select(item => new PostModel(
-                PostId: PostId.NewId(),
-                ChannelId: channelId,
-                Title: item.Title.Text,
-                Description: item.Summary.Text,
-                Url: item.Links.FirstOrDefault()?.Uri ?? new Uri(feedUrl),
-                PublishedAt: item.PublishDate.DateTime
-            )).ToList();
+            var posts = feed
+                .Items.Select(item => new PostModel(
+                    PostId: PostId.NewId(),
+                    ChannelId: channelId,
+                    Title: item.Title.Text,
+                    Description: item.Summary.Text,
+                    Url: item.Links.FirstOrDefault()?.Uri ?? new Uri(feedUrl),
+                    PublishedAt: item.PublishDate.DateTime
+                ))
+                .ToList();
 
             return Result.Ok(posts);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error fetching posts for channel {ChannelId}", channelId);
-            return Result.Fail(new Error("Failed to fetch posts")
-                .CausedBy(ex));
+            return Result.Fail(new Error("Failed to fetch posts").CausedBy(ex));
         }
     }
 
@@ -62,8 +62,7 @@ public class ChannelReader
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error fetching channel info for {ChannelId}", channelId);
-            return Result.Fail(new Error("Failed to fetch channel info")
-                .CausedBy(ex));
+            return Result.Fail(new Error("Failed to fetch channel info").CausedBy(ex));
         }
     }
 }

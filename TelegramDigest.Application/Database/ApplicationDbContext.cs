@@ -10,8 +10,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<DigestSummaryEntity> DigestSummaries => Set<DigestSummaryEntity>();
 
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-        : base(options)
-    { }
+        : base(options) { }
 
     /// <summary>
     /// Applies entity configurations using Fluent API

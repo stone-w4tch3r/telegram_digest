@@ -1,23 +1,20 @@
 using FluentResults;
-using Microsoft.Extensions.Logging;
-using OpenAI.GPT3.Interfaces;
-using OpenAI.GPT3.ObjectModels.RequestModels;
 
 namespace TelegramDigest.Application.Services;
 
 public class SummaryGenerator
 {
-    private readonly IOpenAIService _openAiService;
+    // private readonly IOpenAIService _openAiService;
     private readonly SettingsManager _settingsManager;
     private readonly ILogger<SummaryGenerator> _logger;
 
     public SummaryGenerator(
-        IOpenAIService openAiService,
+        // IOpenAIService openAiService,
         SettingsManager settingsManager,
         ILogger<SummaryGenerator> logger
     )
     {
-        _openAiService = openAiService;
+        // _openAiService = openAiService;
         _settingsManager = settingsManager;
         _logger = logger;
     }
@@ -33,30 +30,37 @@ public class SummaryGenerator
 
         try
         {
-            var prompt = $"Summarize this post in one sentence:\n\nTitle: {post.Title}\n\nContent: {post.Description}";
+            // var prompt =
+            //     $"Summarize this post in one sentence:\n\nTitle: {post.Title}\n\nContent: {post.Description}";
 
-            var completionResult = await _openAiService.Completions.CreateCompletion(new CompletionCreateRequest
-            {
-                Prompt = prompt,
-                Model = settings.Value.OpenAiSettings.Model,
-                MaxTokens = settings.Value.OpenAiSettings.MaxTokens
-            });
+            // var completionResult = await _openAiService.Completions.CreateCompletion(
+            //     new CompletionCreateRequest
+            //     {
+            //         Prompt = prompt,
+            //         Model = settings.Value.OpenAiSettings.Model,
+            //         MaxTokens = settings.Value.OpenAiSettings.MaxTokens,
+            //     }
+            // );
 
-            if (!completionResult.Successful)
-                return Result.Fail(new Error("OpenAI API request failed"));
+            // if (!completionResult.Successful)
+            //     return Result.Fail(new Error("OpenAI API request failed"));
 
-            var importance = await EvaluatePostImportance(post);
-            if (importance.IsFailed)
-                return importance.ToResult<PostSummaryModel>();
+            // var importance = await EvaluatePostImportance(post);
+            // if (importance.IsFailed)
+            //     return importance.ToResult<PostSummaryModel>();
 
-            return Result.Ok(new PostSummaryModel(
-                PostId: post.PostId,
-                ChannelId: post.ChannelId,
-                Summary: completionResult.Choices[0].Text.Trim(),
-                Url: post.Url,
-                PublishedAt: post.PublishedAt,
-                Importance: importance.Value
-            ));
+            // return Result.Ok(
+            //     new PostSummaryModel(
+            //         PostId: post.PostId,
+            //         ChannelId: post.ChannelId,
+            //         Summary: completionResult.Choices[0].Text.Trim(),
+            //         Url: post.Url,
+            //         PublishedAt: post.PublishedAt,
+            //         Importance: importance.Value
+            //     )
+            // );
+
+            return Result.Fail<PostSummaryModel>(new Error("Not implemented"));
         }
         catch (Exception ex)
         {
@@ -72,20 +76,25 @@ public class SummaryGenerator
     {
         try
         {
-            var prompt = $"Rate the importance of this post from 1 to 3 (1 - low, 2 - medium, 3 - high):\n\n{post.Title}\n\n{post.Description}\n\nJust return the number.";
+            // var prompt =
+            //     $"Rate the importance of this post from 1 to 3 (1 - low, 2 - medium, 3 - high):\n\n{post.Title}\n\n{post.Description}\n\nJust return the number.";
 
-            var completionResult = await _openAiService.Completions.CreateCompletion(new CompletionCreateRequest
-            {
-                Prompt = prompt,
-                Model = "text-davinci-003",
-                MaxTokens = 1
-            });
+            // var completionResult = await _openAiService.Completions.CreateCompletion(
+            //     new CompletionCreateRequest
+            //     {
+            //         Prompt = prompt,
+            //         Model = "text-davinci-003",
+            //         MaxTokens = 1,
+            //     }
+            // );
 
-            if (!completionResult.Successful)
-                return Result.Fail(new Error("OpenAI API request failed"));
+            // if (!completionResult.Successful)
+            //     return Result.Fail(new Error("OpenAI API request failed"));
 
-            var importance = int.Parse(completionResult.Choices[0].Text.Trim());
-            return Result.Ok(new ImportanceModel(importance));
+            // var importance = int.Parse(completionResult.Choices[0].Text.Trim());
+            // return Result.Ok(new ImportanceModel(importance));
+
+            return Result.Fail<ImportanceModel>(new Error("Not implemented"));
         }
         catch (Exception ex)
         {
@@ -98,30 +107,39 @@ public class SummaryGenerator
     {
         try
         {
-            var postsContent = string.Join("\n\n", posts.Select(p => $"{p.Title}\n{p.Description}"));
-            var prompt = $"Create a brief summary of these posts:\n\n{postsContent}";
+            // var postsContent = string.Join(
+            //     "\n\n",
+            //     posts.Select(p => $"{p.Title}\n{p.Description}")
+            // );
+            // var prompt = $"Create a brief summary of these posts:\n\n{postsContent}";
 
-            var completionResult = await _openAiService.Completions.CreateCompletion(new CompletionCreateRequest
-            {
-                Prompt = prompt,
-                Model = "text-davinci-003",
-                MaxTokens = 200
-            });
+            // var completionResult = await _openAiService.Completions.CreateCompletion(
+            //     new CompletionCreateRequest
+            //     {
+            //         Prompt = prompt,
+            //         Model = "text-davinci-003",
+            //         MaxTokens = 200,
+            //     }
+            // );
 
-            if (!completionResult.Successful)
-                return Result.Fail(new Error("OpenAI API request failed"));
+            // if (!completionResult.Successful)
+            //     return Result.Fail(new Error("OpenAI API request failed"));
 
-            return Result.Ok(new DigestSummaryModel(
-                DigestId: DigestId.NewId(),
-                Title: "Daily Digest",
-                PostsSummary: completionResult.Choices[0].Text.Trim(),
-                PostsCount: posts.Count,
-                AverageImportance: 2, // Default value
-                CreatedAt: DateTime.UtcNow,
-                DateFrom: posts.Min(p => p.PublishedAt),
-                DateTo: posts.Max(p => p.PublishedAt),
-                ImageUrl: new Uri("https://placeholder.com/image.jpg")
-            ));
+            // return Result.Ok(
+            //     new DigestSummaryModel(
+            //         DigestId: DigestId.NewId(),
+            //         Title: "Daily Digest",
+            //         PostsSummary: completionResult.Choices[0].Text.Trim(),
+            //         PostsCount: posts.Count,
+            //         AverageImportance: 2, // Default value
+            //         CreatedAt: DateTime.UtcNow,
+            //         DateFrom: posts.Min(p => p.PublishedAt),
+            //         DateTo: posts.Max(p => p.PublishedAt),
+            //         ImageUrl: new Uri("https://placeholder.com/image.jpg")
+            //     )
+            // );
+
+            return Result.Fail<DigestSummaryModel>(new Error("Not implemented"));
         }
         catch (Exception ex)
         {

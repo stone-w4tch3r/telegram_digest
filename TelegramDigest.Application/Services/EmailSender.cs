@@ -1,6 +1,5 @@
-using FluentResults;
-using Microsoft.Extensions.Logging;
 using System.Net.Mail;
+using FluentResults;
 
 namespace TelegramDigest.Application.Services;
 
@@ -31,7 +30,10 @@ public class EmailSender
             using var client = new SmtpClient(settings.Host, settings.Port)
             {
                 EnableSsl = settings.UseSsl,
-                Credentials = new System.Net.NetworkCredential(settings.Username, settings.Password)
+                Credentials = new System.Net.NetworkCredential(
+                    settings.Username,
+                    settings.Password
+                ),
             };
 
             var message = new MailMessage
@@ -39,7 +41,7 @@ public class EmailSender
                 From = new MailAddress(settings.Username),
                 Subject = $"Telegram Digest - {digest.CreatedAt:d MMMM yyyy}",
                 Body = CreateEmailBody(digest),
-                IsBodyHtml = false
+                IsBodyHtml = false,
             };
             message.To.Add(emailTo);
 
@@ -54,7 +56,7 @@ public class EmailSender
     }
 
     private string CreateEmailBody(DigestSummaryModel digest) =>
-$@"Your Telegram Digest for {digest.CreatedAt:d MMMM yyyy}
+        $@"Your Telegram Digest for {digest.CreatedAt:d MMMM yyyy}
 
 {digest.Title}
 

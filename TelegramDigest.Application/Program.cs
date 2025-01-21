@@ -1,16 +1,14 @@
 using Microsoft.EntityFrameworkCore;
-using OpenAI.GPT3.Extensions;
+using TelegramDigest.Application;
 using TelegramDigest.Application.Database;
 using TelegramDigest.Application.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container
 ConfigureServices(builder.Services, builder.Configuration);
 
 var app = builder.Build();
 
-// Configure middleware
 ConfigureMiddleware(app);
 
 await InitializeDatabaseAsync(app);
@@ -18,13 +16,13 @@ await app.RunAsync();
 
 static void ConfigureServices(IServiceCollection services, IConfiguration configuration)
 {
-    // Database
     services.AddDbContext<ApplicationDbContext>(options =>
-        options.UseSqlite(configuration.GetConnectionString("DefaultConnection")));
+        options.UseSqlite(configuration.GetConnectionString("DefaultConnection"))
+    );
 
     // OpenAI
-    services.AddOpenAIService(settings => 
-        configuration.GetSection("OpenAI").Bind(settings));
+    // services.AddOpenAIService(settings =>
+    //     configuration.GetSection("OpenAI").Bind(settings));
 
     // Application services
     services.AddScoped<ChannelReader>();
@@ -37,15 +35,14 @@ static void ConfigureServices(IServiceCollection services, IConfiguration config
     services.AddSingleton<SettingsManager>(sp =>
     {
         var logger = sp.GetRequiredService<ILogger<SettingsManager>>();
-        var settingsPath = configuration.GetValue<string>("SettingsPath") 
-            ?? "settings.json";
+        var settingsPath = configuration.GetValue<string>("SettingsPath") ?? "settings.json";
         return new SettingsManager(settingsPath, logger);
     });
     services.AddScoped<MainService>();
     services.AddScoped<PublicFacade>();
 
     // Background Service
-    services.AddHostedService<DigestScheduler>();
+    services.AddHostedService<Scheduler>();
 
     // API & UI
     services.AddControllers();

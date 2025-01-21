@@ -1,11 +1,6 @@
 namespace TelegramDigest.Application.Services;
 
-public record ChannelModel(
-    ChannelId ChannelId,
-    string Description,
-    string Name,
-    Uri ImageUrl
-);
+public record ChannelModel(ChannelId ChannelId, string Description, string Name, Uri ImageUrl);
 
 public record PostModel(
     PostId PostId,
@@ -58,11 +53,7 @@ public record SmtpSettingsModel(
     bool UseSsl
 );
 
-public record OpenAiSettingsModel(
-    string ApiKey,
-    string Model,
-    int MaxTokens
-);
+public record OpenAiSettingsModel(string ApiKey, string Model, int MaxTokens);
 
 //TODO: verify value on creation
 public record ImportanceModel(int Value);

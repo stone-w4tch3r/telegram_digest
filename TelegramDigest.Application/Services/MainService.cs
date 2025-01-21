@@ -1,5 +1,4 @@
 using FluentResults;
-using Microsoft.Extensions.Logging;
 
 namespace TelegramDigest.Application.Services;
 
@@ -19,7 +18,8 @@ public class MainService
         ChannelsService channelsService,
         EmailSender emailSender,
         SettingsManager settingsManager,
-        ILogger<MainService> logger)
+        ILogger<MainService> logger
+    )
     {
         _digestsService = digestsService;
         _channelsService = channelsService;
@@ -71,8 +71,7 @@ public class MainService
     public async Task<Result<DigestModel>> GetDigest(DigestId digestId) =>
         await _digestsService.GetDigest(digestId);
 
-    public async Task<Result<SettingsModel>> GetSettings() =>
-        await _settingsManager.LoadSettings();
+    public async Task<Result<SettingsModel>> GetSettings() => await _settingsManager.LoadSettings();
 
     public async Task<Result> UpdateSettings(SettingsModel settings) =>
         await _settingsManager.SaveSettings(settings);

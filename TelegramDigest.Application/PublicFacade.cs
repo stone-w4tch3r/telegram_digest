@@ -1,5 +1,5 @@
 using FluentResults;
-using Microsoft.Extensions.Logging;
+using TelegramDigest.Application.Services;
 
 namespace TelegramDigest.Application;
 

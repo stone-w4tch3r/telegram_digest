@@ -301,8 +301,8 @@ TelegramDigest/
 │   ├── IdStructs.cs
 │   ├── Dtos.cs
 │   ├── Database/
-│   │   ├── ChannelConfiguration.cs
-│   │   ├── DigestConfiguration.cs
+│   │   ├── Entities.cs
+│   │   ├── Configuration.cs
 │   │   └── DbContext.cs
 │   ├── ChannelReader.cs
 │   ├── ChannelsService.cs

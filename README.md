@@ -40,9 +40,10 @@ Telegram Digest is a simple application that will create a summary digest from m
 
 ### Code style and practices
 
-- immutable data structures (record types)
+- Immutable data structures (record types)
 - Formatting (CSharpier)
 - Testing (nunit)
+- Code documentation (xml comments)
 - Logging
 - Result pattern for error handling
 - Avoid exception-based error handling

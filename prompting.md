@@ -207,3 +207,55 @@ Look at the description of an application that I am building. Create a project s
 Look at the description of an application that I am building. Review the project structure (files and folders) and suggest improvements if needed.
 
 //readme goes here
+
+## 7. Files creation - 1
+
+Look at the description of an application that I am building.
+
+//readme goes here
+
+Create files for the application:
+
+- Models.cs
+- IdStructs.cs
+- ChannelReader.cs
+- ChannelsService.cs
+
+## 8. Files creation - 2
+
+Create files for the application:
+
+- ChannelsRepository.cs
+- DigestsService.cs
+- SummaryGenerator.cs
+- DigestRepository.cs
+
+From now on, use XML comments for all the code, but do not comment the obvious.
+
+## 9. Files creation - 3
+
+Create files for the application:
+
+- EmailSender.cs
+- SettingsManager.cs
+- MainService.cs
+- Dtos.cs
+
+## 10. Files creation - 4
+
+Create files for the application:
+
+- Entities.cs
+- Configuration.cs
+- DbContext.cs
+- Program.cs
+
+## 11. Files creation - 5
+
+Create files for the application:
+
+- PublicFacade.cs
+- appsettings.json
+- TelegramDigest.Application.csproj
+- Directory.Build.props
+- TelegramDigest.sln

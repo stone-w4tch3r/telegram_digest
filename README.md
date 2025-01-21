@@ -27,12 +27,15 @@ Telegram Digest is a simple application that will create a summary digest from m
 - C# 12
 - ASP.NET
 - Razor Pages
-- openai-dotnet package
 - EF Core (sqlite)
 - Swagger
 - RSSHub as a way to get RSS feed from Telegram channels
 - Built-in JSON tools
+- openai-dotnet package
 - FluentResults library for error handling
+- System.ServiceModel.Syndication for RSS feed parsing
+- System.Net.Mail for email sending
+- IHostedService for background scheduling
 - Docker Compose
 
 ### Code style and practices
@@ -287,3 +290,39 @@ classDiagram
 ```
 
 ### Project structure
+
+```plaintext
+TelegramDigest/
+├── .github/
+│   └── workflows/
+│       └── ci.yml
+├── TelegramDigest.Application/
+│   ├── Models.cs
+│   ├── IdStructs.cs
+│   ├── Dtos.cs
+│   ├── Database/
+│   │   ├── ChannelConfiguration.cs
+│   │   ├── DigestConfiguration.cs
+│   │   └── DbContext.cs
+│   ├── ChannelReader.cs
+│   ├── ChannelsService.cs
+│   ├── ChannelsRepository.cs
+│   ├── DigestsService.cs
+│   ├── SummaryGenerator.cs
+│   ├── DigestRepository.cs
+│   ├── EmailSender.cs
+│   ├── SettingsManager.cs
+│   ├── PublicFacade.cs
+│   ├── MainService.cs
+│   ├── Program.cs
+│   ├── appsettings.json
+│   └── TelegramDigest.Application.csproj
+├── TelegramDigest.Web/
+│   └── ...
+├── TelegramDigest.Tests/
+│   └── ...
+├── .gitignore
+├── README.md
+├── Directory.Build.props
+└── TelegramDigest.sln
+```

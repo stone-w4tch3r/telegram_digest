@@ -201,3 +201,9 @@ Look at the description of an application that I am building. Suggest a list of 
 Look at the description of an application that I am building. Create a project structure (files and folders) for the application. Do not create any files, just structure.
 
 //readme goes here
+
+## 6. Structure review
+
+Look at the description of an application that I am building. Review the project structure (files and folders) and suggest improvements if needed.
+
+//readme goes here

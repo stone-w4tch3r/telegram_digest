@@ -297,24 +297,25 @@ TelegramDigest/
 │   └── workflows/
 │       └── ci.yml
 ├── TelegramDigest.Application/
-│   ├── Models.cs
-│   ├── IdStructs.cs
-│   ├── Dtos.cs
 │   ├── Database/
 │   │   ├── Entities.cs
 │   │   ├── Configuration.cs
 │   │   └── DbContext.cs
-│   ├── ChannelReader.cs
-│   ├── ChannelsService.cs
-│   ├── ChannelsRepository.cs
-│   ├── DigestsService.cs
-│   ├── SummaryGenerator.cs
-│   ├── DigestRepository.cs
-│   ├── EmailSender.cs
-│   ├── SettingsManager.cs
-│   ├── PublicFacade.cs
-│   ├── MainService.cs
+│   ├── Services/
+|   │   ├── Models.cs
+│   |   ├── IdStructs.cs
+│   │   ├── ChannelReader.cs
+│   │   ├── ChannelsService.cs
+│   │   ├── ChannelsRepository.cs
+│   │   ├── DigestsService.cs
+│   │   ├── SummaryGenerator.cs
+│   │   ├── DigestRepository.cs
+│   │   ├── EmailSender.cs
+│   │   ├── SettingsManager.cs
+│   │   └── MainService.cs
+│   ├── Dtos.cs
 │   ├── Program.cs
+│   ├── PublicFacade.cs
 │   ├── appsettings.json
 │   └── TelegramDigest.Application.csproj
 ├── TelegramDigest.Web/

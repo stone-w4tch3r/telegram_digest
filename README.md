@@ -32,6 +32,7 @@ Telegram Digest is a simple application that will create a summary digest from m
 - Swagger
 - RSSHub as a way to get RSS feed from Telegram channels
 - Built-in JSON tools
+- FluentResults library for error handling
 - Docker Compose
 
 ### Code style and practices
@@ -93,7 +94,7 @@ graph TB
             SM[Settings Manager]
             SCH[Scheduler]
             ES[Email Sender]
-            DS[Digests Servise]
+            DS[Digests Service]
             REP[Repositories]
         end
 
@@ -124,125 +125,165 @@ graph TB
 ```mermaid
 classDiagram
 
-    class IPublicFacade {
-        <<interface>>
-        +GetChannels() Result~List~Channel~~
-        +AddChannel(Channel) Result~Unit~
-        +RemoveChannel(string channelId) Result~Unit~
-        +GetDigests() Result~List~Digest~~
-        +GetDigest(string digestId) Result~Digest~
-        +GetSettings() Result~Settings~
-        +UpdateSettings(Settings) Result~Unit~
+    class PublicFacade {
+        +GetChannels() Result~List~ChannelDto~~
+        +GetChannel(string channelName) Result~ChannelDto~
+        +AddChannel(string channelName) Result
+        +RemoveChannel(string channelName) Result
+        +GetDigestsSummaries() Result~List~DigestPreviewDto~~
+        +GetDigest(Guid digestId) Result~DigestDto~
+        +GenerateDigest() Result~DigestPreviewDto~
+        +GetSettings() Result~SettingsDto~
+        +UpdateSettings(SettingsDto settingsDto) Result
     }
 
-    class IMainService {
-        <<interface>>
-        +ProcessDailyDigest() Result~Digest~
-        +ManageChannels(ChannelOperation) Result~Unit~
-        +UpdateSettings(Settings) Result~Unit~
+    class MainService {
+        +ProcessDailyDigest() Result
+        +GetChannels() Result~List~ChannelModel~~
+        +GetChannel(ChannelId channelId) Result~ChannelModel~
+        +AddChannel(ChannelId channelId) Result
+        +RemoveChannel(ChannelId channelId) Result
+        +GetDigestsSummaries() Result~List~DigestSummaryModel~~
+        +GetDigest(DigestId digestId) Result~DigestModel~
+        +GenerateDigest() Result~DigestSummaryModel~
+        +GetSettings() Result~SettingsModel~
+        +UpdateSettings(SettingsUpdateModel settingsUpdateModel) Result
     }
 
-    class IChannelReader {
-        <<interface>>
-        +FetchPosts(string channelUrl) Result~List~Post~~
-        +ValidateChannel(string channelUrl) Result~bool~
+    class ChannelReader {
+        +FetchPosts(ChannelId channelId) Result~List~PostModel~~
+        +FetchChannelInfo(ChannelId channelId) Result~ChannelModel~
     }
 
-    class ISummaryGenerator {
-        <<interface>>
-        +GenerateSummary(List~Post~ posts) Result~Summary~
-        +EvaluatePostImportance(Post) Result~int~
+    class SummaryGenerator {
+        +GenerateSummary(PostModel post) Result~PostSummaryModel~
+        +EvaluatePostImportance(PostModel post) Result~ImportanceModel~
+        +GeneratePostsSummary(List~PostModel~ posts) Result~PostsSummaryModel~
     }
 
-    class ISettingsManager {
-        <<interface>>
-        +LoadSettings() Result~Settings~
-        +SaveSettings(Settings) Result~Unit~
+    class SettingsManager {
+        +LoadSettings() Result~SettingsModel~
+        +SaveSettings(SettingsUpdateModel settingsUpdateModel) Result
     }
 
-    class IScheduler {
-        <<interface>>
-        +ScheduleDigestGeneration(DateTime time)
+    class Scheduler {
+        +ScheduleDigestGeneration(TimeOnly time)
         +CancelScheduledTasks()
     }
 
-    class IEmailSender {
-        <<interface>>
-        +SendDigest(Digest digest, string emailTo) Result~Unit~
+    class EmailSender {
+        +SendDigest(DigestSummaryModel DigestSummaryModel, Email emailTo) Result
     }
 
-    class IDigestsService {
-        <<interface>>
-        +CreateDigest(List~Post~ posts) Result~Digest~
-        +GetDigest(string digestId) Result~Digest~
-        +GetAllDigests() Result~List~Digest~~
+    class ChannelsService {
+        +AddChannel(ChannelId channelId) Result
+        +GetChannels() Result~List~ChannelModel~~
+        +RemoveChannel(ChannelId channelName) Result
     }
 
-    class IRepository~T~ {
-        <<interface>>
-        +GetById(string id) Result~T~
-        +GetAll() Result~List~T~~
-        +Add(T entity) Result~Unit~
-        +Update(T entity) Result~Unit~
-        +Delete(string id) Result~Unit~
+    class DigestsService {
+        +GenerateDigest(DateTime from, DateTime to) Result~DigestId~
+        +GetDigest(DigestId digestId) Result~DigestModel~
+        +GetDigestsSummaries() Result~List~DigestSummaryModel~~
+        -GenerateDigestPreview(DigestModel digestModel) Result~DigestSummaryModel~
     }
 
-    class Channel {
-        <<record>>
-        +string Id
-        +string Name
-        +string RssUrl
-        +DateTime LastFetched
+    class DigestRepository {
+        +LoadDigest(DigestId digestId) Result~DigestModel~
+        +SaveDigest(DigestModel digestModel) Result
+        +LoadAllDigestSummaries() Result~List~DigestSummaryModel~~
+        +SaveDigestSummary(DigestSummaryModel DigestSummaryModel) Result
+        +CheckIfPostIsSaved(PostId postId) Result~bool~
     }
 
-    class Post {
-        <<record>>
-        +string Id
-        +string ChannelId
-        +string Content
-        +DateTime PublishedAt
+    class ChannelsRepository {
+        +SaveChannel(ChannelModel channelModel) Result
+        +LoadChannels() Result~List~ChannelModel~
+    }
+
+    class PostImportance {
+        <<struct>>
         +int Importance
     }
 
-    class Digest {
+    class ChannelId {
+        <<struct>>
+        +string ChannelName
+    }
+
+    class DigestId {
+        <<struct>>
+        +Guid DigestId
+    }
+
+    class PostId {
+        <<struct>>
+        +Guid PostId
+    }
+
+    class ChannelModel {
         <<record>>
-        +string Id
+        +ChannelId ChannelId
+        +string Description
+        +string Name
+        +Url ImageUrl
+    }
+
+    class PostModel {
+        <<record>>
+        +string Title
+        +string Description
+    }
+
+    class PostSummaryModel {
+        <<record>>
+        +PostId PostId
+        +ChannelId ChannelId
+        +string Summary
+        +Url Url
+        +DateTime PublishedAt
+        +ImportanceModel Importance
+    }
+
+    class DigestModel {
+        <<record>>
+        +DigestId DigestId
+        +List~PostSummaryModel~ Posts
+        +DigestSummaryModel DigestSummary
+    }
+
+    class DigestSummaryModel {
+        <<record>>
+        +DigestId DigestId
+        +string Title
+        +string PostsSummary
+        +int PostsCount
+        +int AverageImportance
         +DateTime CreatedAt
-        +List~Post~ Posts
-        +Summary Summary
+        +DateTime DateFrom
+        +DateTime DateTo
+        +Url ImageUrl
     }
 
-    class Summary {
-        <<record>>
-        +string Id
-        +string Content
-        +int QualityScore
-    }
-
-    class Settings {
+    class SettingsModel {
         <<record>>
         +string EmailRecipient
-        +TimeSpan DigestTime
-        +SmtpSettings SmtpSettings
-        +OpenAiSettings OpenAiSettings
+        +TimeOnly DigestTime
+        +SmtpSettingsModel SmtpSettings
+        +OpenAiSettingsModel OpenAiSettings
     }
 
-    class Result~T~ {
-        <<record>>
-        +bool IsSuccess
-        +T Value
-        +string Error
-    }
-
-    IMainService --> IChannelReader
-    IMainService --> ISummaryGenerator
-    IMainService --> ISettingsManager
-    IMainService --> IScheduler
-    IMainService --> IEmailSender
-    IMainService --> IDigestsService
-    IPublicFacade --> IMainService
-    IDigestsService --> IRepository
-
+    MainService --> SettingsManager
+    MainService --> Scheduler
+    MainService --> EmailSender
+    MainService --> DigestsService
+    MainService --> ChannelsService
+    PublicFacade --> MainService
+    DigestsService --> DigestRepository
+    DigestsService --> SummaryGenerator
+    DigestsService --> ChannelReader
+    DigestsService --> ChannelsRepository
+    ChannelsService --> ChannelsRepository
 ```
 
 ### Project structure

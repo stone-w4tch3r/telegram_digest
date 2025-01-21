@@ -1,6 +1,5 @@
 # Attempt 1 (python)
 
-
 ---
 
 ## 1. Initial prompt
@@ -188,5 +187,17 @@ Look at the description of an application that I am building. Draw a mermaid dia
 ## 3. Contracts
 
 Look at the description of an application that I am building. Create contracts for each component. Use mermaid class diagrams syntax. Put all into one diagram.
+
+//readme goes here
+
+## 4. Libraries
+
+Look at the description of an application that I am building. Suggest a list of libraries for my application.
+
+//readme goes here
+
+## 5. Structure creation
+
+Look at the description of an application that I am building. Create a project structure (files and folders) for the application. Do not create any files, just structure.
 
 //readme goes here

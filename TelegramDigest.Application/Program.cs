@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using TelegramDigest.Application;
 using TelegramDigest.Application.Database;
+using TelegramDigest.Application.Public;
 using TelegramDigest.Application.Services;
 
 var builder = WebApplication.CreateBuilder(args);

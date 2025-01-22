@@ -1,7 +1,7 @@
 using FluentResults;
 using TelegramDigest.Application.Services;
 
-namespace TelegramDigest.Application;
+namespace TelegramDigest.Application.Public;
 
 /// <summary>
 /// Public API facade for the application, used by Web UI and other external consumers
@@ -21,18 +21,6 @@ public class PublicFacade
     {
         var result = await _mainService.GetChannels();
         return result.Map(channels => channels.Select(c => c.ToDto()).ToList());
-    }
-
-    public async Task<Result<ChannelDto>> GetChannel(string channelName)
-    {
-        var channels = await _mainService.GetChannels();
-        if (channels.IsFailed)
-            return channels.ToResult<ChannelDto>();
-
-        var channel = channels.Value.FirstOrDefault(c => c.ChannelId.Value == channelName);
-        return channel is null
-            ? Result.Fail(new Error($"Channel {channelName} not found"))
-            : Result.Ok(channel.ToDto());
     }
 
     public async Task<Result> AddChannel(string channelName)

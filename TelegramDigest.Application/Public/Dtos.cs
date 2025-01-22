@@ -1,6 +1,6 @@
 using TelegramDigest.Application.Services;
 
-namespace TelegramDigest.Application;
+namespace TelegramDigest.Application.Public;
 
 public record ChannelDto(string ChannelName, string Description, string Name, string ImageUrl);
 

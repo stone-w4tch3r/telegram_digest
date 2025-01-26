@@ -1,26 +1,17 @@
 namespace TelegramDigest.Application.Services;
 
-public readonly record struct ChannelId(string Value)
+internal readonly record struct ChannelId(string Value)
 {
-    public static ChannelId From(string channelName) => new(channelName);
+    internal static ChannelId From(string channelName) => new(channelName);
 
     public override string ToString() => Value;
 }
 
-public readonly record struct DigestId(Guid Value)
+internal readonly record struct DigestId(Guid Value)
 {
-    public static DigestId NewId() => new(Guid.NewGuid());
+    internal static DigestId NewId() => new(Guid.NewGuid());
 
-    public static DigestId From(Guid id) => new(id);
-
-    public override string ToString() => Value.ToString();
-}
-
-public readonly record struct PostId(Guid Value)
-{
-    public static PostId NewId() => new(Guid.NewGuid());
-
-    public static PostId From(Guid id) => new(id);
+    internal static DigestId From(Guid id) => new(id);
 
     public override string ToString() => Value.ToString();
 }

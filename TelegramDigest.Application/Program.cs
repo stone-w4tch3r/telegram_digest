@@ -1,90 +1,74 @@
-using Microsoft.EntityFrameworkCore;
+using JetBrains.Annotations;
+using Microsoft.Extensions.DependencyInjection;
 using TelegramDigest.Application.Database;
 using TelegramDigest.Application.Public;
 using TelegramDigest.Application.Services;
 
-var builder = WebApplication.CreateBuilder(args);
+namespace TelegramDigest.Application;
 
-ConfigureServices(builder.Services, builder.Configuration);
-
-var app = builder.Build();
-
-ConfigureMiddleware(app);
-
-await InitializeDatabaseAsync(app);
-await app.RunAsync();
-
-static void ConfigureServices(IServiceCollection services, IConfiguration configuration)
+[UsedImplicitly]
+public static class ServiceCollectionExtensions
 {
-    services.AddDbContext<ApplicationDbContext>(options =>
-        options.UseSqlite(configuration.GetConnectionString("DefaultConnection"))
-    );
-
-    // OpenAI
-    // services.AddOpenAIService(settings =>
-    //     configuration.GetSection("OpenAI").Bind(settings));
-
-    // Application services
-    services.AddScoped<ChannelReader>();
-    services.AddScoped<ChannelsService>();
-    services.AddScoped<ChannelsRepository>();
-    services.AddScoped<DigestsService>();
-    services.AddScoped<DigestRepository>();
-    services.AddScoped<SummaryGenerator>();
-    services.AddScoped<EmailSender>();
-    services.AddSingleton<SettingsManager>(sp =>
+    [UsedImplicitly]
+    public static IServiceCollection AddTelegramDigest(
+        this IServiceCollection services,
+        IConfiguration configuration
+    )
     {
-        var logger = sp.GetRequiredService<ILogger<SettingsManager>>();
-        var settingsPath = configuration.GetValue<string>("SettingsPath") ?? "settings.json";
-        return new SettingsManager(settingsPath, logger);
-    });
-    services.AddScoped<MainService>();
-    services.AddScoped<PublicFacade>();
-
-    // Background Service
-    services.AddHostedService<Scheduler>();
-
-    // API & UI
-    services.AddControllers();
-    services.AddRazorPages();
-    services.AddEndpointsApiExplorer();
-    services.AddSwaggerGen();
-
-    // Logging
-    services.AddLogging(logging =>
-    {
-        logging.ClearProviders();
-        logging.AddConsole();
-        logging.AddDebug();
-    });
-}
-
-static void ConfigureMiddleware(WebApplication app)
-{
-    if (app.Environment.IsDevelopment())
-    {
-        app.UseSwagger();
-        app.UseSwaggerUI();
-        app.UseDeveloperExceptionPage();
-    }
-    else
-    {
-        app.UseExceptionHandler("/Error");
-        app.UseHsts();
+        ConfigureServices(services, configuration);
+        return services;
     }
 
-    app.UseHttpsRedirection();
-    app.UseStaticFiles();
-    app.UseRouting();
-    app.UseAuthorization();
+    [UsedImplicitly]
+    public static async Task<IServiceProvider> InitializeTelegramDigest(
+        this IServiceProvider serviceProvider
+    )
+    {
+        await InitializeTelegramDigestDatabaseAsync(serviceProvider);
+        return serviceProvider;
+    }
 
-    app.MapRazorPages();
-    app.MapControllers();
-}
+    private static void ConfigureServices(IServiceCollection services, IConfiguration configuration)
+    {
+        // Database
+        services.AddDbContext<ApplicationDbContext>(options =>
+            options.UseSqlite(configuration.GetConnectionString("DefaultConnection"))
+        );
 
-static async Task InitializeDatabaseAsync(WebApplication app)
-{
-    using var scope = app.Services.CreateScope();
-    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    await context.Database.MigrateAsync();
+        // OpenAI
+
+        // Application services
+        services.AddScoped<ChannelReader>();
+        services.AddScoped<ChannelsService>();
+        services.AddScoped<ChannelsRepository>();
+        services.AddScoped<DigestsService>();
+        services.AddScoped<DigestRepository>();
+        services.AddScoped<SummaryGenerator>();
+        services.AddScoped<EmailSender>();
+        services.AddScoped<MainService>();
+        services.AddScoped<PublicFacade>();
+        services.AddScoped<SettingsManager>(sp =>
+        {
+            var logger = sp.GetRequiredService<ILogger<SettingsManager>>();
+            var settingsPath = configuration.GetValue<string>("SettingsPath");
+            return new(settingsPath, logger);
+        });
+
+        // Logging
+        services.AddLogging(logging =>
+        {
+            logging.ClearProviders();
+            logging.AddConsole();
+            logging.AddDebug();
+        });
+    }
+
+    private static async Task InitializeTelegramDigestDatabaseAsync(
+        IServiceProvider serviceProvider
+    )
+    {
+        using var scope = serviceProvider.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        await context.Database.MigrateAsync();
+    }
 }

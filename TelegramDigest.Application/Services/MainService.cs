@@ -2,77 +2,72 @@ using FluentResults;
 
 namespace TelegramDigest.Application.Services;
 
+public abstract class MainServiceBase
+{
+    internal abstract Task<Result> ProcessDailyDigest();
+    internal abstract Task<Result<List<ChannelModel>>> GetChannels();
+    internal abstract Task<Result> AddChannel(ChannelId channelId);
+    internal abstract Task<Result> RemoveChannel(ChannelId channelId);
+    internal abstract Task<Result<List<DigestSummaryModel>>> GetDigestsSummaries();
+    internal abstract Task<Result<DigestModel>> GetDigest(DigestId digestId);
+    internal abstract Task<Result<SettingsModel>> GetSettings();
+    internal abstract Task<Result> UpdateSettings(SettingsModel settings);
+}
+
 /// <summary>
 /// Coordinates application services and implements core business logic
 /// </summary>
-public class MainService
+internal sealed class MainService(
+    DigestsService digestsService,
+    ChannelsService channelsService,
+    EmailSender emailSender,
+    SettingsManager settingsManager,
+    ILogger<MainService> logger
+) : MainServiceBase
 {
-    private readonly DigestsService _digestsService;
-    private readonly ChannelsService _channelsService;
-    private readonly EmailSender _emailSender;
-    private readonly SettingsManager _settingsManager;
-    private readonly ILogger<MainService> _logger;
-
-    public MainService(
-        DigestsService digestsService,
-        ChannelsService channelsService,
-        EmailSender emailSender,
-        SettingsManager settingsManager,
-        ILogger<MainService> logger
-    )
-    {
-        _digestsService = digestsService;
-        _channelsService = channelsService;
-        _emailSender = emailSender;
-        _settingsManager = settingsManager;
-        _logger = logger;
-    }
-
     /// <summary>
     /// Generates and sends daily digest according to configured schedule
     /// </summary>
-    public async Task<Result> ProcessDailyDigest()
+    internal override async Task<Result> ProcessDailyDigest()
     {
-        _logger.LogInformation("Starting daily digest processing");
+        logger.LogInformation("Starting daily digest processing");
 
-        var settings = await _settingsManager.LoadSettings();
+        var settings = await settingsManager.LoadSettings();
         if (settings.IsFailed)
             return settings.ToResult();
 
         var dateFrom = DateTime.UtcNow.Date.AddDays(-1);
         var dateTo = DateTime.UtcNow.Date;
 
-        var digestResult = await _digestsService.GenerateDigest(dateFrom, dateTo);
-        if (digestResult.IsFailed)
-            return digestResult.ToResult();
+        var generationResult = await digestsService.GenerateDigest(dateFrom, dateTo);
+        if (generationResult.IsFailed)
+            return generationResult.ToResult();
 
-        var digest = await _digestsService.GetDigest(digestResult.Value);
+        var digest = await digestsService.GetDigest(generationResult.Value);
         if (digest.IsFailed)
             return digest.ToResult();
 
-        return await _emailSender.SendDigest(
-            digest.Value.DigestSummary,
-            settings.Value.EmailRecipient
-        );
+        return await emailSender.SendDigest(digest.Value.DigestSummary);
     }
 
-    public async Task<Result<List<ChannelModel>>> GetChannels() =>
-        await _channelsService.GetChannels();
+    internal override async Task<Result<List<ChannelModel>>> GetChannels() =>
+        await channelsService.GetChannels();
 
-    public async Task<Result> AddChannel(ChannelId channelId) =>
-        await _channelsService.AddChannel(channelId);
+    internal override async Task<Result> AddChannel(ChannelId channelId) =>
+        await channelsService.AddChannel(channelId);
 
-    public async Task<Result> RemoveChannel(ChannelId channelId) =>
-        await _channelsService.RemoveChannel(channelId);
+    internal override async Task<Result> RemoveChannel(ChannelId channelId) =>
+        await channelsService.RemoveChannel(channelId);
 
-    public async Task<Result<List<DigestSummaryModel>>> GetDigestsSummaries() =>
-        await _digestsService.GetDigestsSummaries();
+    internal override async Task<Result<List<DigestSummaryModel>>> GetDigestsSummaries() =>
+        await digestsService.GetDigestsSummaries();
 
-    public async Task<Result<DigestModel>> GetDigest(DigestId digestId) =>
-        await _digestsService.GetDigest(digestId);
+    internal override async Task<Result<DigestModel>> GetDigest(DigestId digestId) =>
+        await digestsService.GetDigest(digestId);
 
-    public async Task<Result<SettingsModel>> GetSettings() => await _settingsManager.LoadSettings();
+    internal override async Task<Result<SettingsModel>> GetSettings() =>
+        await settingsManager.LoadSettings();
 
-    public async Task<Result> UpdateSettings(SettingsModel settings) =>
-        await _settingsManager.SaveSettings(settings);
+    internal override async Task<Result> UpdateSettings(SettingsModel settings) =>
+        await settingsManager.SaveSettings(settings);
 }

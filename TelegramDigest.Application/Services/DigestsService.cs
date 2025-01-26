@@ -1,67 +1,51 @@
 using FluentResults;
-using Microsoft.Extensions.Logging;
 
 namespace TelegramDigest.Application.Services;
 
-public class DigestsService
+internal sealed class DigestsService(
+    DigestRepository digestRepository,
+    ChannelReader channelReader,
+    ChannelsRepository channelsRepository,
+    SummaryGenerator summaryGenerator,
+    ILogger<DigestsService> logger
+)
 {
-    private readonly DigestRepository _digestRepository;
-    private readonly ChannelReader _channelReader;
-    private readonly ChannelsRepository _channelsRepository;
-    private readonly SummaryGenerator _summaryGenerator;
-    private readonly ILogger<DigestsService> _logger;
-
-    public DigestsService(
-        DigestRepository digestRepository,
-        ChannelReader channelReader,
-        ChannelsRepository channelsRepository,
-        SummaryGenerator summaryGenerator,
-        ILogger<DigestsService> logger
-    )
-    {
-        _digestRepository = digestRepository;
-        _channelReader = channelReader;
-        _channelsRepository = channelsRepository;
-        _summaryGenerator = summaryGenerator;
-        _logger = logger;
-    }
+    private readonly ILogger<DigestsService> _logger = logger;
 
     /// <summary>
     /// Creates a new digest from posts within the specified time range
     /// </summary>
     /// <returns>DigestId of the generated digest or error if generation failed</returns>
-    public async Task<Result<DigestId>> GenerateDigest(DateTime from, DateTime to)
+    internal async Task<Result<DigestId>> GenerateDigest(DateTime from, DateTime to)
     {
-        var channels = await _channelsRepository.LoadChannels();
+        var channels = await channelsRepository.LoadChannels();
         if (channels.IsFailed)
             return channels.ToResult<DigestId>();
 
         var posts = new List<PostModel>();
         foreach (var channel in channels.Value)
         {
-            var postsResult = await _channelReader.FetchPosts(channel.ChannelId);
+            var postsResult = await channelReader.FetchPosts(channel.ChannelId, from, to);
             if (postsResult.IsSuccess)
             {
-                posts.AddRange(
-                    postsResult.Value.Where(p => p.PublishedAt >= from && p.PublishedAt <= to)
-                );
+                posts.AddRange(postsResult.Value);
             }
         }
 
-        if (!posts.Any())
+        if (posts.Count == 0)
             return Result.Fail(new Error("No posts found in the specified time range"));
 
         var summaries = new List<PostSummaryModel>();
         foreach (var post in posts)
         {
-            var summaryResult = await _summaryGenerator.GenerateSummary(post);
+            var summaryResult = await summaryGenerator.GenerateSummary(post);
             if (summaryResult.IsSuccess)
             {
                 summaries.Add(summaryResult.Value);
             }
         }
 
-        var digestSummaryResult = await _summaryGenerator.GeneratePostsSummary(posts);
+        var digestSummaryResult = await summaryGenerator.GeneratePostsSummary(posts);
         if (digestSummaryResult.IsFailed)
             return digestSummaryResult.ToResult<DigestId>();
 
@@ -72,17 +56,17 @@ public class DigestsService
             DigestSummary: digestSummaryResult.Value
         );
 
-        var saveResult = await _digestRepository.SaveDigest(digest);
+        var saveResult = await digestRepository.SaveDigest(digest);
         return saveResult.IsSuccess ? Result.Ok(digestId) : saveResult.ToResult<DigestId>();
     }
 
-    public async Task<Result<DigestModel>> GetDigest(DigestId digestId)
+    internal async Task<Result<DigestModel>> GetDigest(DigestId digestId)
     {
-        return await _digestRepository.LoadDigest(digestId);
+        return await digestRepository.LoadDigest(digestId);
     }
 
-    public async Task<Result<List<DigestSummaryModel>>> GetDigestsSummaries()
+    internal async Task<Result<List<DigestSummaryModel>>> GetDigestsSummaries()
     {
-        return await _digestRepository.LoadAllDigestSummaries();
+        return await digestRepository.LoadAllDigestSummaries();
     }
 }

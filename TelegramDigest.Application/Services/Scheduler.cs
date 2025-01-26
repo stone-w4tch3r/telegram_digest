@@ -1,52 +1,41 @@
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+
 namespace TelegramDigest.Application.Services;
 
 /// <summary>
 /// Background service that schedules and executes daily digest generation
 /// </summary>
-public class Scheduler : BackgroundService
+internal sealed class Scheduler(ILogger<Scheduler> logger, IServiceScopeFactory scopeFactory)
+    : BackgroundService
 {
-    private readonly MainService _mainService;
-    private readonly SettingsManager _settingsManager;
-    private readonly ILogger<Scheduler> _logger;
     private Timer? _timer;
-    private TimeOnly _lastScheduledTime;
-
-    public Scheduler(
-        MainService mainService,
-        SettingsManager settingsManager,
-        ILogger<Scheduler> logger
-    )
-    {
-        _mainService = mainService;
-        _settingsManager = settingsManager;
-        _logger = logger;
-        _lastScheduledTime = TimeOnly.MinValue;
-    }
+    private TimeOnly _lastScheduledTime = TimeOnly.MinValue;
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        // Initial setup of the timer
-        await UpdateSchedule();
-
         while (!stoppingToken.IsCancellationRequested)
         {
             // Check settings every minute for schedule changes
+            using var scope = scopeFactory.CreateScope();
+            var settingsManager = scope.ServiceProvider.GetRequiredService<SettingsManager>();
+            var mainService = scope.ServiceProvider.GetRequiredService<MainService>();
+            await UpdateSchedule(settingsManager, mainService);
             await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
-            await UpdateSchedule();
         }
     }
 
     /// <summary>
     /// Updates the schedule based on settings and creates/updates timer if needed
     /// </summary>
-    private async Task UpdateSchedule()
+    private async Task UpdateSchedule(SettingsManager settingsManager, MainService mainService)
     {
         try
         {
-            var settingsResult = await _settingsManager.LoadSettings();
+            var settingsResult = await settingsManager.LoadSettings();
             if (settingsResult.IsFailed)
             {
-                _logger.LogError(
+                logger.LogError(
                     "Failed to load settings for scheduler: {Errors}",
                     string.Join(", ", settingsResult.Errors)
                 );
@@ -65,7 +54,7 @@ public class Scheduler : BackgroundService
             var now = TimeOnly.FromDateTime(DateTime.Now);
             var delay = CalculateDelay(now, scheduledTime);
 
-            _logger.LogInformation(
+            logger.LogInformation(
                 "Scheduling next digest for {ScheduledTime} (in {Delay})",
                 scheduledTime,
                 delay
@@ -78,8 +67,19 @@ public class Scheduler : BackgroundService
             }
 
             // Create new timer
-            _timer = new Timer(
-                async _ => await ExecuteDigestGeneration(),
+            _timer = new(
+                _ =>
+                    Task.Run(async () =>
+                    {
+                        try
+                        {
+                            await ExecuteDigestGeneration(mainService);
+                        }
+                        catch (Exception ex)
+                        {
+                            logger.LogError(ex, "Unhandled exception in timer callback");
+                        }
+                    }),
                 null,
                 delay,
                 TimeSpan.FromDays(1) // Repeat daily
@@ -87,7 +87,7 @@ public class Scheduler : BackgroundService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to update digest schedule");
+            logger.LogError(ex, "Failed to update digest schedule");
         }
     }
 
@@ -108,35 +108,35 @@ public class Scheduler : BackgroundService
     /// <summary>
     /// Executes digest generation and handles any errors
     /// </summary>
-    private async Task ExecuteDigestGeneration()
+    private async Task ExecuteDigestGeneration(MainService mainService)
     {
         try
         {
-            _logger.LogInformation("Starting scheduled digest generation");
+            logger.LogInformation("Starting scheduled digest generation");
 
-            var result = await _mainService.ProcessDailyDigest();
+            var result = await mainService.ProcessDailyDigest();
 
             if (result.IsFailed)
             {
-                _logger.LogError(
+                logger.LogError(
                     "Scheduled digest generation failed: {Errors}",
                     string.Join(", ", result.Errors)
                 );
             }
             else
             {
-                _logger.LogInformation("Scheduled digest generation completed successfully");
+                logger.LogInformation("Scheduled digest generation completed successfully");
             }
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Unexpected error during scheduled digest generation");
+            logger.LogError(ex, "Unexpected error during scheduled digest generation");
         }
     }
 
     public override async Task StopAsync(CancellationToken stoppingToken)
     {
-        _logger.LogInformation("Stopping digest scheduler");
+        logger.LogInformation("Stopping digest scheduler");
 
         if (_timer != null)
         {

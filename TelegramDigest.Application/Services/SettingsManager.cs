@@ -3,50 +3,54 @@ using FluentResults;
 
 namespace TelegramDigest.Application.Services;
 
-public class SettingsManager
+internal sealed class SettingsManager
 {
+    private const string SettingsPath = "settings.json";
     private readonly string _settingsPath;
     private readonly ILogger<SettingsManager> _logger;
-    private readonly JsonSerializerOptions _jsonOptions;
+    private readonly JsonSerializerOptions _jsonOptions = new() { WriteIndented = true };
 
     /// <summary>
     /// Manages application settings with file-based persistence
     /// </summary>
-    public SettingsManager(string settingsPath, ILogger<SettingsManager> logger)
+    internal SettingsManager(string? settingsPath, ILogger<SettingsManager> logger)
     {
-        _settingsPath = settingsPath;
+        _settingsPath = settingsPath ?? SettingsPath;
         _logger = logger;
-        _jsonOptions = new JsonSerializerOptions
-        {
-            WriteIndented = true,
-            PropertyNameCaseInsensitive = true,
-        };
     }
 
-    public async Task<Result<SettingsModel>> LoadSettings()
+    internal async Task<Result<SettingsModel>> LoadSettings()
     {
         try
         {
             if (!File.Exists(_settingsPath))
             {
-                return Result.Fail(new Error("Settings file not found"));
+                _logger.LogInformation(
+                    "Settings file not found, creating default settings at {Path}",
+                    _settingsPath
+                );
+                var emptySettings = CreateEmptySettings();
+                await SaveSettings(emptySettings);
+                return Result.Ok(emptySettings);
             }
 
             var json = await File.ReadAllTextAsync(_settingsPath);
             var settings = JsonSerializer.Deserialize<SettingsModel>(json, _jsonOptions);
 
             return settings is null
-                ? Result.Fail(new Error("Invalid settings format"))
+                ? Result.Fail("Failed to deserialize settings")
                 : Result.Ok(settings);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to load settings from {Path}", _settingsPath);
-            return Result.Fail(new Error("Settings loading failed").CausedBy(ex));
+            return Result.Fail(
+                new Error($"Failed to load settings from {_settingsPath}").CausedBy(ex)
+            );
         }
     }
 
-    public async Task<Result> SaveSettings(SettingsModel settings)
+    internal async Task<Result> SaveSettings(SettingsModel settings)
     {
         try
         {
@@ -57,7 +61,17 @@ public class SettingsManager
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to save settings to {Path}", _settingsPath);
-            return Result.Fail(new Error("Settings saving failed").CausedBy(ex));
+            return Result.Fail(
+                new Error($"Failed to save settings to {_settingsPath}").CausedBy(ex)
+            );
         }
     }
+
+    private static SettingsModel CreateEmptySettings() =>
+        new SettingsModel(
+            "email@example.com",
+            new(0, 0),
+            new("smtp.example.com", 22, "username", "password", true),
+            new("apikey", "model", 2048)
+        );
 }

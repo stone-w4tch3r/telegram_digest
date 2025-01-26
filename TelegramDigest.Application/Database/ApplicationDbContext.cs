@@ -1,16 +1,12 @@
-using Microsoft.EntityFrameworkCore;
-
 namespace TelegramDigest.Application.Database;
 
-public class ApplicationDbContext : DbContext
+internal sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+    : DbContext(options)
 {
-    public DbSet<ChannelEntity> Channels => Set<ChannelEntity>();
-    public DbSet<DigestEntity> Digests => Set<DigestEntity>();
-    public DbSet<PostSummaryEntity> Posts => Set<PostSummaryEntity>();
-    public DbSet<DigestSummaryEntity> DigestSummaries => Set<DigestSummaryEntity>();
-
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-        : base(options) { }
+    internal DbSet<ChannelEntity> Channels => Set<ChannelEntity>();
+    internal DbSet<DigestEntity> Digests => Set<DigestEntity>();
+    internal DbSet<PostSummaryEntity> Posts => Set<PostSummaryEntity>();
+    internal DbSet<DigestSummaryEntity> DigestSummaries => Set<DigestSummaryEntity>();
 
     /// <summary>
     /// Applies entity configurations using Fluent API

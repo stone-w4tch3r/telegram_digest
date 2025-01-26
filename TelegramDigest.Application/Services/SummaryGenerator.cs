@@ -2,29 +2,21 @@ using FluentResults;
 
 namespace TelegramDigest.Application.Services;
 
-public class SummaryGenerator
+internal sealed class SummaryGenerator( // IOpenAIService openAiService,
+    SettingsManager settingsManager,
+    ILogger<SummaryGenerator> logger
+)
 {
     // private readonly IOpenAIService _openAiService;
-    private readonly SettingsManager _settingsManager;
-    private readonly ILogger<SummaryGenerator> _logger;
 
-    public SummaryGenerator(
-        // IOpenAIService openAiService,
-        SettingsManager settingsManager,
-        ILogger<SummaryGenerator> logger
-    )
-    {
-        // _openAiService = openAiService;
-        _settingsManager = settingsManager;
-        _logger = logger;
-    }
+    // _openAiService = openAiService;
 
     /// <summary>
     /// Generates a concise summary of a post using OpenAI's GPT model
     /// </summary>
-    public async Task<Result<PostSummaryModel>> GenerateSummary(PostModel post)
+    internal async Task<Result<PostSummaryModel>> GenerateSummary(PostModel post)
     {
-        var settings = await _settingsManager.LoadSettings();
+        var settings = await settingsManager.LoadSettings();
         if (settings.IsFailed)
             return settings.ToResult<PostSummaryModel>();
 
@@ -64,7 +56,7 @@ public class SummaryGenerator
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to generate summary for post {PostId}", post.PostId);
+            logger.LogError(ex, "Failed to generate summary for post {PostUrl}", post.Url);
             return Result.Fail(new Error("Summary generation failed").CausedBy(ex));
         }
     }
@@ -72,7 +64,7 @@ public class SummaryGenerator
     /// <summary>
     /// Evaluates post importance based on content analysis
     /// </summary>
-    public async Task<Result<ImportanceModel>> EvaluatePostImportance(PostModel post)
+    internal async Task<Result<ImportanceModel>> EvaluatePostImportance(PostModel post)
     {
         try
         {
@@ -98,12 +90,12 @@ public class SummaryGenerator
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to evaluate importance for post {PostId}", post.PostId);
+            logger.LogError(ex, "Failed to evaluate importance for post {Url}", post.Url);
             return Result.Fail(new Error("Importance evaluation failed").CausedBy(ex));
         }
     }
 
-    public async Task<Result<DigestSummaryModel>> GeneratePostsSummary(List<PostModel> posts)
+    internal async Task<Result<DigestSummaryModel>> GeneratePostsSummary(List<PostModel> posts)
     {
         try
         {
@@ -143,7 +135,7 @@ public class SummaryGenerator
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to generate posts summary");
+            logger.LogError(ex, "Failed to generate posts summary");
             return Result.Fail(new Error("Summary generation failed").CausedBy(ex));
         }
     }

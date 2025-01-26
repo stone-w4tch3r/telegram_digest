@@ -1,44 +1,34 @@
 using FluentResults;
-using Microsoft.Extensions.Logging;
 
 namespace TelegramDigest.Application.Services;
 
-public class ChannelsService
+internal sealed class ChannelsService(
+    ChannelsRepository channelsRepository,
+    ChannelReader channelReader,
+    ILogger<ChannelsService> logger
+)
 {
-    private readonly ChannelsRepository _channelsRepository;
-    private readonly ChannelReader _channelReader;
-    private readonly ILogger<ChannelsService> _logger;
+    private readonly ILogger<ChannelsService> _logger = logger;
 
-    public ChannelsService(
-        ChannelsRepository channelsRepository,
-        ChannelReader channelReader,
-        ILogger<ChannelsService> logger
-    )
+    internal async Task<Result> AddChannel(ChannelId channelId)
     {
-        _channelsRepository = channelsRepository;
-        _channelReader = channelReader;
-        _logger = logger;
-    }
-
-    public async Task<Result> AddChannel(ChannelId channelId)
-    {
-        var channelResult = await _channelReader.FetchChannelInfo(channelId);
+        var channelResult = await channelReader.FetchChannelInfo(channelId);
         if (channelResult.IsFailed)
         {
             return channelResult.ToResult();
         }
 
-        return await _channelsRepository.SaveChannel(channelResult.Value);
+        return await channelsRepository.SaveChannel(channelResult.Value);
     }
 
-    public async Task<Result<List<ChannelModel>>> GetChannels()
+    internal async Task<Result<List<ChannelModel>>> GetChannels()
     {
-        return await _channelsRepository.LoadChannels();
+        return await channelsRepository.LoadChannels();
     }
 
-    public async Task<Result> RemoveChannel(ChannelId channelId)
+    internal async Task<Result> RemoveChannel(ChannelId channelId)
     {
-        var channels = await _channelsRepository.LoadChannels();
+        var channels = await channelsRepository.LoadChannels();
         if (channels.IsFailed)
         {
             return channels.ToResult();
@@ -53,7 +43,7 @@ public class ChannelsService
 
         foreach (var channel in updatedChannels)
         {
-            var result = await _channelsRepository.SaveChannel(channel);
+            var result = await channelsRepository.SaveChannel(channel);
             if (result.IsFailed)
             {
                 return result;

@@ -1,45 +1,46 @@
 namespace TelegramDigest.Application.Database;
 
-public class ChannelEntity
+internal sealed class ChannelEntity
 {
-    public string Id { get; set; } = null!;
-    public string Name { get; set; } = null!;
-    public string Description { get; set; } = null!;
-    public string ImageUrl { get; set; } = null!;
+    internal string Id { get; set; } = null!;
+    internal string Name { get; set; } = null!;
+    internal string Description { get; set; } = null!;
+    internal string ImageUrl { get; set; } = null!;
 }
 
-public class DigestEntity
+internal sealed class DigestEntity
 {
-    public Guid Id { get; set; }
-    public List<PostSummaryEntity> Posts { get; set; } = new();
-    public DigestSummaryEntity Summary { get; set; } = null!;
-    public DateTime CreatedAt { get; set; }
+    internal Guid Id { get; set; }
+    internal List<PostSummaryEntity> Posts { get; set; } = new();
+    internal DigestSummaryEntity Summary { get; set; } = null!;
+    internal DateTime CreatedAt { get; set; }
 }
 
-public class PostSummaryEntity
+internal sealed class PostSummaryEntity
 {
-    public Guid Id { get; set; }
-    public string ChannelId { get; set; } = null!;
-    public string Summary { get; set; } = null!;
-    public string Url { get; set; } = null!;
-    public DateTime PublishedAt { get; set; }
-    public int Importance { get; set; }
+    internal string Id { get; set; } = null!;
+    internal string Title { get; set; } = null!;
+    internal string ChannelId { get; set; } = null!;
+    internal string Summary { get; set; } = null!;
+    internal string Url { get; set; } = null!;
+    internal DateTime PublishedAt { get; set; }
+    internal int Importance { get; set; }
 
-    public Guid DigestId { get; set; }
-    public DigestEntity Digest { get; set; } = null!;
+    internal Guid DigestId { get; set; }
+    internal DigestEntity Digest { get; set; } = null!;
 }
 
-public class DigestSummaryEntity
+internal sealed class DigestSummaryEntity
 {
-    public Guid Id { get; set; }
-    public string Title { get; set; } = null!;
-    public string PostsSummary { get; set; } = null!;
-    public int PostsCount { get; set; }
-    public int AverageImportance { get; set; }
-    public DateTime CreatedAt { get; set; }
-    public DateTime DateFrom { get; set; }
-    public DateTime DateTo { get; set; }
-    public string ImageUrl { get; set; } = null!;
+    internal Guid Id { get; set; }
+    internal string Title { get; set; } = null!;
+    internal string PostsSummary { get; set; } = null!;
+    internal int PostsCount { get; set; }
+    internal int AverageImportance { get; set; }
+    internal DateTime CreatedAt { get; set; }
+    internal DateTime DateFrom { get; set; }
+    internal DateTime DateTo { get; set; }
+    internal string ImageUrl { get; set; } = null!;
 
-    public DigestEntity Digest { get; set; } = null!;
+    internal DigestEntity Digest { get; set; } = null!;
 }

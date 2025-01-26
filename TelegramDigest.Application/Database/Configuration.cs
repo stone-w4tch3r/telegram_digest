@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace TelegramDigest.Application.Database;
@@ -6,7 +5,7 @@ namespace TelegramDigest.Application.Database;
 /// <summary>
 /// Fluent API configurations for database entities
 /// </summary>
-public class ChannelConfiguration : IEntityTypeConfiguration<ChannelEntity>
+internal sealed class ChannelConfiguration : IEntityTypeConfiguration<ChannelEntity>
 {
     public void Configure(EntityTypeBuilder<ChannelEntity> builder)
     {
@@ -17,7 +16,7 @@ public class ChannelConfiguration : IEntityTypeConfiguration<ChannelEntity>
     }
 }
 
-public class DigestConfiguration : IEntityTypeConfiguration<DigestEntity>
+internal sealed class DigestConfiguration : IEntityTypeConfiguration<DigestEntity>
 {
     public void Configure(EntityTypeBuilder<DigestEntity> builder)
     {
@@ -37,7 +36,7 @@ public class DigestConfiguration : IEntityTypeConfiguration<DigestEntity>
     }
 }
 
-public class PostSummaryConfiguration : IEntityTypeConfiguration<PostSummaryEntity>
+internal sealed class PostSummaryConfiguration : IEntityTypeConfiguration<PostSummaryEntity>
 {
     public void Configure(EntityTypeBuilder<PostSummaryEntity> builder)
     {
@@ -50,7 +49,7 @@ public class PostSummaryConfiguration : IEntityTypeConfiguration<PostSummaryEnti
     }
 }
 
-public class DigestSummaryConfiguration : IEntityTypeConfiguration<DigestSummaryEntity>
+internal sealed class DigestSummaryConfiguration : IEntityTypeConfiguration<DigestSummaryEntity>
 {
     public void Configure(EntityTypeBuilder<DigestSummaryEntity> builder)
     {

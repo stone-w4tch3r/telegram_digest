@@ -1,29 +1,21 @@
 using FluentResults;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using TelegramDigest.Application.Database;
 
 namespace TelegramDigest.Application.Services;
 
-public class DigestRepository
+internal sealed class DigestRepository(
+    ApplicationDbContext dbContext,
+    ILogger<DigestRepository> logger
+)
 {
-    private readonly ApplicationDbContext _dbContext;
-    private readonly ILogger<DigestRepository> _logger;
-
-    public DigestRepository(ApplicationDbContext dbContext, ILogger<DigestRepository> logger)
-    {
-        _dbContext = dbContext;
-        _logger = logger;
-    }
-
     /// <summary>
     /// Loads complete digest including all post summaries and metadata
     /// </summary>
-    public async Task<Result<DigestModel>> LoadDigest(DigestId digestId)
+    internal async Task<Result<DigestModel>> LoadDigest(DigestId digestId)
     {
         try
         {
-            var digest = await _dbContext
+            var digest = await dbContext
                 .Digests.Include(d => d.Posts)
                 .FirstOrDefaultAsync(d => d.Id == digestId.Value);
 
@@ -34,23 +26,23 @@ public class DigestRepository
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to load digest {DigestId}", digestId);
+            logger.LogError(ex, "Failed to load digest {DigestId}", digestId);
             return Result.Fail(new Error("Database operation failed").CausedBy(ex));
         }
     }
 
-    public async Task<Result> SaveDigest(DigestModel digest)
+    internal async Task<Result> SaveDigest(DigestModel digest)
     {
         try
         {
             var entity = MapToEntity(digest);
-            await _dbContext.Digests.AddAsync(entity);
-            await _dbContext.SaveChangesAsync();
+            await dbContext.Digests.AddAsync(entity);
+            await dbContext.SaveChangesAsync();
             return Result.Ok();
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to save digest {DigestId}", digest.DigestId);
+            logger.LogError(ex, "Failed to save digest {DigestId}", digest.DigestId);
             return Result.Fail(new Error("Database operation failed").CausedBy(ex));
         }
     }
@@ -58,29 +50,29 @@ public class DigestRepository
     /// <summary>
     /// Checks if a post is already included in any digest
     /// </summary>
-    public async Task<Result<bool>> CheckIfPostIsSaved(PostId postId)
+    internal async Task<Result<bool>> CheckIfPostIsSaved(Uri postUrl)
     {
         try
         {
-            return Result.Ok(await _dbContext.Posts.AnyAsync(p => p.Id == postId.Value));
+            return Result.Ok(await dbContext.Posts.AnyAsync(p => p.Id == postUrl.ToString()));
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to check post {PostId}", postId);
+            logger.LogError(ex, "Failed to check post {PostId}", postUrl);
             return Result.Fail(new Error("Database operation failed").CausedBy(ex));
         }
     }
 
-    public async Task<Result<List<DigestSummaryModel>>> LoadAllDigestSummaries()
+    internal async Task<Result<List<DigestSummaryModel>>> LoadAllDigestSummaries()
     {
         try
         {
-            var summaries = await _dbContext.DigestSummaries.ToListAsync();
+            var summaries = await dbContext.DigestSummaries.ToListAsync();
             return Result.Ok(summaries.Select(MapToSummaryModel).ToList());
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to load digest summaries");
+            logger.LogError(ex, "Failed to load digest summaries");
             return Result.Fail(new Error("Database operation failed").CausedBy(ex));
         }
     }

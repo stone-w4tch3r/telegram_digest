@@ -1,18 +1,16 @@
 namespace TelegramDigest.Application.Services;
 
-public record ChannelModel(ChannelId ChannelId, string Description, string Name, Uri ImageUrl);
+internal record ChannelModel(ChannelId ChannelId, string Description, string Name, Uri ImageUrl);
 
-public record PostModel(
-    PostId PostId,
+internal record PostModel(
     ChannelId ChannelId,
     string Title,
-    string Description,
+    string Content,
     Uri Url,
     DateTime PublishedAt
 );
 
-public record PostSummaryModel(
-    PostId PostId,
+internal record PostSummaryModel(
     ChannelId ChannelId,
     string Summary,
     Uri Url,
@@ -20,13 +18,13 @@ public record PostSummaryModel(
     ImportanceModel Importance
 );
 
-public record DigestModel(
+internal record DigestModel(
     DigestId DigestId,
     List<PostSummaryModel> Posts,
     DigestSummaryModel DigestSummary
 );
 
-public record DigestSummaryModel(
+internal record DigestSummaryModel(
     DigestId DigestId,
     string Title,
     string PostsSummary,
@@ -38,14 +36,14 @@ public record DigestSummaryModel(
     Uri ImageUrl
 );
 
-public record SettingsModel(
+internal record SettingsModel(
     string EmailRecipient,
     TimeOnly DigestTime,
     SmtpSettingsModel SmtpSettings,
     OpenAiSettingsModel OpenAiSettings
 );
 
-public record SmtpSettingsModel(
+internal record SmtpSettingsModel(
     string Host,
     int Port,
     string Username,
@@ -53,7 +51,7 @@ public record SmtpSettingsModel(
     bool UseSsl
 );
 
-public record OpenAiSettingsModel(string ApiKey, string Model, int MaxTokens);
+internal record OpenAiSettingsModel(string ApiKey, string Model, int MaxTokens);
 
 //TODO: verify value on creation
-public record ImportanceModel(int Value);
+internal record ImportanceModel(int Value);

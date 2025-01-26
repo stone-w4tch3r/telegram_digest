@@ -6,7 +6,7 @@ namespace TelegramDigest.Application.Services;
 internal sealed class SettingsManager
 {
     private const string SettingsPath = "runtime/settings.json";
-    private readonly string _settingsPath;
+    private readonly FileInfo _settingsFileInfo;
     private readonly ILogger<SettingsManager> _logger;
     private readonly JsonSerializerOptions _jsonOptions = new() { WriteIndented = true };
 
@@ -15,7 +15,7 @@ internal sealed class SettingsManager
     /// </summary>
     internal SettingsManager(string? settingsPath, ILogger<SettingsManager> logger)
     {
-        _settingsPath = settingsPath ?? SettingsPath;
+        _settingsFileInfo = new(settingsPath ?? SettingsPath);
         _logger = logger;
     }
 
@@ -23,18 +23,16 @@ internal sealed class SettingsManager
     {
         try
         {
-            if (!File.Exists(_settingsPath))
+            _settingsFileInfo.Refresh();
+            if (!_settingsFileInfo.Exists)
             {
-                _logger.LogInformation(
-                    "Settings file not found, creating default settings at {Path}",
-                    _settingsPath
-                );
+                _logger.LogInformation("No settings file found.");
                 var emptySettings = CreateEmptySettings();
                 await SaveSettings(emptySettings);
                 return Result.Ok(emptySettings);
             }
 
-            var json = await File.ReadAllTextAsync(_settingsPath);
+            var json = await File.ReadAllTextAsync(_settingsFileInfo.FullName);
             var settings = JsonSerializer.Deserialize<SettingsModel>(json, _jsonOptions);
 
             return settings is null
@@ -43,9 +41,9 @@ internal sealed class SettingsManager
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to load settings from {Path}", _settingsPath);
+            _logger.LogError(ex, "Failed to load settings from {Path}", _settingsFileInfo);
             return Result.Fail(
-                new Error($"Failed to load settings from {_settingsPath}").CausedBy(ex)
+                new Error($"Failed to load settings from {_settingsFileInfo}").CausedBy(ex)
             );
         }
     }
@@ -54,15 +52,26 @@ internal sealed class SettingsManager
     {
         try
         {
+            var directory = Path.GetDirectoryName(_settingsFileInfo.FullName);
+            if (directory is null)
+            {
+                return Result.Fail($"Invalid path to settings file [{_settingsFileInfo.FullName}]");
+            }
+
+            if (!Directory.Exists(directory))
+            {
+                Directory.CreateDirectory(directory);
+            }
+
             var json = JsonSerializer.Serialize(settings, _jsonOptions);
-            await File.WriteAllTextAsync(_settingsPath, json);
+            await File.WriteAllTextAsync(_settingsFileInfo.FullName, json);
             return Result.Ok();
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to save settings to {Path}", _settingsPath);
+            _logger.LogError(ex, "Failed to save settings to {Path}", _settingsFileInfo);
             return Result.Fail(
-                new Error($"Failed to save settings to {_settingsPath}").CausedBy(ex)
+                new Error($"Failed to save settings to {_settingsFileInfo}").CausedBy(ex)
             );
         }
     }

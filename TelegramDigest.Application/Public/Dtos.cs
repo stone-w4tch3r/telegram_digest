@@ -30,7 +30,7 @@ public record OpenAiSettingsDto(string ApiKey, string Model, int MaxTokens);
 
 public record SettingsDto(
     string EmailRecipient,
-    TimeOnly DigestTime,
+    TimeOnly DigestTimeUtc,
     SmtpSettingsDto SmtpSettings,
     OpenAiSettingsDto OpenAiSettings
 );

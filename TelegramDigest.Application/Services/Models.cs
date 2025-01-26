@@ -1,3 +1,5 @@
+using JetBrains.Annotations;
+
 namespace TelegramDigest.Application.Services;
 
 internal record ChannelModel(ChannelId ChannelId, string Description, string Name, Uri ImageUrl);
@@ -38,7 +40,7 @@ internal record DigestSummaryModel(
 
 internal record SettingsModel(
     string EmailRecipient,
-    TimeOnly DigestTime,
+    TimeUtc DigestTime,
     SmtpSettingsModel SmtpSettings,
     OpenAiSettingsModel OpenAiSettings
 );
@@ -53,5 +55,20 @@ internal record SmtpSettingsModel(
 
 internal record OpenAiSettingsModel(string ApiKey, string Model, int MaxTokens);
 
-//TODO: verify value on creation
-internal record ImportanceModel(int Value);
+/// <summary>
+/// Describes the importance of a post. Importance value must be between 1 and 10, inclusive
+/// </summary>
+internal record ImportanceModel
+{
+    internal ImportanceModel(int Value)
+    {
+        this.Value = Value is > 0 and <= 10
+            ? Value
+            : throw new ArgumentOutOfRangeException(
+                nameof(Value),
+                "Importance value must be between 1 and 10, inclusive"
+            );
+    }
+
+    internal int Value { get; }
+}

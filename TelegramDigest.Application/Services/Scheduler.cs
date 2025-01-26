@@ -1,3 +1,4 @@
+using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -6,11 +7,12 @@ namespace TelegramDigest.Application.Services;
 /// <summary>
 /// Background service that schedules and executes daily digest generation
 /// </summary>
+[UsedImplicitly]
 internal sealed class Scheduler(ILogger<Scheduler> logger, IServiceScopeFactory scopeFactory)
     : BackgroundService
 {
     private Timer? _timer;
-    private TimeOnly _lastScheduledTime = TimeOnly.MinValue;
+    private TimeUtc _lastScheduledTimeUtc = new(TimeOnly.MinValue);
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -42,21 +44,21 @@ internal sealed class Scheduler(ILogger<Scheduler> logger, IServiceScopeFactory 
                 return;
             }
 
-            var scheduledTime = settingsResult.Value.DigestTime;
+            var scheduledTimeUtc = settingsResult.Value.DigestTime;
 
             // If schedule hasn't changed, no need to update
-            if (scheduledTime == _lastScheduledTime)
+            if (scheduledTimeUtc.Time == _lastScheduledTimeUtc.Time)
                 return;
 
-            _lastScheduledTime = scheduledTime;
+            _lastScheduledTimeUtc = scheduledTimeUtc;
 
             // Calculate time until next run
-            var now = TimeOnly.FromDateTime(DateTime.Now);
-            var delay = CalculateDelay(now, scheduledTime);
+            var now = TimeOnly.FromDateTime(DateTime.UtcNow);
+            var delay = CalculateDelay(now, scheduledTimeUtc.Time);
 
             logger.LogInformation(
                 "Scheduling next digest for {ScheduledTime} (in {Delay})",
-                scheduledTime,
+                scheduledTimeUtc,
                 delay
             );
 

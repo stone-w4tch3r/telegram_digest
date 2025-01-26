@@ -5,7 +5,7 @@ namespace TelegramDigest.Application.Services;
 
 internal sealed class SettingsManager
 {
-    private const string SettingsPath = "settings.json";
+    private const string SettingsPath = "runtime/settings.json";
     private readonly string _settingsPath;
     private readonly ILogger<SettingsManager> _logger;
     private readonly JsonSerializerOptions _jsonOptions = new() { WriteIndented = true };
@@ -68,9 +68,9 @@ internal sealed class SettingsManager
     }
 
     private static SettingsModel CreateEmptySettings() =>
-        new SettingsModel(
+        new(
             "email@example.com",
-            new(0, 0),
+            new(new(0, 0)),
             new("smtp.example.com", 22, "username", "password", true),
             new("apikey", "model", 2048)
         );

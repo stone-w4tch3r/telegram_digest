@@ -17,7 +17,7 @@ internal sealed class DigestRepository(
         {
             var digest = await dbContext
                 .Digests.Include(d => d.Posts)
-                .FirstOrDefaultAsync(d => d.Id == digestId.Value);
+                .FirstOrDefaultAsync(d => d.Id == digestId.Id);
 
             if (digest == null)
                 return Result.Fail(new Error($"Digest {digestId} not found"));

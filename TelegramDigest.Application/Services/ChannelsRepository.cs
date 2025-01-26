@@ -17,7 +17,7 @@ internal sealed class ChannelsRepository(
         {
             var entity = new ChannelEntity
             {
-                Id = channel.ChannelId.Value,
+                Id = channel.ChannelId.ChannelName,
                 Name = channel.Name,
                 Description = channel.Description,
                 ImageUrl = channel.ImageUrl.ToString(),
@@ -50,10 +50,10 @@ internal sealed class ChannelsRepository(
             var entities = await dbContext.Channels.ToListAsync();
             var channels = entities
                 .Select(e => new ChannelModel(
-                    ChannelId: ChannelId.From(e.Id),
+                    ChannelId: new(e.Id),
                     Name: e.Name,
                     Description: e.Description,
-                    ImageUrl: new Uri(e.ImageUrl)
+                    ImageUrl: new(e.ImageUrl)
                 ))
                 .ToList();
 

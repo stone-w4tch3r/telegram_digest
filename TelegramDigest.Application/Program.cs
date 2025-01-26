@@ -46,7 +46,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<SummaryGenerator>();
         services.AddScoped<EmailSender>();
         services.AddScoped<MainService>();
-        services.AddScoped<MainServiceBase, MainService>();
+        services.AddScoped<IMainService, MainService>();
         services.AddScoped<PublicFacade>();
         services.AddScoped<SettingsManager>(sp =>
         {

@@ -2,7 +2,8 @@ using FluentResults;
 
 namespace TelegramDigest.Application.Services;
 
-public abstract class MainServiceBase
+// ReSharper disable once InconsistentNaming
+public abstract class IMainService
 {
     internal abstract Task<Result> ProcessDailyDigest();
     internal abstract Task<Result<List<ChannelModel>>> GetChannels();
@@ -23,7 +24,7 @@ internal sealed class MainService(
     EmailSender emailSender,
     SettingsManager settingsManager,
     ILogger<MainService> logger
-) : MainServiceBase
+) : IMainService
 {
     /// <summary>
     /// Generates and sends daily digest according to configured schedule

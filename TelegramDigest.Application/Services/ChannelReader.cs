@@ -6,7 +6,7 @@ namespace TelegramDigest.Application.Services;
 
 internal sealed class ChannelReader(ILogger<ChannelReader> logger)
 {
-    private const string RssHubBaseUrl = "https://rsshub.app/telegram/channel/";
+    private const string RssHubBaseUrl = "https://rsshub.app/telegram/channel";
 
     internal Task<Result<List<PostModel>>> FetchPosts(
         ChannelId channelId,
@@ -22,7 +22,7 @@ internal sealed class ChannelReader(ILogger<ChannelReader> logger)
 
             try
             {
-                var feedUrl = $"{RssHubBaseUrl}{channelId.Value}";
+                var feedUrl = $"{RssHubBaseUrl}/{channelId.ChannelName}";
                 using var reader = XmlReader.Create(feedUrl);
                 var feed = SyndicationFeed.Load(reader);
 
@@ -62,7 +62,7 @@ internal sealed class ChannelReader(ILogger<ChannelReader> logger)
         {
             try
             {
-                var feedUrl = $"{RssHubBaseUrl}{channelId.Value}";
+                var feedUrl = $"{RssHubBaseUrl}/{channelId.ChannelName}";
                 using var reader = XmlReader.Create(feedUrl);
                 var feed = SyndicationFeed.Load(reader);
 

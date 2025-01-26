@@ -6,7 +6,7 @@ namespace TelegramDigest.Application.Public;
 /// <summary>
 /// Public API facade for the application, used by Web UI and other external consumers
 /// </summary>
-public sealed class PublicFacade(MainServiceBase mainService, ILogger<PublicFacade> logger)
+public sealed class PublicFacade(IMainService mainService, ILogger<PublicFacade> logger)
 {
     public async Task<Result<List<ChannelDto>>> GetChannels()
     {
@@ -16,12 +16,12 @@ public sealed class PublicFacade(MainServiceBase mainService, ILogger<PublicFaca
 
     public async Task<Result> AddChannel(string channelName)
     {
-        return await mainService.AddChannel(ChannelId.From(channelName));
+        return await mainService.AddChannel(new(channelName));
     }
 
     public async Task<Result> RemoveChannel(string channelName)
     {
-        return await mainService.RemoveChannel(ChannelId.From(channelName));
+        return await mainService.RemoveChannel(new(channelName));
     }
 
     public async Task<Result<List<DigestSummaryDto>>> GetDigestSummaries()
@@ -32,7 +32,7 @@ public sealed class PublicFacade(MainServiceBase mainService, ILogger<PublicFaca
 
     public async Task<Result<DigestDto>> GetDigest(Guid digestId)
     {
-        var result = await mainService.GetDigest(DigestId.From(digestId));
+        var result = await mainService.GetDigest(new(digestId));
         return result.Map(digest => digest.ToDto());
     }
 
@@ -51,22 +51,7 @@ public sealed class PublicFacade(MainServiceBase mainService, ILogger<PublicFaca
     public async Task<Result<SettingsDto>> GetSettings()
     {
         var result = await mainService.GetSettings();
-        return result.Map(settings => new SettingsDto(
-            EmailRecipient: settings.EmailRecipient,
-            DigestTime: settings.DigestTime,
-            SmtpSettings: new SmtpSettingsDto(
-                Host: settings.SmtpSettings.Host,
-                Port: settings.SmtpSettings.Port,
-                Username: settings.SmtpSettings.Username,
-                Password: settings.SmtpSettings.Password,
-                UseSsl: settings.SmtpSettings.UseSsl
-            ),
-            OpenAiSettings: new OpenAiSettingsDto(
-                ApiKey: settings.OpenAiSettings.ApiKey,
-                Model: settings.OpenAiSettings.Model,
-                MaxTokens: settings.OpenAiSettings.MaxTokens
-            )
-        ));
+        return result.Map(settings => settings.ToDto());
     }
 
     public async Task<Result> UpdateSettings(SettingsDto settingsDto)

@@ -24,7 +24,7 @@ public static class ServiceCollectionExtensions
         this IServiceProvider serviceProvider
     )
     {
-        await InitializeTelegramDigestDatabaseAsync(serviceProvider);
+        await InitializeDbAsync(serviceProvider);
         return serviceProvider;
     }
 
@@ -46,6 +46,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<SummaryGenerator>();
         services.AddScoped<EmailSender>();
         services.AddScoped<MainService>();
+        services.AddScoped<MainServiceBase, MainService>();
         services.AddScoped<PublicFacade>();
         services.AddScoped<SettingsManager>(sp =>
         {
@@ -63,9 +64,7 @@ public static class ServiceCollectionExtensions
         });
     }
 
-    private static async Task InitializeTelegramDigestDatabaseAsync(
-        IServiceProvider serviceProvider
-    )
+    private static async Task InitializeDbAsync(IServiceProvider serviceProvider)
     {
         using var scope = serviceProvider.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();

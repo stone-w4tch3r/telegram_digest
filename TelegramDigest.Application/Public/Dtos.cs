@@ -2,7 +2,7 @@ namespace TelegramDigest.Application.Public;
 
 public record ChannelDto(string ChannelName, string Description, string Name, string ImageUrl);
 
-public record DigestPreviewDto(
+public record DigestSummaryDto(
     Guid DigestId,
     string Title,
     string Summary,
@@ -22,7 +22,7 @@ public record PostSummaryDto(
     int Importance
 );
 
-public record DigestDto(Guid DigestId, List<PostSummaryDto> Posts, DigestPreviewDto Summary);
+public record DigestDto(Guid DigestId, List<PostSummaryDto> Posts, DigestSummaryDto Summary);
 
 public record SmtpSettingsDto(string Host, int Port, string Username, string Password, bool UseSsl);
 

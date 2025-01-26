@@ -65,7 +65,7 @@ internal sealed class DigestsService(
         return await digestRepository.LoadDigest(digestId);
     }
 
-    internal async Task<Result<List<DigestSummaryModel>>> GetDigestsSummaries()
+    internal async Task<Result<List<DigestSummaryModel>>> GetDigestSummaries()
     {
         return await digestRepository.LoadAllDigestSummaries();
     }

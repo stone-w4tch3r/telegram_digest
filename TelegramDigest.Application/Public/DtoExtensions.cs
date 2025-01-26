@@ -15,7 +15,7 @@ internal static class DtoExtensions
             ImageUrl: model.ImageUrl.ToString()
         );
 
-    internal static DigestPreviewDto ToDto(this DigestSummaryModel model) =>
+    internal static DigestSummaryDto ToDto(this DigestSummaryModel model) =>
         new(
             DigestId: model.DigestId.Value,
             Title: model.Title,

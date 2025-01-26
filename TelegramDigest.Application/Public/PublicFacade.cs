@@ -24,9 +24,9 @@ public sealed class PublicFacade(MainServiceBase mainService, ILogger<PublicFaca
         return await mainService.RemoveChannel(ChannelId.From(channelName));
     }
 
-    public async Task<Result<List<DigestPreviewDto>>> GetDigestsSummaries()
+    public async Task<Result<List<DigestSummaryDto>>> GetDigestSummaries()
     {
-        var result = await mainService.GetDigestsSummaries();
+        var result = await mainService.GetDigestSummaries();
         return result.Map(summaries => summaries.Select(s => s.ToDto()).ToList());
     }
 
@@ -36,15 +36,15 @@ public sealed class PublicFacade(MainServiceBase mainService, ILogger<PublicFaca
         return result.Map(digest => digest.ToDto());
     }
 
-    public async Task<Result<DigestPreviewDto>> GenerateDigest()
+    public async Task<Result<DigestSummaryDto>> GenerateDigest()
     {
         var result = await mainService.ProcessDailyDigest();
         if (result.IsFailed)
-            return result.ToResult<DigestPreviewDto>();
+            return result.ToResult<DigestSummaryDto>();
 
-        var summaries = await GetDigestsSummaries();
+        var summaries = await GetDigestSummaries();
         return summaries.IsFailed
-            ? summaries.ToResult<DigestPreviewDto>()
+            ? summaries.ToResult<DigestSummaryDto>()
             : Result.Ok(summaries.Value.First());
     }
 

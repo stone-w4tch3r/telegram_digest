@@ -8,7 +8,7 @@ public abstract class MainServiceBase
     internal abstract Task<Result<List<ChannelModel>>> GetChannels();
     internal abstract Task<Result> AddChannel(ChannelId channelId);
     internal abstract Task<Result> RemoveChannel(ChannelId channelId);
-    internal abstract Task<Result<List<DigestSummaryModel>>> GetDigestsSummaries();
+    internal abstract Task<Result<List<DigestSummaryModel>>> GetDigestSummaries();
     internal abstract Task<Result<DigestModel>> GetDigest(DigestId digestId);
     internal abstract Task<Result<SettingsModel>> GetSettings();
     internal abstract Task<Result> UpdateSettings(SettingsModel settings);
@@ -59,8 +59,8 @@ internal sealed class MainService(
     internal override async Task<Result> RemoveChannel(ChannelId channelId) =>
         await channelsService.RemoveChannel(channelId);
 
-    internal override async Task<Result<List<DigestSummaryModel>>> GetDigestsSummaries() =>
-        await digestsService.GetDigestsSummaries();
+    internal override async Task<Result<List<DigestSummaryModel>>> GetDigestSummaries() =>
+        await digestsService.GetDigestSummaries();
 
     internal override async Task<Result<DigestModel>> GetDigest(DigestId digestId) =>
         await digestsService.GetDigest(digestId);

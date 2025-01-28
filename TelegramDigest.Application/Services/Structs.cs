@@ -33,3 +33,8 @@ internal readonly record struct TimeUtc(TimeOnly Time)
 {
     public override string ToString() => Time.ToString();
 }
+
+internal readonly record struct Html(string HtmlString)
+{
+    public override string ToString() => HtmlString;
+}

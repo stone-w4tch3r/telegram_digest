@@ -10,8 +10,8 @@ internal sealed class ChannelReader(ILogger<ChannelReader> logger)
 
     internal Task<Result<List<PostModel>>> FetchPosts(
         ChannelId channelId,
-        DateTime from,
-        DateTime to
+        DateOnly from,
+        DateOnly to
     ) =>
         Task.Run(() =>
         {
@@ -28,24 +28,18 @@ internal sealed class ChannelReader(ILogger<ChannelReader> logger)
 
                 var posts = feed
                     .Items.Where(x =>
-                        x.PublishDate.DateTime >= from && x.PublishDate.DateTime <= to
+                        DateOnly.FromDateTime(x.PublishDate.DateTime) >= from
+                        && DateOnly.FromDateTime(x.PublishDate.DateTime) <= to
                     )
-                    .Select(x =>
-                    {
-                        var url =
-                            x.Links.SingleOrDefault()?.Uri
+                    .Select(x => new PostModel(
+                        ChannelId: channelId,
+                        HtmlContent: new(x.Summary.Text),
+                        Url: x.Links.SingleOrDefault()?.Uri
                             ?? throw new FormatException(
-                                $"Telegram Channel RSS item does not have a valid URL"
-                            );
-
-                        return new PostModel(
-                            ChannelId: channelId,
-                            Title: x.Title.Text,
-                            Content: x.Summary.Text,
-                            Url: url,
-                            PublishedAt: x.PublishDate.DateTime
-                        );
-                    })
+                                $"Telegram Channel RSS item [{x.Id}] does not have a valid URL [{LinksCollectionToString(x.Links)}]"
+                            ),
+                        PublishedAt: x.PublishDate.DateTime
+                    ))
                     .ToList();
 
                 return Result.Ok(posts);
@@ -81,4 +75,7 @@ internal sealed class ChannelReader(ILogger<ChannelReader> logger)
                 return Result.Fail(new Error("Failed to fetch channel info").CausedBy(ex));
             }
         });
+
+    private static string LinksCollectionToString(IEnumerable<SyndicationLink> links) =>
+        string.Join(", ", links.Select(link => link.Uri.ToString()));
 }

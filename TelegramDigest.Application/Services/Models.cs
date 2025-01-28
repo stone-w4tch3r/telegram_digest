@@ -4,13 +4,7 @@ namespace TelegramDigest.Application.Services;
 
 internal record ChannelModel(ChannelId ChannelId, string Description, string Name, Uri ImageUrl);
 
-internal record PostModel(
-    ChannelId ChannelId,
-    string Title,
-    string Content,
-    Uri Url,
-    DateTime PublishedAt
-);
+internal record PostModel(ChannelId ChannelId, Html HtmlContent, Uri Url, DateTime PublishedAt);
 
 internal record PostSummaryModel(
     ChannelId ChannelId,

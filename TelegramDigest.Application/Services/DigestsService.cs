@@ -16,7 +16,7 @@ internal sealed class DigestsService(
     /// Creates a new digest from posts within the specified time range
     /// </summary>
     /// <returns>DigestId of the generated digest or error if generation failed</returns>
-    internal async Task<Result<DigestId>> GenerateDigest(DateTime from, DateTime to)
+    internal async Task<Result<DigestId>> GenerateDigest(DateOnly from, DateOnly to)
     {
         var channels = await channelsRepository.LoadChannels();
         if (channels.IsFailed)
@@ -33,7 +33,10 @@ internal sealed class DigestsService(
         }
 
         if (posts.Count == 0)
-            return Result.Fail(new Error("No posts found in the specified time range"));
+        {
+            _logger.LogWarning("No posts found from [{from}] to [{to}] in any channel", from, to);
+            return Result.Ok();
+        }
 
         var summaries = new List<PostSummaryModel>();
         foreach (var post in posts)

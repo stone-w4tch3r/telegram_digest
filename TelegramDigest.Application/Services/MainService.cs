@@ -37,8 +37,9 @@ internal sealed class MainService(
         if (settings.IsFailed)
             return settings.ToResult();
 
-        var dateFrom = DateTime.UtcNow.Date.AddDays(-1);
-        var dateTo = DateTime.UtcNow.Date;
+        //TODO handle 00:00
+        var dateFrom = DateOnly.FromDateTime(DateTime.UtcNow.Date.AddDays(-1));
+        var dateTo = DateOnly.FromDateTime(DateTime.UtcNow.Date);
 
         var generationResult = await digestsService.GenerateDigest(dateFrom, dateTo);
         if (generationResult.IsFailed)

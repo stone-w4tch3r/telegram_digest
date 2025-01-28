@@ -1,46 +1,80 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace TelegramDigest.Application.Database;
 
 internal sealed class ChannelEntity
 {
-    internal string Id { get; set; } = null!;
-    internal string Name { get; set; } = null!;
-    internal string Description { get; set; } = null!;
-    internal string ImageUrl { get; set; } = null!;
+    [MaxLength(32)]
+    internal string TgId { get; init; } = null!;
+
+    [MaxLength(100)]
+    internal string Title { get; init; } = null!;
+
+    [MaxLength(1000)]
+    internal string Description { get; init; } = null!;
+
+    [MaxLength(2048)]
+    internal string ImageUrl { get; init; } = null!;
 }
 
 internal sealed class DigestEntity
 {
-    internal Guid Id { get; set; }
-    internal List<PostSummaryEntity> Posts { get; set; } = new();
-    internal DigestSummaryEntity Summary { get; set; } = null!;
-    internal DateTime CreatedAt { get; set; }
+    internal Guid Id { get; init; }
+
+    internal DateTime CreatedAt { get; init; }
+
+    // Navigation properties
+    internal DigestSummaryEntity Summary { get; init; } = null!;
+    internal ICollection<PostSummaryEntity> Posts { get; init; } = new List<PostSummaryEntity>();
 }
 
 internal sealed class PostSummaryEntity
 {
-    internal string Id { get; set; } = null!;
-    internal string Title { get; set; } = null!;
-    internal string ChannelId { get; set; } = null!;
-    internal string Summary { get; set; } = null!;
-    internal string Url { get; set; } = null!;
-    internal DateTime PublishedAt { get; set; }
-    internal int Importance { get; set; }
+    internal Guid Id { get; init; }
 
-    internal Guid DigestId { get; set; }
-    internal DigestEntity Digest { get; set; } = null!;
+    [MaxLength(32)]
+    internal string ChannelTgId { get; init; } = null!;
+
+    [MaxLength(2000)]
+    internal string Summary { get; init; } = null!;
+
+    [MaxLength(2048)]
+    internal string Url { get; init; } = null!;
+
+    internal DateTime PublishedAt { get; init; }
+
+    [Range(1, 10)]
+    internal int Importance { get; init; }
+
+    // Navigation properties
+    internal Guid DigestId { get; init; }
+    internal DigestEntity Digest { get; init; } = null!;
+    internal ChannelEntity Channel { get; init; } = null!;
 }
 
 internal sealed class DigestSummaryEntity
 {
-    internal Guid Id { get; set; }
-    internal string Title { get; set; } = null!;
-    internal string PostsSummary { get; set; } = null!;
-    internal int PostsCount { get; set; }
-    internal int AverageImportance { get; set; }
-    internal DateTime CreatedAt { get; set; }
-    internal DateTime DateFrom { get; set; }
-    internal DateTime DateTo { get; set; }
-    internal string ImageUrl { get; set; } = null!;
+    internal Guid Id { get; init; }
 
-    internal DigestEntity Digest { get; set; } = null!;
+    [MaxLength(200)]
+    internal string Title { get; init; } = null!;
+
+    [MaxLength(8192)]
+    internal string PostsSummary { get; init; } = null!;
+
+    internal int PostsCount { get; init; }
+
+    internal double AverageImportance { get; init; }
+
+    internal DateTime CreatedAt { get; init; }
+
+    internal DateTime DateFrom { get; init; }
+
+    internal DateTime DateTo { get; init; }
+
+    [MaxLength(2048)]
+    internal string ImageUrl { get; init; } = null!;
+
+    // Navigation property
+    internal DigestEntity Digest { get; init; } = null!;
 }

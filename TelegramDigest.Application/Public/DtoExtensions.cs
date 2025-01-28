@@ -9,9 +9,9 @@ internal static class DtoExtensions
 {
     internal static ChannelDto ToDto(this ChannelModel model) =>
         new(
-            ChannelName: model.ChannelId.ChannelName,
+            ChannelName: model.TgId.ChannelName,
             Description: model.Description,
-            Name: model.Name,
+            Name: model.Title,
             ImageUrl: model.ImageUrl.ToString()
         );
 
@@ -37,7 +37,7 @@ internal static class DtoExtensions
 
     internal static PostSummaryDto ToDto(this PostSummaryModel model) =>
         new(
-            ChannelName: model.ChannelId.ChannelName,
+            ChannelName: model.ChannelTgId.ChannelName,
             Summary: model.Summary,
             Url: model.Url.ToString(),
             PublishedAt: model.PublishedAt,

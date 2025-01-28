@@ -48,7 +48,9 @@ internal sealed class Scheduler(ILogger<Scheduler> logger, IServiceScopeFactory 
 
             // If schedule hasn't changed, no need to update
             if (scheduledTimeUtc.Time == _lastScheduledTimeUtc.Time)
+            {
                 return;
+            }
 
             _lastScheduledTimeUtc = scheduledTimeUtc;
 

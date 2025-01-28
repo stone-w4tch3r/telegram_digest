@@ -17,13 +17,13 @@ internal sealed class ChannelsRepository(
         {
             var entity = new ChannelEntity
             {
-                Id = channel.ChannelId.ChannelName,
-                Name = channel.Name,
+                TgId = channel.TgId.ChannelName,
+                Title = channel.Title,
                 Description = channel.Description,
                 ImageUrl = channel.ImageUrl.ToString(),
             };
 
-            var existing = await dbContext.Channels.FindAsync(entity.Id);
+            var existing = await dbContext.Channels.FindAsync(entity.TgId);
             if (existing != null)
             {
                 dbContext.Entry(existing).CurrentValues.SetValues(entity);
@@ -38,7 +38,7 @@ internal sealed class ChannelsRepository(
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Failed to save channel {ChannelId}", channel.ChannelId);
+            logger.LogError(ex, "Failed to save channel [{ChannelId}]", channel.TgId);
             return Result.Fail(new Error("Database operation failed").CausedBy(ex));
         }
     }
@@ -50,8 +50,8 @@ internal sealed class ChannelsRepository(
             var entities = await dbContext.Channels.ToListAsync();
             var channels = entities
                 .Select(e => new ChannelModel(
-                    ChannelId: new(e.Id),
-                    Name: e.Name,
+                    TgId: new(e.TgId),
+                    Title: e.Title,
                     Description: e.Description,
                     ImageUrl: new(e.ImageUrl)
                 ))

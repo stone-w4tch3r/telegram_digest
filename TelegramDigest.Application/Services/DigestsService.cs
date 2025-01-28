@@ -20,12 +20,14 @@ internal sealed class DigestsService(
     {
         var channels = await channelsRepository.LoadChannels();
         if (channels.IsFailed)
+        {
             return channels.ToResult<DigestId>();
+        }
 
         var posts = new List<PostModel>();
         foreach (var channel in channels.Value)
         {
-            var postsResult = await channelReader.FetchPosts(channel.ChannelId, from, to);
+            var postsResult = await channelReader.FetchPosts(channel.TgId, from, to);
             if (postsResult.IsSuccess)
             {
                 posts.AddRange(postsResult.Value);
@@ -50,7 +52,9 @@ internal sealed class DigestsService(
 
         var digestSummaryResult = await summaryGenerator.GeneratePostsSummary(posts);
         if (digestSummaryResult.IsFailed)
+        {
             return digestSummaryResult.ToResult<DigestId>();
+        }
 
         var digestId = DigestId.NewId();
         var digest = new DigestModel(

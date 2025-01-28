@@ -3,12 +3,12 @@ using JetBrains.Annotations;
 
 namespace TelegramDigest.Application.Services;
 
-internal readonly partial record struct ChannelId
+internal readonly partial record struct ChannelTgId
 {
     [GeneratedRegex("^[a-zA-Z0-9_]{5,32}$")]
     private static partial Regex ChannelNamePattern();
 
-    public ChannelId(string ChannelName)
+    public ChannelTgId(string ChannelName)
     {
         this.ChannelName = ChannelNamePattern().IsMatch(ChannelName)
             ? ChannelName
@@ -37,4 +37,22 @@ internal readonly record struct TimeUtc(TimeOnly Time)
 internal readonly record struct Html(string HtmlString)
 {
     public override string ToString() => HtmlString;
+}
+
+/// <summary>
+/// Describes the importance of a post. Importance value must be between 1 and 10, inclusive
+/// </summary>
+internal readonly record struct Importance
+{
+    internal Importance(int Value)
+    {
+        this.Value = Value is > 0 and <= 10
+            ? Value
+            : throw new ArgumentOutOfRangeException(
+                nameof(Value),
+                "Importance value must be between 1 and 10, inclusive"
+            );
+    }
+
+    internal int Value { get; }
 }

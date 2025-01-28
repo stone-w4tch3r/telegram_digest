@@ -20,7 +20,9 @@ internal sealed class DigestRepository(
                 .FirstOrDefaultAsync(d => d.Id == digestId.Id);
 
             if (digest == null)
+            {
                 return Result.Fail(new Error($"Digest {digestId} not found"));
+            }
 
             return Result.Ok(MapToModel(digest));
         }
@@ -54,7 +56,9 @@ internal sealed class DigestRepository(
     {
         try
         {
-            return Result.Ok(await dbContext.Posts.AnyAsync(p => p.Id == postUrl.ToString()));
+            return Result.Ok(
+                await dbContext.PostSummaries.AnyAsync(p => p.Url == postUrl.ToString())
+            );
         }
         catch (Exception ex)
         {

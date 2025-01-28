@@ -2,16 +2,16 @@ using JetBrains.Annotations;
 
 namespace TelegramDigest.Application.Services;
 
-internal record ChannelModel(ChannelId ChannelId, string Description, string Name, Uri ImageUrl);
+internal record ChannelModel(ChannelTgId TgId, string Description, string Title, Uri ImageUrl);
 
-internal record PostModel(ChannelId ChannelId, Html HtmlContent, Uri Url, DateTime PublishedAt);
+internal record PostModel(ChannelTgId ChannelTgId, Html HtmlContent, Uri Url, DateTime PublishedAt);
 
 internal record PostSummaryModel(
-    ChannelId ChannelId,
+    ChannelTgId ChannelTgId,
     string Summary,
     Uri Url,
     DateTime PublishedAt,
-    ImportanceModel Importance
+    Importance Importance
 );
 
 internal record DigestModel(
@@ -48,21 +48,3 @@ internal record SmtpSettingsModel(
 );
 
 internal record OpenAiSettingsModel(string ApiKey, string Model, int MaxTokens);
-
-/// <summary>
-/// Describes the importance of a post. Importance value must be between 1 and 10, inclusive
-/// </summary>
-internal record ImportanceModel
-{
-    internal ImportanceModel(int Value)
-    {
-        this.Value = Value is > 0 and <= 10
-            ? Value
-            : throw new ArgumentOutOfRangeException(
-                nameof(Value),
-                "Importance value must be between 1 and 10, inclusive"
-            );
-    }
-
-    internal int Value { get; }
-}

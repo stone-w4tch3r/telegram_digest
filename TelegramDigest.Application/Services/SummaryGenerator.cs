@@ -18,7 +18,9 @@ internal sealed class SummaryGenerator( // IOpenAIService openAiService,
     {
         var settings = await settingsManager.LoadSettings();
         if (settings.IsFailed)
+        {
             return settings.ToResult<PostSummaryModel>();
+        }
 
         try
         {
@@ -64,7 +66,7 @@ internal sealed class SummaryGenerator( // IOpenAIService openAiService,
     /// <summary>
     /// Evaluates post importance based on content analysis
     /// </summary>
-    internal async Task<Result<ImportanceModel>> EvaluatePostImportance(PostModel post)
+    internal async Task<Result<Importance>> EvaluatePostImportance(PostModel post)
     {
         try
         {
@@ -86,7 +88,7 @@ internal sealed class SummaryGenerator( // IOpenAIService openAiService,
             // var importance = int.Parse(completionResult.Choices[0].Text.Trim());
             // return Result.Ok(new ImportanceModel(importance));
 
-            return Result.Fail<ImportanceModel>(new Error("Not implemented"));
+            return Result.Fail<Importance>(new Error("Not implemented"));
         }
         catch (Exception ex)
         {

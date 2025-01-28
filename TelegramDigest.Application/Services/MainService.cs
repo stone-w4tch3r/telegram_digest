@@ -7,8 +7,8 @@ public abstract class IMainService
 {
     internal abstract Task<Result> ProcessDailyDigest();
     internal abstract Task<Result<List<ChannelModel>>> GetChannels();
-    internal abstract Task<Result> AddChannel(ChannelId channelId);
-    internal abstract Task<Result> RemoveChannel(ChannelId channelId);
+    internal abstract Task<Result> AddChannel(ChannelTgId channelTgId);
+    internal abstract Task<Result> RemoveChannel(ChannelTgId channelTgId);
     internal abstract Task<Result<List<DigestSummaryModel>>> GetDigestSummaries();
     internal abstract Task<Result<DigestModel>> GetDigest(DigestId digestId);
     internal abstract Task<Result<SettingsModel>> GetSettings();
@@ -35,7 +35,9 @@ internal sealed class MainService(
 
         var settings = await settingsManager.LoadSettings();
         if (settings.IsFailed)
+        {
             return settings.ToResult();
+        }
 
         //TODO handle 00:00
         var dateFrom = DateOnly.FromDateTime(DateTime.UtcNow.Date.AddDays(-1));
@@ -43,11 +45,15 @@ internal sealed class MainService(
 
         var generationResult = await digestsService.GenerateDigest(dateFrom, dateTo);
         if (generationResult.IsFailed)
+        {
             return generationResult.ToResult();
+        }
 
         var digest = await digestsService.GetDigest(generationResult.Value);
         if (digest.IsFailed)
+        {
             return digest.ToResult();
+        }
 
         return await emailSender.SendDigest(digest.Value.DigestSummary);
     }
@@ -55,11 +61,11 @@ internal sealed class MainService(
     internal override async Task<Result<List<ChannelModel>>> GetChannels() =>
         await channelsService.GetChannels();
 
-    internal override async Task<Result> AddChannel(ChannelId channelId) =>
-        await channelsService.AddChannel(channelId);
+    internal override async Task<Result> AddChannel(ChannelTgId channelTgId) =>
+        await channelsService.AddChannel(channelTgId);
 
-    internal override async Task<Result> RemoveChannel(ChannelId channelId) =>
-        await channelsService.RemoveChannel(channelId);
+    internal override async Task<Result> RemoveChannel(ChannelTgId channelTgId) =>
+        await channelsService.RemoveChannel(channelTgId);
 
     internal override async Task<Result<List<DigestSummaryModel>>> GetDigestSummaries() =>
         await digestsService.GetDigestSummaries();

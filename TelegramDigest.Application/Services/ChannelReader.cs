@@ -9,20 +9,22 @@ internal sealed class ChannelReader(ILogger<ChannelReader> logger)
     private const string RssHubBaseUrl = "https://rsshub.app/telegram/channel";
 
     internal Task<Result<List<PostModel>>> FetchPosts(
-        ChannelId channelId,
+        ChannelTgId channelTgId,
         DateOnly from,
         DateOnly to
     ) =>
         Task.Run(() =>
         {
             if (from > to)
+            {
                 return Result.Fail(
                     $"Can't fetch posts, invalid period requested, from: [{from}] to [{to}]"
                 );
+            }
 
             try
             {
-                var feedUrl = $"{RssHubBaseUrl}/{channelId.ChannelName}";
+                var feedUrl = $"{RssHubBaseUrl}/{channelTgId.ChannelName}";
                 using var reader = XmlReader.Create(feedUrl);
                 var feed = SyndicationFeed.Load(reader);
 
@@ -32,7 +34,7 @@ internal sealed class ChannelReader(ILogger<ChannelReader> logger)
                         && DateOnly.FromDateTime(x.PublishDate.DateTime) <= to
                     )
                     .Select(x => new PostModel(
-                        ChannelId: channelId,
+                        ChannelTgId: channelTgId,
                         HtmlContent: new(x.Summary.Text),
                         Url: x.Links.SingleOrDefault()?.Uri
                             ?? throw new FormatException(
@@ -46,24 +48,24 @@ internal sealed class ChannelReader(ILogger<ChannelReader> logger)
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Error fetching posts for channel {ChannelId}", channelId);
+                logger.LogError(ex, "Error fetching posts for channel {ChannelId}", channelTgId);
                 return Result.Fail(new Error("Failed to fetch posts").CausedBy(ex));
             }
         });
 
-    internal Task<Result<ChannelModel>> FetchChannelInfo(ChannelId channelId) =>
+    internal Task<Result<ChannelModel>> FetchChannelInfo(ChannelTgId channelTgId) =>
         Task.Run(() =>
         {
             try
             {
-                var feedUrl = $"{RssHubBaseUrl}/{channelId.ChannelName}";
+                var feedUrl = $"{RssHubBaseUrl}/{channelTgId.ChannelName}";
                 using var reader = XmlReader.Create(feedUrl);
                 var feed = SyndicationFeed.Load(reader);
 
                 var channelModel = new ChannelModel(
-                    ChannelId: channelId,
+                    TgId: channelTgId,
                     Description: feed.Description.Text,
-                    Name: feed.Title.Text,
+                    Title: feed.Title.Text,
                     ImageUrl: feed.ImageUrl ?? new Uri(feedUrl)
                 );
 
@@ -71,7 +73,7 @@ internal sealed class ChannelReader(ILogger<ChannelReader> logger)
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Error fetching channel info for {ChannelId}", channelId);
+                logger.LogError(ex, "Error fetching channel info for {ChannelId}", channelTgId);
                 return Result.Fail(new Error("Failed to fetch channel info").CausedBy(ex));
             }
         });

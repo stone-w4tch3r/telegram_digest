@@ -40,7 +40,9 @@ public sealed class PublicFacade(IMainService mainService, ILogger<PublicFacade>
     {
         var result = await mainService.ProcessDailyDigest();
         if (result.IsFailed)
+        {
             return result.ToResult<DigestSummaryDto>();
+        }
 
         var summaries = await GetDigestSummaries();
         return summaries.IsFailed

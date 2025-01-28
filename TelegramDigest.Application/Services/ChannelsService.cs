@@ -10,9 +10,9 @@ internal sealed class ChannelsService(
 {
     private readonly ILogger<ChannelsService> _logger = logger;
 
-    internal async Task<Result> AddChannel(ChannelId channelId)
+    internal async Task<Result> AddChannel(ChannelTgId channelTgId)
     {
-        var channelResult = await channelReader.FetchChannelInfo(channelId);
+        var channelResult = await channelReader.FetchChannelInfo(channelTgId);
         if (channelResult.IsFailed)
         {
             return channelResult.ToResult();
@@ -26,21 +26,22 @@ internal sealed class ChannelsService(
         return await channelsRepository.LoadChannels();
     }
 
-    internal async Task<Result> RemoveChannel(ChannelId channelId)
+    internal async Task<Result> RemoveChannel(ChannelTgId channelTgId)
     {
-        var channels = await channelsRepository.LoadChannels();
-        if (channels.IsFailed)
+        var channelsResult = await channelsRepository.LoadChannels();
+        if (channelsResult.IsFailed)
         {
-            return channels.ToResult();
+            return channelsResult.ToResult();
         }
 
-        if (!channels.Value.Any(c => c.ChannelId == channelId))
+        if (channelsResult.Value.All(c => c.TgId != channelTgId))
         {
-            return Result.Fail(new Error($"Channel {channelId} not found"));
+            return Result.Fail(new Error($"Channel [{channelTgId}] not found"));
         }
 
-        var updatedChannels = channels.Value.Where(c => c.ChannelId != channelId).ToList();
+        var updatedChannels = channelsResult.Value.Where(c => c.TgId != channelTgId).ToList();
 
+        // TODO foooooooooooo
         foreach (var channel in updatedChannels)
         {
             var result = await channelsRepository.SaveChannel(channel);

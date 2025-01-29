@@ -7,7 +7,8 @@
 | [x]  | Verify ChannelReader logic via swagger  | 30m   |
 | [x]  | Learn Syndication and implement it      | 1h    |
 | [x]  | Check db schema and/or fix it           | 30m   |
-| [ ]  | Implement repositories                  | 2h    |
+| [x]  | Implement repositories                  | 2h    |
+| [x]  | Fix db initialization                   | 1h    |
 | [ ]  | Add openai docs to CodeGPT              | 30min |
 | [ ]  | Implement basic summariser              | 30min |
 | [ ]  | Obtain API key and pay                  | 30min |
@@ -21,4 +22,3 @@
 - handle 00:00 in GenerateDailyDigest
 - Tests (and interfaces?)
 - Check code quality
-- implement proper channel deletion

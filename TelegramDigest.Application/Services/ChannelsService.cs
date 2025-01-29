@@ -28,29 +28,6 @@ internal sealed class ChannelsService(
 
     internal async Task<Result> RemoveChannel(ChannelTgId channelTgId)
     {
-        var channelsResult = await channelsRepository.LoadChannels();
-        if (channelsResult.IsFailed)
-        {
-            return channelsResult.ToResult();
-        }
-
-        if (channelsResult.Value.All(c => c.TgId != channelTgId))
-        {
-            return Result.Fail(new Error($"Channel [{channelTgId}] not found"));
-        }
-
-        var updatedChannels = channelsResult.Value.Where(c => c.TgId != channelTgId).ToList();
-
-        // TODO foooooooooooo
-        foreach (var channel in updatedChannels)
-        {
-            var result = await channelsRepository.SaveChannel(channel);
-            if (result.IsFailed)
-            {
-                return result;
-            }
-        }
-
-        return Result.Ok();
+        return await channelsRepository.DeleteChannel(channelTgId);
     }
 }

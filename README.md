@@ -2,6 +2,17 @@
 
 Telegram Digest is a simple application that will create a summary digest from multiple Telegram channels and send this digest daily to my email.
 
+## Usage
+
+### Migration
+
+```bash
+dotnet tool install --global dotnet-ef
+dotnet ef migrations add InitialMigration --project TelegramDigest.Application/TelegramDigest.Application.csproj --startup-project TelegramDigest.API/TelegramDigest.API.csproj
+```
+
+## About
+
 ### Features
 
 - Simple web UI

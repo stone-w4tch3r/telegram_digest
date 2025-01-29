@@ -44,16 +44,16 @@ internal sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext
 
             // 1:1 relationship with DigestSummary
             builder
-                .HasOne(d => d.Summary)
-                .WithOne(s => s.Digest)
+                .HasOne(d => d.SummaryNav)
+                .WithOne(s => s.DigestNav)
                 .HasForeignKey<DigestSummaryEntity>(s => s.Id)
                 .OnDelete(DeleteBehavior.Cascade);
 
             // 1:Many relationship with PostSummaries
             builder
-                .HasMany(d => d.Posts)
-                .WithOne(p => p.Digest)
-                .HasForeignKey(p => p.DigestId)
+                .HasMany(d => d.PostsNav)
+                .WithOne(p => p.DigestNav)
+                .HasForeignKey(p => p.DigestIdNav)
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }
@@ -72,7 +72,7 @@ internal sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext
 
             // Relationship with Channel
             builder
-                .HasOne(p => p.Channel)
+                .HasOne(p => p.ChannelNav)
                 .WithMany()
                 .HasForeignKey(p => p.ChannelTgId)
                 .OnDelete(DeleteBehavior.Restrict);

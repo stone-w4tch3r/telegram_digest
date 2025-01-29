@@ -65,4 +65,23 @@ internal sealed class ChannelsRepository(
             return Result.Fail(new Error("Database operation failed").CausedBy(ex));
         }
     }
+
+    internal async Task<Result> DeleteChannel(ChannelTgId channelId)
+    {
+        try
+        {
+            var entity = await dbContext.Channels.FindAsync(channelId.ChannelName);
+            if (entity == null)
+                return Result.Ok(); // Already deleted
+
+            dbContext.Channels.Remove(entity);
+            await dbContext.SaveChangesAsync();
+            return Result.Ok();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to delete channel [{ChannelId}]", channelId);
+            return Result.Fail(new Error("Database operation failed").CausedBy(ex));
+        }
+    }
 }

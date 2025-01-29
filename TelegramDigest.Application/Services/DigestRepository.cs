@@ -15,13 +15,16 @@ internal sealed class DigestRepository(
     {
         try
         {
+            // Include both PostsNav and SummaryNav to get complete digest data
             var digest = await dbContext
-                .Digests.Include(d => d.PostsNav)
+                .Digests.Include(d => d.PostsNav)!
+                .ThenInclude(p => p.ChannelNav)
+                .Include(d => d.SummaryNav)
                 .FirstOrDefaultAsync(d => d.Id == digestId.Id);
 
-            if (digest == null)
+            if (digest?.SummaryNav == null || digest.PostsNav == null)
             {
-                return Result.Fail(new Error($"Digest {digestId} not found"));
+                return Result.Fail(new Error($"Digest {digestId} not found or incomplete"));
             }
 
             return Result.Ok(MapToModel(digest));
@@ -62,7 +65,7 @@ internal sealed class DigestRepository(
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Failed to check post {PostId}", postUrl);
+            logger.LogError(ex, "Failed to check post {PostUrl}", postUrl);
             return Result.Fail(new Error("Database operation failed").CausedBy(ex));
         }
     }
@@ -71,7 +74,10 @@ internal sealed class DigestRepository(
     {
         try
         {
-            var summaries = await dbContext.DigestSummaries.ToListAsync();
+            var summaries = await dbContext
+                .DigestSummaries.OrderByDescending(s => s.CreatedAt)
+                .ToListAsync();
+
             return Result.Ok(summaries.Select(MapToSummaryModel).ToList());
         }
         catch (Exception ex)
@@ -81,11 +87,73 @@ internal sealed class DigestRepository(
         }
     }
 
-    // Mapping methods implementation would go here...
-    private DigestModel MapToModel(DigestEntity entity) => throw new NotImplementedException();
+    private static DigestModel MapToModel(DigestEntity entity)
+    {
+        if (entity.SummaryNav == null || entity.PostsNav == null)
+            throw new ArgumentException("Digest entity is incomplete", nameof(entity));
 
-    private DigestEntity MapToEntity(DigestModel model) => throw new NotImplementedException();
+        return new(
+            DigestId: new(entity.Id),
+            PostsSummaries: entity
+                .PostsNav.Select(p => new PostSummaryModel(
+                    ChannelTgId: new(p.ChannelTgId),
+                    Summary: p.Summary,
+                    Url: new(p.Url),
+                    PublishedAt: p.PublishedAt,
+                    Importance: new(p.Importance)
+                ))
+                .ToList(),
+            DigestSummary: MapToSummaryModel(entity.SummaryNav)
+        );
+    }
 
-    private DigestSummaryModel MapToSummaryModel(DigestSummaryEntity entity) =>
-        throw new NotImplementedException();
+    private static DigestEntity MapToEntity(DigestModel model)
+    {
+        var digestEntity = new DigestEntity
+        {
+            Id = model.DigestId.Id,
+            SummaryNav = new()
+            {
+                Id = model.DigestId.Id,
+                Title = model.DigestSummary.Title,
+                PostsSummary = model.DigestSummary.PostsSummary,
+                PostsCount = model.DigestSummary.PostsCount,
+                AverageImportance = model.DigestSummary.AverageImportance,
+                CreatedAt = model.DigestSummary.CreatedAt,
+                DateFrom = model.DigestSummary.DateFrom,
+                DateTo = model.DigestSummary.DateTo,
+                ImageUrl = model.DigestSummary.ImageUrl.ToString(),
+                DigestNav = null, // Will be set by EF Core
+            },
+            PostsNav = model
+                .PostsSummaries.Select(p => new PostSummaryEntity
+                {
+                    Id = Guid.NewGuid(),
+                    ChannelTgId = p.ChannelTgId.ChannelName,
+                    Summary = p.Summary,
+                    Url = p.Url.ToString(),
+                    PublishedAt = p.PublishedAt,
+                    Importance = p.Importance.Value,
+                    DigestIdNav = model.DigestId.Id,
+                    DigestNav = null, // Will be set by EF Core
+                    ChannelNav = null, // Will be set by EF Core
+                })
+                .ToList(),
+        };
+
+        return digestEntity;
+    }
+
+    private static DigestSummaryModel MapToSummaryModel(DigestSummaryEntity entity) =>
+        new(
+            DigestId: new(entity.Id),
+            Title: entity.Title,
+            PostsSummary: entity.PostsSummary,
+            PostsCount: entity.PostsCount,
+            AverageImportance: entity.AverageImportance,
+            CreatedAt: entity.CreatedAt,
+            DateFrom: entity.DateFrom,
+            DateTo: entity.DateTo,
+            ImageUrl: new(entity.ImageUrl)
+        );
 }

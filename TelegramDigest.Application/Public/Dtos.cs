@@ -7,7 +7,7 @@ public record DigestSummaryDto(
     string Title,
     string Summary,
     int PostsCount,
-    int AverageImportance,
+    double AverageImportance,
     DateTime CreatedAt,
     DateTime DateFrom,
     DateTime DateTo,

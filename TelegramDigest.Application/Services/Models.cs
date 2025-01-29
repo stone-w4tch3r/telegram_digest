@@ -16,7 +16,7 @@ internal record PostSummaryModel(
 
 internal record DigestModel(
     DigestId DigestId,
-    List<PostSummaryModel> Posts,
+    List<PostSummaryModel> PostsSummaries,
     DigestSummaryModel DigestSummary
 );
 
@@ -25,7 +25,7 @@ internal record DigestSummaryModel(
     string Title,
     string PostsSummary,
     int PostsCount,
-    int AverageImportance,
+    double AverageImportance,
     DateTime CreatedAt,
     DateTime DateFrom,
     DateTime DateTo,

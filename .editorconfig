@@ -1,0 +1,5 @@
+
+[*]
+
+# ReSharper properties
+resharper_braces_for_ifelse = required

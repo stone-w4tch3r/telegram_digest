@@ -40,7 +40,6 @@ internal sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext
         {
             builder.ToTable("Digests");
             builder.HasKey(e => e.Id);
-            builder.Property(e => e.CreatedAt).IsRequired();
 
             // 1:1 relationship with DigestSummary
             builder

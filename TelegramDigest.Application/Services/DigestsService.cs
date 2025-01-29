@@ -59,7 +59,7 @@ internal sealed class DigestsService(
         var digestId = DigestId.NewId();
         var digest = new DigestModel(
             DigestId: digestId,
-            Posts: summaries,
+            PostsSummaries: summaries,
             DigestSummary: digestSummaryResult.Value
         );
 

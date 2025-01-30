@@ -26,27 +26,6 @@ internal sealed class DigestEntity
     public ICollection<PostSummaryEntity>? PostsNav { get; init; }
 }
 
-internal sealed class PostSummaryEntity
-{
-    public required Guid Id { get; init; }
-
-    [MaxLength(32)]
-    public required string ChannelTgId { get; init; } = null!;
-
-    [MaxLength(2000)]
-    public required string Summary { get; init; } = null!;
-
-    [MaxLength(2048)]
-    public required string Url { get; init; } = null!;
-
-    public required DateTime PublishedAt { get; init; }
-
-    [Range(1, 10)]
-    public required int Importance { get; init; }
-
-    public ChannelEntity? ChannelNav { get; init; }
-}
-
 internal sealed class DigestSummaryEntity
 {
     public required Guid Id { get; init; }
@@ -71,4 +50,25 @@ internal sealed class DigestSummaryEntity
     public required string ImageUrl { get; init; } = null!;
 
     public DigestEntity? DigestNav { get; init; }
+}
+
+internal sealed class PostSummaryEntity
+{
+    public required Guid Id { get; init; }
+
+    [MaxLength(32)]
+    public required string ChannelTgId { get; init; } = null!;
+
+    [MaxLength(2000)]
+    public required string Summary { get; init; } = null!;
+
+    [MaxLength(2048)]
+    public required string Url { get; init; } = null!;
+
+    public required DateTime PublishedAt { get; init; }
+
+    [Range(1, 10)]
+    public required int Importance { get; init; }
+
+    public ChannelEntity? ChannelNav { get; init; }
 }

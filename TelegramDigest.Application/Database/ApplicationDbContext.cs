@@ -47,6 +47,9 @@ internal sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext
                 .WithOne(s => s.DigestNav)
                 .HasForeignKey<DigestSummaryEntity>(s => s.Id)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // Many-to-many relationship with PostSummaries
+            builder.HasMany(d => d.PostsNav).WithMany().UsingEntity("DigestPosts"); // This will be the join table name
         }
     }
 

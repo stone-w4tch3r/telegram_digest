@@ -16,12 +16,24 @@ public sealed class PublicFacade(IMainService mainService, ILogger<PublicFacade>
 
     public async Task<Result> AddChannel(string channelName)
     {
-        return await mainService.AddChannel(new(channelName));
+        var channelIdResult = ChannelTgId.TryFromString(channelName);
+        if (channelIdResult.IsFailed)
+        {
+            logger.LogError("Failed to parse channel name: {ChannelName}", channelName);
+            return Result.Fail(channelIdResult.Errors);
+        }
+        return await mainService.AddChannel(channelIdResult.Value);
     }
 
     public async Task<Result> RemoveChannel(string channelName)
     {
-        return await mainService.RemoveChannel(new(channelName));
+        var channelIdResult = ChannelTgId.TryFromString(channelName);
+        if (channelIdResult.IsFailed)
+        {
+            logger.LogError("Failed to parse channel name: {ChannelName}", channelName);
+            return Result.Fail(channelIdResult.Errors);
+        }
+        return await mainService.RemoveChannel(channelIdResult.Value);
     }
 
     public async Task<Result<List<DigestSummaryDto>>> GetDigestSummaries()

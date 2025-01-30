@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using FluentResults;
 using JetBrains.Annotations;
 
 namespace TelegramDigest.Application.Services;
@@ -16,6 +17,9 @@ internal readonly partial record struct ChannelTgId
                 $"Can't create ChannelId from invalid channel name. Got [{ChannelName}], expected [{ChannelNamePattern()}]"
             );
     }
+
+    public static Result<ChannelTgId> TryFromString(string channelName) =>
+        Result.Try(() => new ChannelTgId(channelName));
 
     public override string ToString() => ChannelName;
 

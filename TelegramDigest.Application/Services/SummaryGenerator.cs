@@ -1,60 +1,72 @@
 using FluentResults;
+using OpenAI.Chat;
 
 namespace TelegramDigest.Application.Services;
 
-internal sealed class SummaryGenerator( // IOpenAIService openAiService,
+internal sealed class SummaryGenerator(
     SettingsManager settingsManager,
     ILogger<SummaryGenerator> logger
 )
 {
-    // private readonly IOpenAIService _openAiService;
+    private ChatClient? _chatClient;
 
-    // _openAiService = openAiService;
-
-    /// <summary>
-    /// Generates a concise summary of a post using OpenAI's GPT model
-    /// </summary>
-    internal async Task<Result<PostSummaryModel>> GenerateSummary(PostModel post)
+    private async Task<Result<ChatClient>> GetChatClient()
     {
+        if (_chatClient != null)
+            return Result.Ok(_chatClient);
+
         var settings = await settingsManager.LoadSettings();
         if (settings.IsFailed)
         {
             return Result.Fail(settings.Errors);
         }
 
+        _chatClient = new(
+            model: settings.Value.OpenAiSettings.Model,
+            apiKey: settings.Value.OpenAiSettings.ApiKey
+        );
+
+        return Result.Ok(_chatClient);
+    }
+
+    internal async Task<Result<PostSummaryModel>> GenerateSummary(PostModel post)
+    {
         try
         {
-            // var prompt =
-            //     $"Summarize this post in one sentence:\n\nTitle: {post.Title}\n\nContent: {post.Description}";
+            var clientResult = await GetChatClient();
+            var client = clientResult.Value;
+            if (clientResult.IsFailed)
+            {
+                return Result.Fail(clientResult.Errors);
+            }
 
-            // var completionResult = await _openAiService.Completions.CreateCompletion(
-            //     new CompletionCreateRequest
-            //     {
-            //         Prompt = prompt,
-            //         Model = settings.Value.OpenAiSettings.Model,
-            //         MaxTokens = settings.Value.OpenAiSettings.MaxTokens,
-            //     }
-            // );
+            var messages = (ChatMessage[])
+                [
+                    new SystemChatMessage(
+                        "You are a helpful assistant that creates concise one-sentence summaries of posts."
+                    ),
+                    new UserChatMessage(
+                        $"Summarize this post in one sentence:\n\n{post.HtmlContent}"
+                    ),
+                ];
 
-            // if (!completionResult.Successful)
-            //     return Result.Fail(new Error("OpenAI API request failed"));
+            var completionResult = await client.CompleteChatAsync(messages);
 
-            // var importance = await EvaluatePostImportance(post);
-            // if (importance.IsFailed)
-            //     return Result.Fail(importance.Errors);
+            var importance = await EvaluatePostImportance(post);
+            if (importance.IsFailed)
+            {
+                return Result.Fail(importance.Errors);
+            }
 
-            // return Result.Ok(
-            //     new PostSummaryModel(
-            //         PostId: post.PostId,
-            //         ChannelId: post.ChannelId,
-            //         Summary: completionResult.Choices[0].Text.Trim(),
-            //         Url: post.Url,
-            //         PublishedAt: post.PublishedAt,
-            //         Importance: importance.Value
-            //     )
-            // );
-
-            return Result.Fail<PostSummaryModel>(new Error("Not implemented"));
+            return Result.Ok(
+                new PostSummaryModel(
+                    ChannelTgId: post.ChannelTgId,
+                    Summary: completionResult.Value.Content[0].Text.Trim(),
+                    Url: post.Url,
+                    PublishedAt: post.PublishedAt,
+                    Importance: importance.Value
+                )
+            );
         }
         catch (Exception ex)
         {
@@ -63,32 +75,31 @@ internal sealed class SummaryGenerator( // IOpenAIService openAiService,
         }
     }
 
-    /// <summary>
-    /// Evaluates post importance based on content analysis
-    /// </summary>
-    internal async Task<Result<Importance>> EvaluatePostImportance(PostModel post)
+    private async Task<Result<Importance>> EvaluatePostImportance(PostModel post)
     {
         try
         {
-            // var prompt =
-            //     $"Rate the importance of this post from 1 to 3 (1 - low, 2 - medium, 3 - high):\n\n{post.Title}\n\n{post.Description}\n\nJust return the number.";
+            var clientResult = await GetChatClient();
+            var client = clientResult.Value;
+            if (clientResult.IsFailed)
+            {
+                return Result.Fail(clientResult.Errors);
+            }
 
-            // var completionResult = await _openAiService.Completions.CreateCompletion(
-            //     new CompletionCreateRequest
-            //     {
-            //         Prompt = prompt,
-            //         Model = "text-davinci-003",
-            //         MaxTokens = 1,
-            //     }
-            // );
+            var messages = (ChatMessage[])
+                [
+                    new SystemChatMessage(
+                        "You are an assistant that evaluates content importance. Respond only with a number: 1 for low importance, 2 for medium importance, or 3 for high importance."
+                    ),
+                    new UserChatMessage(
+                        $"Rate the importance of this post from 1 to 3:\n\n{post.HtmlContent}"
+                    ),
+                ];
 
-            // if (!completionResult.Successful)
-            //     return Result.Fail(new Error("OpenAI API request failed"));
+            var completion = await client.CompleteChatAsync(messages);
+            var importanceValue = int.Parse(completion.Value.Content[0].Text.Trim());
 
-            // var importance = int.Parse(completionResult.Choices[0].Text.Trim());
-            // return Result.Ok(new ImportanceModel(importance));
-
-            return Result.Fail<Importance>(new Error("Not implemented"));
+            return Result.Ok(new Importance(importanceValue));
         }
         catch (Exception ex)
         {
@@ -101,44 +112,57 @@ internal sealed class SummaryGenerator( // IOpenAIService openAiService,
     {
         try
         {
-            // var postsContent = string.Join(
-            //     "\n\n",
-            //     posts.Select(p => $"{p.Title}\n{p.Description}")
-            // );
-            // var prompt = $"Create a brief summary of these posts:\n\n{postsContent}";
+            var clientResult = await GetChatClient();
+            if (clientResult.IsFailed)
+            {
+                return Result.Fail(clientResult.Errors);
+            }
 
-            // var completionResult = await _openAiService.Completions.CreateCompletion(
-            //     new CompletionCreateRequest
-            //     {
-            //         Prompt = prompt,
-            //         Model = "text-davinci-003",
-            //         MaxTokens = 200,
-            //     }
-            // );
+            var postsContent = string.Join("\n\n", posts.Select(p => p.HtmlContent));
 
-            // if (!completionResult.Successful)
-            //     return Result.Fail(new Error("OpenAI API request failed"));
+            var messages = (ChatMessage[])
+                [
+                    new SystemChatMessage(
+                        "You are a helpful assistant that creates brief summaries of multiple posts, highlighting key themes and important information."
+                    ),
+                    new UserChatMessage(
+                        $"Create a brief summary of these posts:\n\n{postsContent}"
+                    ),
+                ];
 
-            // return Result.Ok(
-            //     new DigestSummaryModel(
-            //         DigestId: DigestId.NewId(),
-            //         Title: "Daily Digest",
-            //         PostsSummary: completionResult.Choices[0].Text.Trim(),
-            //         PostsCount: posts.Count,
-            //         AverageImportance: 2, // Default value
-            //         CreatedAt: DateTime.UtcNow,
-            //         DateFrom: posts.Min(p => p.PublishedAt),
-            //         DateTo: posts.Max(p => p.PublishedAt),
-            //         ImageUrl: new Uri("https://placeholder.com/image.jpg")
-            //     )
-            // );
+            var completion = await clientResult.Value.CompleteChatAsync(messages);
 
-            return Result.Fail<DigestSummaryModel>(new Error("Not implemented"));
+            return Result.Ok(
+                new DigestSummaryModel(
+                    DigestId: DigestId.NewId(),
+                    Title: "Daily Digest",
+                    PostsSummary: completion.Value.Content[0].Text.Trim(),
+                    PostsCount: posts.Count,
+                    AverageImportance: posts.Count > 0
+                        ? await CalculateAverageImportance(posts)
+                        : 0,
+                    CreatedAt: DateTime.UtcNow,
+                    DateFrom: posts.Min(p => p.PublishedAt),
+                    DateTo: posts.Max(p => p.PublishedAt)
+                )
+            );
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "Failed to generate posts summary");
             return Result.Fail(new Error("Summary generation failed").CausedBy(ex));
         }
+    }
+
+    private async Task<double> CalculateAverageImportance(List<PostModel> posts)
+    {
+        var importanceResults = await Task.WhenAll(posts.Select(EvaluatePostImportance));
+
+        var successfulResults = importanceResults
+            .Where(r => r.IsSuccess)
+            .Select(r => r.Value.Value)
+            .ToArray();
+
+        return successfulResults.Length != 0 ? successfulResults.Average() : 0;
     }
 }

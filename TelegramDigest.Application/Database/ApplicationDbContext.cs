@@ -87,7 +87,6 @@ internal sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext
             builder.Property(e => e.CreatedAt).IsRequired();
             builder.Property(e => e.DateFrom).IsRequired();
             builder.Property(e => e.DateTo).IsRequired();
-            builder.Property(e => e.ImageUrl).IsRequired();
         }
     }
 }

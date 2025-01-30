@@ -24,8 +24,7 @@ internal static class DtoExtensions
             AverageImportance: model.AverageImportance,
             CreatedAt: model.CreatedAt,
             DateFrom: model.DateFrom,
-            DateTo: model.DateTo,
-            ImageUrl: model.ImageUrl.ToString()
+            DateTo: model.DateTo
         );
 
     internal static DigestDto ToDto(this DigestModel model) =>

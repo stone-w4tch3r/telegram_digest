@@ -12,8 +12,7 @@ public record DigestSummaryDto(
     double AverageImportance,
     DateTime CreatedAt,
     DateTime DateFrom,
-    DateTime DateTo,
-    string ImageUrl
+    DateTime DateTo
 );
 
 public record PostSummaryDto(

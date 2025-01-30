@@ -122,7 +122,6 @@ internal sealed class DigestRepository(
                 CreatedAt = model.DigestSummary.CreatedAt,
                 DateFrom = model.DigestSummary.DateFrom,
                 DateTo = model.DigestSummary.DateTo,
-                ImageUrl = model.DigestSummary.ImageUrl.ToString(),
                 DigestNav = null, // Will be set by EF Core
             },
             PostsNav = model
@@ -150,7 +149,6 @@ internal sealed class DigestRepository(
             AverageImportance: entity.AverageImportance,
             CreatedAt: entity.CreatedAt,
             DateFrom: entity.DateFrom,
-            DateTo: entity.DateTo,
-            ImageUrl: new(entity.ImageUrl)
+            DateTo: entity.DateTo
         );
 }

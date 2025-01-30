@@ -28,8 +28,7 @@ internal record DigestSummaryModel(
     double AverageImportance,
     DateTime CreatedAt,
     DateTime DateFrom,
-    DateTime DateTo,
-    Uri ImageUrl
+    DateTime DateTo
 );
 
 internal record SettingsModel(

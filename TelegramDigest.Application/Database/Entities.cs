@@ -46,9 +46,6 @@ internal sealed class DigestSummaryEntity
 
     public required DateTime DateTo { get; init; }
 
-    [MaxLength(2048)]
-    public required string ImageUrl { get; init; } = null!;
-
     public DigestEntity? DigestNav { get; init; }
 }
 

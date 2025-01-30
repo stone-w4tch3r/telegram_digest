@@ -22,7 +22,7 @@ public class Controller(PublicFacade facade) : ControllerBase
     }
 
     [HttpPost("generate-digest")]
-    public async Task<ActionResult<DigestSummaryDto>> GenerateDigest()
+    public async Task<ActionResult<DigestGenerationDto>> GenerateDigest()
     {
         var result = await facade.GenerateDigest();
         return result.IsSuccess ? Ok(result.Value) : BadRequest(result.Errors);

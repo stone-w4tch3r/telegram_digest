@@ -694,3 +694,6 @@ $RECYCLE.BIN/
 
 # End of https://www.toptal.com/developers/gitignore/api/linux,macos,rider,windows,visualstudiocode,csharp,aspnetcore,dotnetcore
 
+# custom
+
+*/runtime/

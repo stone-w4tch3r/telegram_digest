@@ -13,7 +13,7 @@ internal sealed class EmailSender(SettingsManager settingsManager, ILogger<Email
         var settingsResult = await settingsManager.LoadSettings();
         if (settingsResult.IsFailed)
         {
-            return settingsResult.ToResult();
+            return Result.Fail(settingsResult.Errors);
         }
 
         var emailTo = settingsResult.Value.EmailRecipient;

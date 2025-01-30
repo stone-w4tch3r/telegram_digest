@@ -19,7 +19,7 @@ internal sealed class SummaryGenerator( // IOpenAIService openAiService,
         var settings = await settingsManager.LoadSettings();
         if (settings.IsFailed)
         {
-            return settings.ToResult<PostSummaryModel>();
+            return Result.Fail(settings.Errors);
         }
 
         try
@@ -41,7 +41,7 @@ internal sealed class SummaryGenerator( // IOpenAIService openAiService,
 
             // var importance = await EvaluatePostImportance(post);
             // if (importance.IsFailed)
-            //     return importance.ToResult<PostSummaryModel>();
+            //     return Result.Fail(importance.Errors);
 
             // return Result.Ok(
             //     new PostSummaryModel(

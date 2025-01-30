@@ -5,7 +5,7 @@ namespace TelegramDigest.Application.Services;
 // ReSharper disable once InconsistentNaming
 public abstract class IMainService
 {
-    internal abstract Task<Result> ProcessDailyDigest();
+    internal abstract Task<Result<DigestId?>> ProcessDailyDigest();
     internal abstract Task<Result<List<ChannelModel>>> GetChannels();
     internal abstract Task<Result> AddChannel(ChannelTgId channelTgId);
     internal abstract Task<Result> RemoveChannel(ChannelTgId channelTgId);
@@ -29,14 +29,14 @@ internal sealed class MainService(
     /// <summary>
     /// Generates and sends daily digest according to configured schedule
     /// </summary>
-    internal override async Task<Result> ProcessDailyDigest()
+    internal override async Task<Result<DigestId?>> ProcessDailyDigest()
     {
         logger.LogInformation("Starting daily digest processing");
 
         var settings = await settingsManager.LoadSettings();
         if (settings.IsFailed)
         {
-            return settings.ToResult();
+            return Result.Fail(settings.Errors);
         }
 
         //TODO handle 00:00
@@ -46,16 +46,24 @@ internal sealed class MainService(
         var generationResult = await digestsService.GenerateDigest(dateFrom, dateTo);
         if (generationResult.IsFailed)
         {
-            return generationResult.ToResult();
+            return Result.Fail(generationResult.Errors);
         }
-
-        var digest = await digestsService.GetDigest(generationResult.Value);
-        if (digest.IsFailed)
+        if (generationResult.Value is null)
         {
-            return digest.ToResult();
+            return Result.Ok((DigestId?)null);
         }
 
-        return await emailSender.SendDigest(digest.Value.DigestSummary);
+        var digestId = generationResult.Value.Value;
+        var digestResult = await digestsService.GetDigest(digestId);
+        if (digestResult.IsFailed)
+        {
+            return Result.Fail(digestResult.Errors);
+        }
+
+        var sendResult = await emailSender.SendDigest(digestResult.Value.DigestSummary);
+        return sendResult.IsFailed
+            ? Result.Fail(sendResult.Errors)
+            : Result.Ok((DigestId?)digestId);
     }
 
     internal override async Task<Result<List<ChannelModel>>> GetChannels() =>

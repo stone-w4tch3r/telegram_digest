@@ -16,12 +16,12 @@ internal sealed class DigestsService(
     /// Creates a new digest from posts within the specified time range
     /// </summary>
     /// <returns>DigestId of the generated digest or error if generation failed</returns>
-    internal async Task<Result<DigestId>> GenerateDigest(DateOnly from, DateOnly to)
+    internal async Task<Result<DigestId?>> GenerateDigest(DateOnly from, DateOnly to)
     {
         var channels = await channelsRepository.LoadChannels();
         if (channels.IsFailed)
         {
-            return channels.ToResult<DigestId>();
+            return Result.Fail(channels.Errors);
         }
 
         var posts = new List<PostModel>();
@@ -53,7 +53,7 @@ internal sealed class DigestsService(
         var digestSummaryResult = await summaryGenerator.GeneratePostsSummary(posts);
         if (digestSummaryResult.IsFailed)
         {
-            return digestSummaryResult.ToResult<DigestId>();
+            return Result.Fail(digestSummaryResult.Errors);
         }
 
         var digestId = DigestId.NewId();
@@ -64,7 +64,9 @@ internal sealed class DigestsService(
         );
 
         var saveResult = await digestRepository.SaveDigest(digest);
-        return saveResult.IsSuccess ? Result.Ok(digestId) : saveResult.ToResult<DigestId>();
+        return saveResult.IsSuccess
+            ? Result.Ok((DigestId?)digestId)
+            : Result.Fail(saveResult.Errors);
     }
 
     internal async Task<Result<DigestModel>> GetDigest(DigestId digestId)

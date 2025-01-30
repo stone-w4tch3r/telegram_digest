@@ -9,23 +9,17 @@ namespace TelegramDigest.Application;
 [UsedImplicitly]
 public static class ServiceCollectionExtensions
 {
-    [UsedImplicitly]
-    public static IServiceCollection AddTelegramDigest(
+    public static void AddTelegramDigest(
         this IServiceCollection services,
         IConfiguration configuration
     )
     {
         ConfigureServices(services, configuration);
-        return services;
     }
 
-    [UsedImplicitly]
-    public static async Task<IServiceProvider> InitializeTelegramDigest(
-        this IServiceProvider serviceProvider
-    )
+    public static async Task InitializeTelegramDigest(this IServiceProvider serviceProvider)
     {
         await InitializeDbAsync(serviceProvider);
-        return serviceProvider;
     }
 
     private static void ConfigureServices(IServiceCollection services, IConfiguration configuration)

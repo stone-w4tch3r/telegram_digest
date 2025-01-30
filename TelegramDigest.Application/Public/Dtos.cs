@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace TelegramDigest.Application.Public;
 
 public record ChannelDto(string ChannelName, string Description, string Name, string ImageUrl);
@@ -21,6 +23,15 @@ public record PostSummaryDto(
     DateTime PublishedAt,
     int Importance
 );
+
+[JsonConverter(typeof(JsonStringEnumConverter))]
+public enum DigestGenerationStatus
+{
+    Success,
+    NoPosts,
+}
+
+public record DigestGenerationDto(Guid? GeneratedDigestId, DigestGenerationStatus Status);
 
 public record DigestDto(Guid DigestId, List<PostSummaryDto> Posts, DigestSummaryDto Summary);
 

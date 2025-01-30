@@ -15,7 +15,7 @@ internal sealed class ChannelsService(
         var channelResult = await channelReader.FetchChannelInfo(channelTgId);
         if (channelResult.IsFailed)
         {
-            return channelResult.ToResult();
+            return Result.Fail(channelResult.Errors);
         }
 
         return await channelsRepository.SaveChannel(channelResult.Value);

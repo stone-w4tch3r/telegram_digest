@@ -18,6 +18,7 @@
 - change line length in csharpier
 - improve openapi/swagger support in controller
     - fix error codes
+      - 404 / NotFoundError, OneOf? 
 - fix runtime/ folder location
 - handle 00:00 in GenerateDailyDigest
 - Tests (and interfaces?)

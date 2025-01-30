@@ -36,18 +36,22 @@ public sealed class PublicFacade(IMainService mainService, ILogger<PublicFacade>
         return result.Map(digest => digest.ToDto());
     }
 
-    public async Task<Result<DigestSummaryDto>> GenerateDigest()
+    public async Task<Result<DigestGenerationDto>> GenerateDigest()
     {
-        var result = await mainService.ProcessDailyDigest();
-        if (result.IsFailed)
+        var digestResult = await mainService.ProcessDailyDigest();
+        if (digestResult.IsFailed)
         {
-            return result.ToResult<DigestSummaryDto>();
+            return Result.Fail(digestResult.Errors);
         }
 
-        var summaries = await GetDigestSummaries();
-        return summaries.IsFailed
-            ? summaries.ToResult<DigestSummaryDto>()
-            : Result.Ok(summaries.Value.First());
+        var summariesResult = await GetDigestSummaries();
+        return summariesResult.IsFailed
+            ? Result.Fail(summariesResult.Errors)
+            : Result.Ok<DigestGenerationDto>(
+                digestResult.Value?.Id is { } id
+                    ? new(id, DigestGenerationStatus.Success)
+                    : new(null, DigestGenerationStatus.NoPosts)
+            );
     }
 
     public async Task<Result<SettingsDto>> GetSettings()

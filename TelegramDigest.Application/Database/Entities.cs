@@ -44,10 +44,6 @@ internal sealed class PostSummaryEntity
     [Range(1, 10)]
     public required int Importance { get; init; }
 
-    public Guid? DigestIdNav { get; init; }
-
-    public DigestEntity? DigestNav { get; init; }
-
     public ChannelEntity? ChannelNav { get; init; }
 }
 

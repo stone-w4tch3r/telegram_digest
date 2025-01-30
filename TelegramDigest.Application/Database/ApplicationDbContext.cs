@@ -47,13 +47,6 @@ internal sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext
                 .WithOne(s => s.DigestNav)
                 .HasForeignKey<DigestSummaryEntity>(s => s.Id)
                 .OnDelete(DeleteBehavior.Cascade);
-
-            // 1:Many relationship with PostSummaries
-            builder
-                .HasMany(d => d.PostsNav)
-                .WithOne(p => p.DigestNav)
-                .HasForeignKey(p => p.DigestIdNav)
-                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 

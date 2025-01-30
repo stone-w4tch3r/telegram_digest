@@ -134,9 +134,6 @@ internal sealed class DigestRepository(
                     Url = p.Url.ToString(),
                     PublishedAt = p.PublishedAt,
                     Importance = p.Importance.Value,
-                    DigestIdNav = model.DigestId.Id,
-                    DigestNav = null, // Will be set by EF Core
-                    ChannelNav = null, // Will be set by EF Core
                 })
                 .ToList(),
         };

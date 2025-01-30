@@ -1,12 +1,28 @@
 using FluentResults;
 using TelegramDigest.Application.Services;
 
-namespace TelegramDigest.Application.Public;
+namespace TelegramDigest.API.Core;
 
 /// <summary>
-/// Public API facade for the application, used by Web UI and other external consumers
+/// Facade for controllers
 /// </summary>
-public sealed class PublicFacade(IMainService mainService, ILogger<PublicFacade> logger)
+public interface IApplicationFacade
+{
+    public Task<Result<List<ChannelDto>>> GetChannels();
+    internal Task<Result> AddChannel(string channelName);
+    internal Task<Result> RemoveChannel(string channelName);
+    internal Task<Result<List<DigestSummaryDto>>> GetDigestSummaries();
+    internal Task<Result<DigestDto>> GetDigest(Guid digestId);
+    internal Task<Result<DigestGenerationDto>> GenerateDigest();
+    internal Task<Result<SettingsDto>> GetSettings();
+    internal Task<Result> UpdateSettings(SettingsDto settingsDto);
+}
+
+/// <summary>
+/// Facade for controllers
+/// </summary>
+internal sealed class ApplicationFacade(IMainService mainService, ILogger<ApplicationFacade> logger)
+    : IApplicationFacade
 {
     public async Task<Result<List<ChannelDto>>> GetChannels()
     {

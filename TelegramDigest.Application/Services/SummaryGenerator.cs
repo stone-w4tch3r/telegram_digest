@@ -3,10 +3,16 @@ using OpenAI.Chat;
 
 namespace TelegramDigest.Application.Services;
 
+internal interface ISummaryGenerator
+{
+    public Task<Result<PostSummaryModel>> GenerateSummary(PostModel post);
+    public Task<Result<DigestSummaryModel>> GeneratePostsSummary(List<PostModel> posts);
+}
+
 internal sealed class SummaryGenerator(
-    SettingsManager settingsManager,
+    ISettingsManager settingsManager,
     ILogger<SummaryGenerator> logger
-)
+) : ISummaryGenerator
 {
     private ChatClient? _chatClient;
 
@@ -29,7 +35,7 @@ internal sealed class SummaryGenerator(
         return Result.Ok(_chatClient);
     }
 
-    internal async Task<Result<PostSummaryModel>> GenerateSummary(PostModel post)
+    public async Task<Result<PostSummaryModel>> GenerateSummary(PostModel post)
     {
         try
         {
@@ -108,7 +114,7 @@ internal sealed class SummaryGenerator(
         }
     }
 
-    internal async Task<Result<DigestSummaryModel>> GeneratePostsSummary(List<PostModel> posts)
+    public async Task<Result<DigestSummaryModel>> GeneratePostsSummary(List<PostModel> posts)
     {
         try
         {

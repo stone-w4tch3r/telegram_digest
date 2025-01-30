@@ -3,12 +3,21 @@ using FluentResults;
 
 namespace TelegramDigest.Application.Services;
 
-internal sealed class EmailSender(SettingsManager settingsManager, ILogger<EmailSender> logger)
+internal interface IEmailSender
 {
     /// <summary>
     /// Sends digest email with a link to the web UI, avoiding complex HTML formatting
     /// </summary>
-    internal async Task<Result> SendDigest(DigestSummaryModel digest)
+    public Task<Result> SendDigest(DigestSummaryModel digest);
+}
+
+internal sealed class EmailSender(ISettingsManager settingsManager, ILogger<EmailSender> logger)
+    : IEmailSender
+{
+    /// <summary>
+    /// Sends digest email with a link to the web UI, avoiding complex HTML formatting
+    /// </summary>
+    public async Task<Result> SendDigest(DigestSummaryModel digest)
     {
         var settingsResult = await settingsManager.LoadSettings();
         if (settingsResult.IsFailed)

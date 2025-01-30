@@ -4,11 +4,21 @@ using FluentResults;
 
 namespace TelegramDigest.Application.Services;
 
-internal sealed class ChannelReader(ILogger<ChannelReader> logger)
+internal interface IChannelReader
+{
+    public Task<Result<List<PostModel>>> FetchPosts(
+        ChannelTgId channelTgId,
+        DateOnly from,
+        DateOnly to
+    );
+    public Task<Result<ChannelModel>> FetchChannelInfo(ChannelTgId channelTgId);
+}
+
+internal sealed class ChannelReader(ILogger<ChannelReader> logger) : IChannelReader
 {
     private const string RssHubBaseUrl = "https://rsshub.app/telegram/channel";
 
-    internal Task<Result<List<PostModel>>> FetchPosts(
+    public Task<Result<List<PostModel>>> FetchPosts(
         ChannelTgId channelTgId,
         DateOnly from,
         DateOnly to
@@ -53,7 +63,7 @@ internal sealed class ChannelReader(ILogger<ChannelReader> logger)
             }
         });
 
-    internal Task<Result<ChannelModel>> FetchChannelInfo(ChannelTgId channelTgId) =>
+    public Task<Result<ChannelModel>> FetchChannelInfo(ChannelTgId channelTgId) =>
         Task.Run(() =>
         {
             try

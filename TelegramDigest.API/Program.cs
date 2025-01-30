@@ -1,6 +1,9 @@
+using TelegramDigest.API.Core;
 using TelegramDigest.Application;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddScoped<IApplicationFacade, ApplicationFacade>();
 
 builder.Services.AddControllers();
 builder.Services.AddSwaggerGen();

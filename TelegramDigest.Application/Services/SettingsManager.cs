@@ -3,7 +3,23 @@ using FluentResults;
 
 namespace TelegramDigest.Application.Services;
 
-internal sealed class SettingsManager
+internal interface ISettingsManager
+{
+    /// <summary>
+    /// Loads application settings from the file system.
+    /// </summary>
+    /// <returns>A result containing the loaded settings or an error.</returns>
+    public Task<Result<SettingsModel>> LoadSettings();
+
+    /// <summary>
+    /// Saves application settings to the file system.
+    /// </summary>
+    /// <param name="settings">The settings to save.</param>
+    /// <returns>A result indicating success or failure.</returns>
+    public Task<Result> SaveSettings(SettingsModel settings);
+}
+
+internal sealed class SettingsManager : ISettingsManager
 {
     private const string SettingsPath = "runtime/settings.json";
     private readonly FileInfo _settingsFileInfo;
@@ -19,7 +35,7 @@ internal sealed class SettingsManager
         _logger = logger;
     }
 
-    internal async Task<Result<SettingsModel>> LoadSettings()
+    public async Task<Result<SettingsModel>> LoadSettings()
     {
         try
         {
@@ -48,7 +64,7 @@ internal sealed class SettingsManager
         }
     }
 
-    internal async Task<Result> SaveSettings(SettingsModel settings)
+    public async Task<Result> SaveSettings(SettingsModel settings)
     {
         try
         {

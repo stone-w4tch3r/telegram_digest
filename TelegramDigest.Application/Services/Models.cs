@@ -2,11 +2,11 @@ using JetBrains.Annotations;
 
 namespace TelegramDigest.Application.Services;
 
-internal record ChannelModel(ChannelTgId TgId, string Description, string Title, Uri ImageUrl);
+public record ChannelModel(ChannelTgId TgId, string Description, string Title, Uri ImageUrl);
 
-internal record PostModel(ChannelTgId ChannelTgId, Html HtmlContent, Uri Url, DateTime PublishedAt);
+public record PostModel(ChannelTgId ChannelTgId, Html HtmlContent, Uri Url, DateTime PublishedAt);
 
-internal record PostSummaryModel(
+public record PostSummaryModel(
     ChannelTgId ChannelTgId,
     string Summary,
     Uri Url,
@@ -14,13 +14,13 @@ internal record PostSummaryModel(
     Importance Importance
 );
 
-internal record DigestModel(
+public record DigestModel(
     DigestId DigestId,
     List<PostSummaryModel> PostsSummaries,
     DigestSummaryModel DigestSummary
 );
 
-internal record DigestSummaryModel(
+public record DigestSummaryModel(
     DigestId DigestId,
     string Title,
     string PostsSummary,
@@ -31,14 +31,14 @@ internal record DigestSummaryModel(
     DateTime DateTo
 );
 
-internal record SettingsModel(
+public record SettingsModel(
     string EmailRecipient,
     TimeUtc DigestTime,
     SmtpSettingsModel SmtpSettings,
     OpenAiSettingsModel OpenAiSettings
 );
 
-internal record SmtpSettingsModel(
+public record SmtpSettingsModel(
     string Host,
     int Port,
     string Username,
@@ -46,4 +46,4 @@ internal record SmtpSettingsModel(
     bool UseSsl
 );
 
-internal record OpenAiSettingsModel(string ApiKey, string Model, int MaxTokens);
+public record OpenAiSettingsModel(string ApiKey, string Model, int MaxTokens);

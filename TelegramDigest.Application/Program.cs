@@ -1,7 +1,6 @@
 using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 using TelegramDigest.Application.Database;
-using TelegramDigest.Application.Public;
 using TelegramDigest.Application.Services;
 
 namespace TelegramDigest.Application;
@@ -29,20 +28,16 @@ public static class ServiceCollectionExtensions
             options.UseSqlite(configuration.GetConnectionString("DefaultConnection"))
         );
 
-        // OpenAI
-
         // Application services
-        services.AddScoped<ChannelReader>();
-        services.AddScoped<ChannelsService>();
-        services.AddScoped<ChannelsRepository>();
-        services.AddScoped<DigestsService>();
-        services.AddScoped<DigestRepository>();
-        services.AddScoped<SummaryGenerator>();
-        services.AddScoped<EmailSender>();
-        services.AddScoped<MainService>();
+        services.AddScoped<IChannelReader, ChannelReader>();
+        services.AddScoped<IChannelsService, ChannelsService>();
+        services.AddScoped<IChannelsRepository, ChannelsRepository>();
+        services.AddScoped<IDigestsService, DigestsService>();
+        services.AddScoped<IDigestRepository, DigestRepository>();
+        services.AddScoped<ISummaryGenerator, SummaryGenerator>();
+        services.AddScoped<IEmailSender, EmailSender>();
         services.AddScoped<IMainService, MainService>();
-        services.AddScoped<PublicFacade>();
-        services.AddScoped<SettingsManager>(sp =>
+        services.AddScoped<ISettingsManager, SettingsManager>(sp =>
         {
             var logger = sp.GetRequiredService<ILogger<SettingsManager>>();
             var settingsPath = configuration.GetValue<string>("SettingsPath");

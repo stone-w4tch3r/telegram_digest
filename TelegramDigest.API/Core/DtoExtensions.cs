@@ -1,6 +1,6 @@
 using TelegramDigest.Application.Services;
 
-namespace TelegramDigest.Application.Public;
+namespace TelegramDigest.API.Core;
 
 /// <summary>
 /// Extension methods for converting between DTOs and domain models

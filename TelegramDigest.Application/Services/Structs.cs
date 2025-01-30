@@ -4,7 +4,7 @@ using JetBrains.Annotations;
 
 namespace TelegramDigest.Application.Services;
 
-internal readonly partial record struct ChannelTgId
+public readonly partial record struct ChannelTgId
 {
     [GeneratedRegex("^[a-zA-Z0-9_]{5,32}$")]
     private static partial Regex ChannelNamePattern();
@@ -26,19 +26,19 @@ internal readonly partial record struct ChannelTgId
     public string ChannelName { get; }
 }
 
-internal readonly record struct DigestId(Guid Id)
+public readonly record struct DigestId(Guid Id)
 {
-    internal static DigestId NewId() => new(Guid.NewGuid());
+    public static DigestId NewId() => new(Guid.NewGuid());
 
     public override string ToString() => Id.ToString();
 }
 
-internal readonly record struct TimeUtc(TimeOnly Time)
+public readonly record struct TimeUtc(TimeOnly Time)
 {
     public override string ToString() => Time.ToString();
 }
 
-internal readonly record struct Html(string HtmlString)
+public readonly record struct Html(string HtmlString)
 {
     public override string ToString() => HtmlString;
 }
@@ -46,9 +46,9 @@ internal readonly record struct Html(string HtmlString)
 /// <summary>
 /// Describes the importance of a post. Importance value must be between 1 and 10, inclusive
 /// </summary>
-internal readonly record struct Importance
+public readonly record struct Importance
 {
-    internal Importance(int Value)
+    public Importance(int Value)
     {
         this.Value = Value is > 0 and <= 10
             ? Value
@@ -58,5 +58,5 @@ internal readonly record struct Importance
             );
     }
 
-    internal int Value { get; }
+    public int Value { get; }
 }

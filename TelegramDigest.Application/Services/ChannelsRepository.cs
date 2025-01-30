@@ -3,15 +3,19 @@ using TelegramDigest.Application.Database;
 
 namespace TelegramDigest.Application.Services;
 
+internal interface IChannelsRepository
+{
+    public Task<Result> SaveChannel(ChannelModel channel);
+    public Task<Result<List<ChannelModel>>> LoadChannels();
+    public Task<Result> DeleteChannel(ChannelTgId channelId);
+}
+
 internal sealed class ChannelsRepository(
     ApplicationDbContext dbContext,
     ILogger<ChannelsRepository> logger
-)
+) : IChannelsRepository
 {
-    /// <summary>
-    /// Persists channel data, updating if exists or creating if new
-    /// </summary>
-    internal async Task<Result> SaveChannel(ChannelModel channel)
+    public async Task<Result> SaveChannel(ChannelModel channel)
     {
         try
         {
@@ -43,7 +47,7 @@ internal sealed class ChannelsRepository(
         }
     }
 
-    internal async Task<Result<List<ChannelModel>>> LoadChannels()
+    public async Task<Result<List<ChannelModel>>> LoadChannels()
     {
         try
         {
@@ -66,7 +70,7 @@ internal sealed class ChannelsRepository(
         }
     }
 
-    internal async Task<Result> DeleteChannel(ChannelTgId channelId)
+    public async Task<Result> DeleteChannel(ChannelTgId channelId)
     {
         try
         {

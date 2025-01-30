@@ -9,8 +9,8 @@
 | [x]  | Check db schema and/or fix it           | 30m   |
 | [x]  | Implement repositories                  | 2h    |
 | [x]  | Fix db initialization                   | 1h    |
-| [ ]  | Add openai docs to CodeGPT              | 30min |
-| [ ]  | Implement basic summariser              | 30min |
+| [x]  | Add openai docs to CodeGPT              | 30min |
+| [x]  | Implement basic summariser              | 30min |
 | [ ]  | Obtain API key and pay                  | 30min |
 
 ### TODO
@@ -21,5 +21,5 @@
       - 404 / NotFoundError, OneOf? 
 - fix runtime/ folder location
 - handle 00:00 in GenerateDailyDigest
-- Tests (and interfaces?)
+- Tests
 - Check code quality

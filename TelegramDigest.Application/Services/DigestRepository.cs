@@ -3,15 +3,38 @@ using TelegramDigest.Application.Database;
 
 namespace TelegramDigest.Application.Services;
 
-internal sealed class DigestRepository(
-    ApplicationDbContext dbContext,
-    ILogger<DigestRepository> logger
-)
+internal interface IDigestRepository
 {
     /// <summary>
     /// Loads complete digest including all post summaries and metadata
     /// </summary>
-    internal async Task<Result<DigestModel>> LoadDigest(DigestId digestId)
+    public Task<Result<DigestModel>> LoadDigest(DigestId digestId);
+
+    /// <summary>
+    /// Saves a digest to the database
+    /// </summary>
+    public Task<Result> SaveDigest(DigestModel digest);
+
+    /// <summary>
+    /// Checks if a post is already included in any digest
+    /// </summary>
+    public Task<Result<bool>> CheckIfPostIsSaved(Uri postUrl);
+
+    /// <summary>
+    /// Loads all digest summaries from the database
+    /// </summary>
+    public Task<Result<List<DigestSummaryModel>>> LoadAllDigestSummaries();
+}
+
+internal sealed class DigestRepository(
+    ApplicationDbContext dbContext,
+    ILogger<DigestRepository> logger
+) : IDigestRepository
+{
+    /// <summary>
+    /// Loads complete digest including all post summaries and metadata
+    /// </summary>
+    public async Task<Result<DigestModel>> LoadDigest(DigestId digestId)
     {
         try
         {
@@ -36,7 +59,7 @@ internal sealed class DigestRepository(
         }
     }
 
-    internal async Task<Result> SaveDigest(DigestModel digest)
+    public async Task<Result> SaveDigest(DigestModel digest)
     {
         try
         {
@@ -55,7 +78,7 @@ internal sealed class DigestRepository(
     /// <summary>
     /// Checks if a post is already included in any digest
     /// </summary>
-    internal async Task<Result<bool>> CheckIfPostIsSaved(Uri postUrl)
+    public async Task<Result<bool>> CheckIfPostIsSaved(Uri postUrl)
     {
         try
         {
@@ -70,7 +93,7 @@ internal sealed class DigestRepository(
         }
     }
 
-    internal async Task<Result<List<DigestSummaryModel>>> LoadAllDigestSummaries()
+    public async Task<Result<List<DigestSummaryModel>>> LoadAllDigestSummaries()
     {
         try
         {

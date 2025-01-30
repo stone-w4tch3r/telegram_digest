@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace TelegramDigest.Application.Public;
+namespace TelegramDigest.API.Core;
 
 public record ChannelDto(string ChannelName, string Description, string Name, string ImageUrl);
 

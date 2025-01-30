@@ -2,13 +2,20 @@ using FluentResults;
 
 namespace TelegramDigest.Application.Services;
 
+internal interface IDigestsService
+{
+    public Task<Result<DigestId?>> GenerateDigest(DateOnly from, DateOnly to);
+    public Task<Result<DigestModel>> GetDigest(DigestId digestId);
+    public Task<Result<List<DigestSummaryModel>>> GetDigestSummaries();
+}
+
 internal sealed class DigestsService(
-    DigestRepository digestRepository,
-    ChannelReader channelReader,
-    ChannelsRepository channelsRepository,
-    SummaryGenerator summaryGenerator,
+    IDigestRepository digestRepository,
+    IChannelReader channelReader,
+    IChannelsRepository channelsRepository,
+    ISummaryGenerator summaryGenerator,
     ILogger<DigestsService> logger
-)
+) : IDigestsService
 {
     private readonly ILogger<DigestsService> _logger = logger;
 
@@ -16,7 +23,7 @@ internal sealed class DigestsService(
     /// Creates a new digest from posts within the specified time range
     /// </summary>
     /// <returns>DigestId of the generated digest or error if generation failed</returns>
-    internal async Task<Result<DigestId?>> GenerateDigest(DateOnly from, DateOnly to)
+    public async Task<Result<DigestId?>> GenerateDigest(DateOnly from, DateOnly to)
     {
         var channels = await channelsRepository.LoadChannels();
         if (channels.IsFailed)
@@ -69,12 +76,12 @@ internal sealed class DigestsService(
             : Result.Fail(saveResult.Errors);
     }
 
-    internal async Task<Result<DigestModel>> GetDigest(DigestId digestId)
+    public async Task<Result<DigestModel>> GetDigest(DigestId digestId)
     {
         return await digestRepository.LoadDigest(digestId);
     }
 
-    internal async Task<Result<List<DigestSummaryModel>>> GetDigestSummaries()
+    public async Task<Result<List<DigestSummaryModel>>> GetDigestSummaries()
     {
         return await digestRepository.LoadAllDigestSummaries();
     }

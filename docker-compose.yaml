@@ -1,0 +1,6 @@
+﻿services:
+  telegramdigest.web:
+    image: telegramdigest.web
+    build:
+      context: .
+      dockerfile: TelegramDigest.Web/Dockerfile

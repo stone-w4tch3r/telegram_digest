@@ -1,10 +1,165 @@
-﻿@page
+@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "Dashboard";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container">
+    <!-- Header with Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1>Telegram Digest Dashboard</h1>
+        </div>
+        <div class="col-md-4 text-md-end">
+            <form method="post" asp-page="/Digests/Index" asp-page-handler="Generate">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Generate New Digest
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Channels</h5>
+                    <p class="display-4">@Model.TotalChannels</p>
+                    <a asp-page="/Channels/Index" class="text-white text-decoration-none">
+                        Manage Channels <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Digests</h5>
+                    <p class="display-4">@Model.TotalDigests</p>
+                    <a asp-page="/Digests/Index" class="text-white text-decoration-none">
+                        View All Digests <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-info text-white h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Next Digest</h5>
+                    <p class="display-4">
+                        @(Model.NextDigestTime?.ToString("HH:mm") ?? "N/A")
+                    </p>
+                    <small class="d-block mb-2">UTC time</small>
+                    <a asp-page="/Settings/Index" class="text-white text-decoration-none">
+                        Change Schedule <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Latest Digest Preview -->
+        <div class="col-md-7 mb-4">
+            @if (Model.LatestDigest != null)
+            {
+                <div class="card h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Latest Digest</h5>
+                        <span class="badge bg-secondary">
+                            @Model.LatestDigest.CreatedAt.ToString("MMM dd, yyyy HH:mm")
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">@Model.LatestDigest.Summary</p>
+                        <div class="mt-3 d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="badge bg-primary me-2">@Model.LatestDigest.Posts.Count posts</span>
+                                <span class="badge @(Model.LatestDigest.EmailStatus == "Sent" ? "bg-success" : "bg-warning")">
+                                    @Model.LatestDigest.EmailStatus
+                                </span>
+                            </div>
+                            <a asp-page="/Digest/Index" asp-route-id="@Model.LatestDigest.Id"
+                               class="btn btn-outline-primary">
+                                View Full Digest
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <h5 class="text-muted mt-4">No digests generated yet</h5>
+                        <p class="mb-4">Generate your first digest to see it here</p>
+                        <form method="post" asp-page="/Digests/Index" asp-page-handler="Generate">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-plus-circle"></i> Generate First Digest
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Recent Channels -->
+        <div class="col-md-5 mb-4">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Recent Channels</h5>
+                    <a asp-page="/Channels/Index" class="btn btn-sm btn-outline-primary">
+                        View All
+                    </a>
+                </div>
+                <div class="card-body">
+                    @if (!Model.RecentChannels.Any())
+                    {
+                        <div class="text-center text-muted">
+                            <p class="mb-3">No channels added yet</p>
+                            <a asp-page="/Channels/Index" class="btn btn-outline-primary">
+                                <i class="bi bi-plus-circle"></i> Add Channel
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="list-group list-group-flush">
+                            @foreach (var channel in Model.RecentChannels)
+                            {
+                                <div class="list-group-item">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="mb-0">@channel.Title</h6>
+                                            <small class="text-muted">
+                                                Updated: @(channel.LastUpdate?.ToString("MMM dd, HH:mm") ?? "Never")
+                                            </small>
+                                        </div>
+                                        <div class="text-end">
+                                            <span class="badge @(channel.Status == "Active" ? "bg-success" : "bg-warning")">
+                                                @channel.Status
+                                            </span>
+                                            <div>
+                                                <small class="text-muted">@channel.PostsCount posts</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+@section Scripts {
+    <script>
+        // Refresh dashboard every 5 minutes
+        setTimeout(function() {
+            window.location.reload();
+        }, 5 * 60 * 1000);
+    </script>
+}

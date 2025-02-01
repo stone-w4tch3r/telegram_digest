@@ -1,4 +1,19 @@
-﻿// Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
-// for details on configuring this project to bundle and minify static web assets.
+﻿// Enable tooltips everywhere
+document.addEventListener("DOMContentLoaded", function () {
+  var tooltipTriggerList = [].slice.call(
+    document.querySelectorAll('[data-bs-toggle="tooltip"]'),
+  );
+  var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+    return new bootstrap.Tooltip(tooltipTriggerEl);
+  });
 
-// Write your JavaScript code.
+  // Auto-hide alerts after 5 seconds
+  setTimeout(function () {
+    $(".alert").alert("close");
+  }, 5000);
+});
+
+// Confirm delete actions
+function confirmDelete(message) {
+  return confirm(message || "Are you sure you want to delete this item?");
+}

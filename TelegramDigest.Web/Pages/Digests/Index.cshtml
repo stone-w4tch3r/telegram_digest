@@ -1,0 +1,53 @@
+@page
+@model TelegramDigest.Web.Pages.Digests.IndexModel
+@{
+    ViewData["Title"] = "Digests";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Digests</h1>
+    <form method="post" asp-page-handler="Generate">
+        <button type="submit" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Generate New Digest
+        </button>
+    </form>
+</div>
+
+@if (!Model.Digests.Any())
+{
+    <div class="alert alert-info">
+        No digests found. Generate your first digest using the button above.
+    </div>
+}
+else
+{
+    <div class="row">
+        @foreach (var digest in Model.Digests)
+        {
+            <div class="col-md-6 mb-4">
+                <div class="card digest-card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            Digest from @digest.CreatedAt.ToString("MMM dd, yyyy HH:mm")
+                        </h5>
+                        <p class="card-text">
+                            <span class="badge bg-info">@digest.Posts.Count posts</span>
+                            <span class="badge @(digest.EmailStatus == "Sent" ? "bg-success" : "bg-warning")">
+                                @digest.EmailStatus
+                            </span>
+                        </p>
+                        <p class="card-text text-muted">
+                            @(digest.Summary.Length > 200 
+                                ? digest.Summary[..200] + "..." 
+                                : digest.Summary)
+                        </p>
+                        <a asp-page="/Digest/Index" asp-route-id="@digest.Id" 
+                           class="btn btn-outline-primary">
+                            View Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

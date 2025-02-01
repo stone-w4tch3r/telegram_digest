@@ -1,0 +1,15 @@
+<ul class="navbar-nav flex-grow-1">
+    @* TODO check paging logic *@
+    <li class="nav-item">
+        <a class="nav-link @(ViewContext.RouteData.Values["Page"]?.ToString() == "/Digests/Index" ? "active" : "")"
+           asp-page="/Digests/Index">Digests</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(ViewContext.RouteData.Values["Page"]?.ToString() == "/Channels/Index" ? "active" : "")"
+           asp-page="/Channels/Index">Channels</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(ViewContext.RouteData.Values["Page"]?.ToString() == "/Settings/Index" ? "active" : "")"
+           asp-page="/Settings/Index">Settings</a>
+    </li>
+</ul>

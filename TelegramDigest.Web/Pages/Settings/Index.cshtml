@@ -1,0 +1,93 @@
+@page
+@model TelegramDigest.Web.Pages.Settings.IndexModel
+@{
+    ViewData["Title"] = "Settings";
+}
+
+<h1>Settings</h1>
+
+<form method="post" class="settings-form">
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Email Settings</h5>
+        </div>
+        <div class="card-body">
+            <div class="mb-3">
+                <label asp-for="Settings.RecipientEmail" class="form-label required"></label>
+                <input asp-for="Settings.RecipientEmail" class="form-control" />
+                <span asp-validation-for="Settings.RecipientEmail" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">SMTP Settings</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Settings.SmtpHost" class="form-label required"></label>
+                    <input asp-for="Settings.SmtpHost" class="form-control" />
+                    <span asp-validation-for="Settings.SmtpHost" class="text-danger"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Settings.SmtpPort" class="form-label required"></label>
+                    <input asp-for="Settings.SmtpPort" class="form-control" />
+                    <span asp-validation-for="Settings.SmtpPort" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Settings.SmtpUsername" class="form-label required"></label>
+                <input asp-for="Settings.SmtpUsername" class="form-control" />
+                <span asp-validation-for="Settings.SmtpUsername" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Settings.SmtpPassword" class="form-label required"></label>
+                <input asp-for="Settings.SmtpPassword" class="form-control" />
+                <span asp-validation-for="Settings.SmtpPassword" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">OpenAI Settings</h5>
+        </div>
+        <div class="card-body">
+            <div class="mb-3">
+                <label asp-for="Settings.OpenAiApiKey" class="form-label required"></label>
+                <input asp-for="Settings.OpenAiApiKey" class="form-control" />
+                <span asp-validation-for="Settings.OpenAiApiKey" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Digest Settings</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Settings.DigestTimeUtc" class="form-label required"></label>
+                    <input asp-for="Settings.DigestTimeUtc" class="form-control" />
+                    <span asp-validation-for="Settings.DigestTimeUtc" class="text-danger"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Settings.PostsPerChannel" class="form-label required"></label>
+                    <input asp-for="Settings.PostsPerChannel" class="form-control" />
+                    <span asp-validation-for="Settings.PostsPerChannel" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+        <button type="submit" class="btn btn-primary">Save Settings</button>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

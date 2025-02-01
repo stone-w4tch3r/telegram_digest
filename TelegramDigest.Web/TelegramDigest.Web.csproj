@@ -4,4 +4,8 @@
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\TelegramDigest.Application\TelegramDigest.Application.csproj" />
+    </ItemGroup>
+
 </Project>

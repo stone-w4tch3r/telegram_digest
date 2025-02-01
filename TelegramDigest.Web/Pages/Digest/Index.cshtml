@@ -1,0 +1,61 @@
+@page "{id:int}"
+@model TelegramDigest.Web.Pages.Digest.IndexModel
+@{
+    ViewData["Title"] = $"Digest from {Model.Digest?.CreatedAt:MMM dd, yyyy}";
+}
+
+<div class="mb-4">
+    <a asp-page="/Digests/Index" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Back to Digests
+    </a>
+</div>
+
+@if (Model.Digest == null)
+{
+    <div class="alert alert-warning">
+        Digest not found.
+    </div>
+}
+else
+{
+    <div class="card mb-4">
+        <div class="card-body">
+            <h2 class="card-title">
+                Digest from @Model.Digest.CreatedAt.ToString("MMMM dd, yyyy HH:mm")
+            </h2>
+            <div class="mb-3">
+                <span class="badge bg-info">@Model.Digest.Posts.Count posts</span>
+                <span class="badge @(Model.Digest.EmailStatus == "Sent" ? "bg-success" : "bg-warning")">
+                    @Model.Digest.EmailStatus
+                </span>
+            </div>
+            <h5>Summary</h5>
+            <p class="card-text">@Model.Digest.Summary</p>
+        </div>
+    </div>
+
+    <h3>Posts</h3>
+    @foreach (var post in Model.Digest.Posts.OrderByDescending(p => p.Importance))
+    {
+        <div class="card mb-3">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <h5 class="card-title">@post.ChannelName</h5>
+                    <span class="badge bg-primary">Importance: @post.Importance</span>
+                </div>
+                <p class="card-text">@post.Summary</p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <small class="text-muted">
+                        Posted at @post.PostedAt.ToString("MMM dd, yyyy HH:mm")
+                    </small>
+                    @if (!string.IsNullOrEmpty(post.Url))
+                    {
+                        <a href="@post.Url" target="_blank" class="btn btn-sm btn-outline-primary">
+                            View Original <i class="bi bi-box-arrow-up-right"></i>
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+}

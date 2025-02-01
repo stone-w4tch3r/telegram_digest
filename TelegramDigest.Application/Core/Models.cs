@@ -1,4 +1,4 @@
-namespace TelegramDigest.Application.Services;
+namespace TelegramDigest.Application.Core;
 
 public record ChannelModel(ChannelTgId TgId, string Description, string Title, Uri ImageUrl);
 

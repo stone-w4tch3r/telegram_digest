@@ -1,5 +1,5 @@
 using FluentResults;
-using TelegramDigest.Application.Services;
+using TelegramDigest.Application.Core;
 
 namespace TelegramDigest.API.Core;
 

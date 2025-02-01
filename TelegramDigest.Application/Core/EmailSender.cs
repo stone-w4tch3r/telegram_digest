@@ -1,7 +1,7 @@
 using System.Net.Mail;
 using FluentResults;
 
-namespace TelegramDigest.Application.Services;
+namespace TelegramDigest.Application.Core;
 
 internal interface IEmailSender
 {

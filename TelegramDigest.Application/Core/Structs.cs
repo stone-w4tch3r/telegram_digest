@@ -1,7 +1,7 @@
 using System.Text.RegularExpressions;
 using FluentResults;
 
-namespace TelegramDigest.Application.Services;
+namespace TelegramDigest.Application.Core;
 
 public readonly partial record struct ChannelTgId
 {

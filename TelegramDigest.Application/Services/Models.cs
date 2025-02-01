@@ -1,5 +1,3 @@
-using JetBrains.Annotations;
-
 namespace TelegramDigest.Application.Services;
 
 public record ChannelModel(ChannelTgId TgId, string Description, string Title, Uri ImageUrl);

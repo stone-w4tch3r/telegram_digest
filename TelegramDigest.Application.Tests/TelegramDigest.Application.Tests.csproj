@@ -16,4 +16,8 @@
         <Using Include="NUnit.Framework"/>
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="UnitTests\" />
+    </ItemGroup>
+
 </Project>

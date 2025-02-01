@@ -1,6 +1,5 @@
 using System.Text.RegularExpressions;
 using FluentResults;
-using JetBrains.Annotations;
 
 namespace TelegramDigest.Application.Services;
 

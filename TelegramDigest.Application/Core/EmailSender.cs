@@ -30,7 +30,7 @@ internal sealed class EmailSender(ISettingsManager settingsManager, ILogger<Emai
 
         try
         {
-            using var client = new SmtpClient(smtpSettings.Host, smtpSettings.Port);
+            using var client = new SmtpClient(smtpSettings.Host.Host, smtpSettings.Port);
             client.EnableSsl = smtpSettings.UseSsl;
             client.Credentials = new System.Net.NetworkCredential(
                 smtpSettings.Username,

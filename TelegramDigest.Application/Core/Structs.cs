@@ -1,3 +1,5 @@
+using System.Net;
+using System.Net.Mail;
 using System.Text.RegularExpressions;
 using FluentResults;
 
@@ -58,4 +60,48 @@ public readonly record struct Importance
     }
 
     public int Value { get; }
+}
+
+public readonly record struct Hostname
+{
+    public string Host { get; }
+
+    public Hostname(string value)
+    {
+        Host = ValidateHostname(value);
+    }
+
+    public static Result<Hostname> TryCreateHostname(string hostname) =>
+        Result.Try(() => new Hostname(hostname));
+
+    public static bool IsValidHostName(string hostname) =>
+        Result.Try(() => ValidateHostname(hostname)).IsSuccess;
+
+    private static string ValidateHostname(string value)
+    {
+        ArgumentNullException.ThrowIfNull(value);
+
+        var trimmed = value.Trim();
+
+        if (trimmed.Length == 0)
+            throw new ArgumentException("Hostname cannot be empty or whitespace", nameof(value));
+
+        if (!IsValidHostname(trimmed))
+            throw new ArgumentException("Invalid hostname: " + trimmed);
+
+        return trimmed;
+    }
+
+    public override string ToString()
+    {
+        return Host;
+    }
+
+    private static bool IsValidHostname(string hostname)
+    {
+        if (IPAddress.TryParse(hostname, out _))
+            return true;
+
+        return Uri.CheckHostName(hostname) == UriHostNameType.Dns;
+    }
 }

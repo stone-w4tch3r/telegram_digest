@@ -37,7 +37,7 @@ public record SettingsModel(
 );
 
 public record SmtpSettingsModel(
-    string Host,
+    Hostname Host,
     int Port,
     string Username,
     string Password,

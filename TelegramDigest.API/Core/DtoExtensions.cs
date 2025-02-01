@@ -48,7 +48,7 @@ internal static class DtoExtensions
             EmailRecipient: dto.EmailRecipient,
             DigestTime: new(dto.DigestTimeUtc),
             SmtpSettings: new(
-                Host: dto.SmtpSettings.Host,
+                Host: new(dto.SmtpSettings.Host),
                 Port: dto.SmtpSettings.Port,
                 Username: dto.SmtpSettings.Username,
                 Password: dto.SmtpSettings.Password,
@@ -67,7 +67,7 @@ internal static class DtoExtensions
             EmailRecipient: settings.EmailRecipient,
             DigestTimeUtc: settings.DigestTime.Time,
             SmtpSettings: new(
-                Host: settings.SmtpSettings.Host,
+                Host: settings.SmtpSettings.Host.Host,
                 Port: settings.SmtpSettings.Port,
                 Username: settings.SmtpSettings.Username,
                 Password: settings.SmtpSettings.Password,

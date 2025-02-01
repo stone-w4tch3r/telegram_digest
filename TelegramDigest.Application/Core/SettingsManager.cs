@@ -96,7 +96,7 @@ internal sealed class SettingsManager : ISettingsManager
         new(
             "email@example.com",
             new(new(0, 0)),
-            new("smtp.example.com", 22, "username", "password", true),
+            new(new("smtp.example.com"), 22, "username", "password", true),
             new("apikey", "model", 2048)
         );
 }

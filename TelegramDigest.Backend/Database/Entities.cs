@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace TelegramDigest.Application.Database;
+namespace TelegramDigest.Backend.Database;
 
 internal sealed class ChannelEntity
 {

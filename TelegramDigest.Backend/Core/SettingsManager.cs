@@ -1,7 +1,7 @@
 using System.Text.Json;
 using FluentResults;
 
-namespace TelegramDigest.Application.Core;
+namespace TelegramDigest.Backend.Core;
 
 internal interface ISettingsManager
 {

@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace TelegramDigest.Application.Migrations
+namespace TelegramDigest.Backend.Migrations
 {
     /// <inheritdoc />
     public partial class RemoveImageFromDigestSumaryMigration : Migration
@@ -10,9 +10,7 @@ namespace TelegramDigest.Application.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "ImageUrl",
-                table: "DigestSummaries");
+            migrationBuilder.DropColumn(name: "ImageUrl", table: "DigestSummaries");
         }
 
         /// <inheritdoc />
@@ -24,7 +22,8 @@ namespace TelegramDigest.Application.Migrations
                 type: "TEXT",
                 maxLength: 2048,
                 nullable: false,
-                defaultValue: "");
+                defaultValue: ""
+            );
         }
     }
 }

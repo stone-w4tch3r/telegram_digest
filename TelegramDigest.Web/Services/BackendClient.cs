@@ -1,9 +1,9 @@
-using TelegramDigest.Application.Core;
+using TelegramDigest.Backend.Core;
 using TelegramDigest.Web.Models.ViewModels;
 
 namespace TelegramDigest.Web.Services;
 
-public class MainServiceClient(IMainService mainService, ILogger<MainServiceClient> logger)
+public class BackendClient(IMainService mainService, ILogger<BackendClient> logger)
 {
     public async Task<List<DigestSummaryViewModel>> GetDigestsAsync()
     {

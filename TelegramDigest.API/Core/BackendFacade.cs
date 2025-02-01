@@ -1,5 +1,5 @@
 using FluentResults;
-using TelegramDigest.Application.Core;
+using TelegramDigest.Backend.Core;
 
 namespace TelegramDigest.API.Core;
 
@@ -21,7 +21,7 @@ public interface IApplicationFacade
 /// <summary>
 /// Facade for controllers
 /// </summary>
-internal sealed class ApplicationFacade(IMainService mainService, ILogger<ApplicationFacade> logger)
+internal sealed class BackendFacade(IMainService mainService, ILogger<BackendFacade> logger)
     : IApplicationFacade
 {
     public async Task<Result<List<ChannelDto>>> GetChannels()

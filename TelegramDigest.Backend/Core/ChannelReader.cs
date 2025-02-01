@@ -2,7 +2,7 @@ using System.ServiceModel.Syndication;
 using System.Xml;
 using FluentResults;
 
-namespace TelegramDigest.Application.Core;
+namespace TelegramDigest.Backend.Core;
 
 internal interface IChannelReader
 {

@@ -3,7 +3,7 @@ using System.Net.Mail;
 using System.Text.RegularExpressions;
 using FluentResults;
 
-namespace TelegramDigest.Application.Core;
+namespace TelegramDigest.Backend.Core;
 
 public readonly partial record struct ChannelTgId
 {

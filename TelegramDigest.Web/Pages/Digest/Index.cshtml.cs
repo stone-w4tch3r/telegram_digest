@@ -7,11 +7,11 @@ namespace TelegramDigest.Web.Pages.Digest;
 
 public class IndexModel : PageModel
 {
-    private readonly MainServiceClient _mainService;
+    private readonly BackendClient _backend;
 
-    public IndexModel(MainServiceClient mainService)
+    public IndexModel(BackendClient backend)
     {
-        _mainService = mainService;
+        _backend = backend;
     }
 
     public DigestSummaryViewModel? Digest { get; set; }
@@ -23,7 +23,7 @@ public class IndexModel : PageModel
     {
         try
         {
-            Digest = await _mainService.GetDigestAsync(id);
+            Digest = await _backend.GetDigestAsync(id);
 
             if (Digest == null)
             {

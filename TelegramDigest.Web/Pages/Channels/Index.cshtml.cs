@@ -7,11 +7,11 @@ namespace TelegramDigest.Web.Pages.Channels;
 
 public class IndexModel : PageModel
 {
-    private readonly MainServiceClient _mainService;
+    private readonly BackendClient _backend;
 
-    public IndexModel(MainServiceClient mainService)
+    public IndexModel(BackendClient backend)
     {
-        _mainService = mainService;
+        _backend = backend;
     }
 
     public List<ChannelViewModel> Channels { get; set; } = new();
@@ -29,7 +29,7 @@ public class IndexModel : PageModel
     {
         try
         {
-            Channels = await _mainService.GetChannelsAsync();
+            Channels = await _backend.GetChannelsAsync();
             Channels = Channels.OrderBy(c => c.Title).ToList();
         }
         catch (Exception ex)
@@ -48,7 +48,7 @@ public class IndexModel : PageModel
 
         try
         {
-            await _mainService.AddChannelAsync(NewChannel);
+            await _backend.AddChannelAsync(NewChannel);
             SuccessMessage = $"Channel '{NewChannel.TgId}' added successfully";
             return RedirectToPage();
         }
@@ -64,7 +64,7 @@ public class IndexModel : PageModel
     {
         try
         {
-            await _mainService.DeleteChannelAsync(id);
+            await _backend.DeleteChannelAsync(id);
             SuccessMessage = "Channel deleted successfully";
             return RedirectToPage();
         }
@@ -79,7 +79,7 @@ public class IndexModel : PageModel
     {
         try
         {
-            await _mainService.RefreshChannelAsync(id);
+            await _backend.RefreshChannelAsync(id);
             SuccessMessage = "Channel refresh initiated";
             return RedirectToPage();
         }

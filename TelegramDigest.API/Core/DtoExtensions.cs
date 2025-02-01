@@ -1,4 +1,4 @@
-using TelegramDigest.Application.Core;
+using TelegramDigest.Backend.Core;
 
 namespace TelegramDigest.API.Core;
 

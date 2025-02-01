@@ -7,11 +7,11 @@ namespace TelegramDigest.Web.Pages.Settings;
 
 public class IndexModel : PageModel
 {
-    private readonly MainServiceClient _mainService;
+    private readonly BackendClient _backend;
 
-    public IndexModel(MainServiceClient mainService)
+    public IndexModel(BackendClient backend)
     {
-        _mainService = mainService;
+        _backend = backend;
     }
 
     [BindProperty]
@@ -27,7 +27,7 @@ public class IndexModel : PageModel
     {
         try
         {
-            Settings = await _mainService.GetSettingsAsync();
+            Settings = await _backend.GetSettingsAsync();
             return Page();
         }
         catch (Exception ex)
@@ -46,7 +46,7 @@ public class IndexModel : PageModel
 
         try
         {
-            await _mainService.UpdateSettingsAsync(Settings);
+            await _backend.UpdateSettingsAsync(Settings);
             SuccessMessage = "Settings updated successfully";
             return RedirectToPage();
         }

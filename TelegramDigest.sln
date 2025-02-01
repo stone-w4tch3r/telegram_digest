@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TelegramDigest.Application", "TelegramDigest.Application\TelegramDigest.Application.csproj", "{D01C67DA-DAAD-4547-B3DE-4DECBF0ABF24}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TelegramDigest.Backend", "TelegramDigest.Backend\TelegramDigest.Backend.csproj", "{D01C67DA-DAAD-4547-B3DE-4DECBF0ABF24}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TelegramDigest.API", "TelegramDigest.API\TelegramDigest.API.csproj", "{18AA071E-2108-4B2E-A915-12C009E3C3A1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TelegramDigest.Application.Tests", "TelegramDigest.Application.Tests\TelegramDigest.Application.Tests.csproj", "{CEF1EF68-8D61-4B96-94ED-4481D794B9DB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TelegramDigest.Backend.Tests", "TelegramDigest.Backend.Tests\TelegramDigest.Backend.Tests.csproj", "{CEF1EF68-8D61-4B96-94ED-4481D794B9DB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TelegramDigest.Web", "TelegramDigest.Web\TelegramDigest.Web.csproj", "{255FEBA2-69EB-4917-AE2A-D12849DC9502}"
 EndProject

@@ -1,9 +1,9 @@
 using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
-using TelegramDigest.Application.Core;
-using TelegramDigest.Application.Database;
+using TelegramDigest.Backend.Core;
+using TelegramDigest.Backend.Database;
 
-namespace TelegramDigest.Application;
+namespace TelegramDigest.Backend;
 
 [UsedImplicitly]
 public static class ServiceCollectionExtensions

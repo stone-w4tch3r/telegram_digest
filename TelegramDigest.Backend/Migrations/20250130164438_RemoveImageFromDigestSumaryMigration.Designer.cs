@@ -4,15 +4,15 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using TelegramDigest.Application.Database;
+using TelegramDigest.Backend.Database;
 
 #nullable disable
 
-namespace TelegramDigest.Application.Migrations
+namespace TelegramDigest.Backend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250130161152_FixDigestPostsRelationMigration")]
-    partial class FixDigestPostsRelationMigration
+    [Migration("20250130164438_RemoveImageFromDigestSumaryMigration")]
+    partial class RemoveImageFromDigestSumaryMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -35,7 +35,7 @@ namespace TelegramDigest.Application.Migrations
                     b.ToTable("DigestPosts");
                 });
 
-            modelBuilder.Entity("TelegramDigest.Application.Database.ChannelEntity", b =>
+            modelBuilder.Entity("TelegramDigest.Backend.Database.ChannelEntity", b =>
                 {
                     b.Property<string>("TgId")
                         .HasMaxLength(32)
@@ -61,7 +61,7 @@ namespace TelegramDigest.Application.Migrations
                     b.ToTable("Channels", (string)null);
                 });
 
-            modelBuilder.Entity("TelegramDigest.Application.Database.DigestEntity", b =>
+            modelBuilder.Entity("TelegramDigest.Backend.Database.DigestEntity", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -72,7 +72,7 @@ namespace TelegramDigest.Application.Migrations
                     b.ToTable("Digests", (string)null);
                 });
 
-            modelBuilder.Entity("TelegramDigest.Application.Database.DigestSummaryEntity", b =>
+            modelBuilder.Entity("TelegramDigest.Backend.Database.DigestSummaryEntity", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("TEXT");
@@ -87,11 +87,6 @@ namespace TelegramDigest.Application.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("DateTo")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("ImageUrl")
-                        .IsRequired()
-                        .HasMaxLength(2048)
                         .HasColumnType("TEXT");
 
                     b.Property<int>("PostsCount")
@@ -112,7 +107,7 @@ namespace TelegramDigest.Application.Migrations
                     b.ToTable("DigestSummaries", (string)null);
                 });
 
-            modelBuilder.Entity("TelegramDigest.Application.Database.PostSummaryEntity", b =>
+            modelBuilder.Entity("TelegramDigest.Backend.Database.PostSummaryEntity", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -148,33 +143,33 @@ namespace TelegramDigest.Application.Migrations
 
             modelBuilder.Entity("DigestPosts", b =>
                 {
-                    b.HasOne("TelegramDigest.Application.Database.DigestEntity", null)
+                    b.HasOne("TelegramDigest.Backend.Database.DigestEntity", null)
                         .WithMany()
                         .HasForeignKey("DigestEntityId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("TelegramDigest.Application.Database.PostSummaryEntity", null)
+                    b.HasOne("TelegramDigest.Backend.Database.PostSummaryEntity", null)
                         .WithMany()
                         .HasForeignKey("PostsNavId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("TelegramDigest.Application.Database.DigestSummaryEntity", b =>
+            modelBuilder.Entity("TelegramDigest.Backend.Database.DigestSummaryEntity", b =>
                 {
-                    b.HasOne("TelegramDigest.Application.Database.DigestEntity", "DigestNav")
+                    b.HasOne("TelegramDigest.Backend.Database.DigestEntity", "DigestNav")
                         .WithOne("SummaryNav")
-                        .HasForeignKey("TelegramDigest.Application.Database.DigestSummaryEntity", "Id")
+                        .HasForeignKey("TelegramDigest.Backend.Database.DigestSummaryEntity", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("DigestNav");
                 });
 
-            modelBuilder.Entity("TelegramDigest.Application.Database.PostSummaryEntity", b =>
+            modelBuilder.Entity("TelegramDigest.Backend.Database.PostSummaryEntity", b =>
                 {
-                    b.HasOne("TelegramDigest.Application.Database.ChannelEntity", "ChannelNav")
+                    b.HasOne("TelegramDigest.Backend.Database.ChannelEntity", "ChannelNav")
                         .WithMany()
                         .HasForeignKey("ChannelTgId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -183,7 +178,7 @@ namespace TelegramDigest.Application.Migrations
                     b.Navigation("ChannelNav");
                 });
 
-            modelBuilder.Entity("TelegramDigest.Application.Database.DigestEntity", b =>
+            modelBuilder.Entity("TelegramDigest.Backend.Database.DigestEntity", b =>
                 {
                     b.Navigation("SummaryNav");
                 });

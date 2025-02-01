@@ -7,7 +7,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\TelegramDigest.Application\TelegramDigest.Application.csproj" />
+      <ProjectReference Include="..\TelegramDigest.Backend\TelegramDigest.Backend.csproj" />
     </ItemGroup>
 
 </Project>

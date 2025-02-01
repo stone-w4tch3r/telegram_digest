@@ -1,7 +1,7 @@
 using FluentResults;
-using TelegramDigest.Application.Database;
+using TelegramDigest.Backend.Database;
 
-namespace TelegramDigest.Application.Core;
+namespace TelegramDigest.Backend.Core;
 
 internal interface IDigestRepository
 {

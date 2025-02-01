@@ -6,7 +6,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 
 // Configure HTTP client for MainService
-builder.Services.AddHttpClient<MainServiceClient>(client =>
+builder.Services.AddHttpClient<BackendClient>(client =>
 {
     client.BaseAddress = new(
         builder.Configuration["MainService:BaseUrl"]

@@ -10,7 +10,7 @@ public class IndexModel(BackendClient backend, ILogger<IndexModel> logger) : Pag
     public int TotalChannels { get; set; }
     public int TotalDigests { get; set; }
     public DateTime? NextDigestTime { get; set; }
-    public List<ChannelViewModel> RecentChannels { get; set; } = new();
+    public List<ChannelViewModel> RandomChannels { get; set; } = [];
 
     public async Task OnGetAsync()
     {
@@ -24,11 +24,11 @@ public class IndexModel(BackendClient backend, ILogger<IndexModel> logger) : Pag
             // Get channels info
             var channels = await backend.GetChannelsAsync();
             TotalChannels = channels.Count;
-            RecentChannels = channels.OrderByDescending(c => c.LastUpdate).Take(5).ToList();
+            RandomChannels = channels.OrderByDescending(_ => Random.Shared.Next()).Take(5).ToList();
 
             // Get next digest time from settings
             var settings = await backend.GetSettingsAsync();
-            NextDigestTime = DateTime.UtcNow.Date.Add(settings.DigestTimeUtc);
+            NextDigestTime = DateTime.UtcNow.Date.Add(settings.DigestTimeUtc.ToTimeSpan());
             if (NextDigestTime < DateTime.UtcNow)
             {
                 NextDigestTime = NextDigestTime.Value.AddDays(1);

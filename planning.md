@@ -12,7 +12,9 @@
 | [x]  | Add openai docs to CodeGPT              | 30min |
 | [x]  | Implement basic summariser              | 30min |
 | [x]  | Add Razor Pages UI draft                | 1h    |
-| [ ]  | Fix compile issues in UI                | 1h    |
+| [x]  | Fix compile issues in UI                | 1h    |
+| [ ]  | Learn Razor by TODOs                    | 1h    |
+| [ ]  | Fix error handling                      | 1h    |
 | [ ]  | Fix Settings UI Page                    | 1h    |
 | [ ]  | Fix Digests UI Page                     | 1h    |
 | [ ]  | Fix Digest UI Page                      | 1h    |
@@ -29,4 +31,4 @@
 - fix runtime/ folder location
 - handle 00:00 in GenerateDailyDigest
 - Check code quality
-- 
+- front BaseUrl

@@ -5,25 +5,18 @@ using TelegramDigest.Web.Services;
 
 namespace TelegramDigest.Web.Pages.Digest;
 
-public class IndexModel : PageModel
+public class IndexModel(BackendClient backend) : PageModel
 {
-    private readonly BackendClient _backend;
-
-    public IndexModel(BackendClient backend)
-    {
-        _backend = backend;
-    }
-
     public DigestSummaryViewModel? Digest { get; set; }
 
     [TempData]
     public string? ErrorMessage { get; set; }
 
-    public async Task<IActionResult> OnGetAsync(int id)
+    public async Task<IActionResult> OnGetAsync(Guid id)
     {
         try
         {
-            Digest = await _backend.GetDigestAsync(id);
+            Digest = await backend.GetDigestAsync(id);
 
             if (Digest == null)
             {

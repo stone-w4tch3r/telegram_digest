@@ -76,9 +76,7 @@
                         <div class="mt-3 d-flex justify-content-between align-items-center">
                             <div>
                                 <span class="badge bg-primary me-2">@Model.LatestDigest.Posts.Count posts</span>
-                                <span class="badge @(Model.LatestDigest.EmailStatus == "Sent" ? "bg-success" : "bg-warning")">
-                                    @Model.LatestDigest.EmailStatus
-                                </span>
+                                <span class="badge bg-primary me-2">@Model.LatestDigest.Title</span>
                             </div>
                             <a asp-page="/Digest/Index" asp-route-id="@Model.LatestDigest.Id"
                                class="btn btn-outline-primary">
@@ -114,7 +112,7 @@
                     </a>
                 </div>
                 <div class="card-body">
-                    @if (!Model.RecentChannels.Any())
+                    @if (!Model.RandomChannels.Any())
                     {
                         <div class="text-center text-muted">
                             <p class="mb-3">No channels added yet</p>
@@ -126,23 +124,15 @@
                     else
                     {
                         <div class="list-group list-group-flush">
-                            @foreach (var channel in Model.RecentChannels)
+                            @foreach (var channel in Model.RandomChannels)
                             {
                                 <div class="list-group-item">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div>
                                             <h6 class="mb-0">@channel.Title</h6>
                                             <small class="text-muted">
-                                                Updated: @(channel.LastUpdate?.ToString("MMM dd, HH:mm") ?? "Never")
+                                                Url: @channel.Url
                                             </small>
-                                        </div>
-                                        <div class="text-end">
-                                            <span class="badge @(channel.Status == "Active" ? "bg-success" : "bg-warning")">
-                                                @channel.Status
-                                            </span>
-                                            <div>
-                                                <small class="text-muted">@channel.PostsCount posts</small>
-                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -158,7 +148,7 @@
 @section Scripts {
     <script>
         // Refresh dashboard every 5 minutes
-        setTimeout(function() {
+        setTimeout(function () {
             window.location.reload();
         }, 5 * 60 * 1000);
     </script>

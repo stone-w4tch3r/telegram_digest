@@ -5,19 +5,12 @@ using TelegramDigest.Web.Services;
 
 namespace TelegramDigest.Web.Pages.Channels;
 
-public class IndexModel : PageModel
+public class IndexModel(BackendClient backend) : PageModel
 {
-    private readonly BackendClient _backend;
-
-    public IndexModel(BackendClient backend)
-    {
-        _backend = backend;
-    }
-
-    public List<ChannelViewModel> Channels { get; set; } = new();
+    public List<ChannelViewModel> Channels { get; set; } = [];
 
     [BindProperty]
-    public AddChannelViewModel NewChannel { get; set; } = new();
+    public AddChannelViewModel? NewChannel { get; set; }
 
     [TempData]
     public string? SuccessMessage { get; set; }
@@ -29,7 +22,7 @@ public class IndexModel : PageModel
     {
         try
         {
-            Channels = await _backend.GetChannelsAsync();
+            Channels = await backend.GetChannelsAsync();
             Channels = Channels.OrderBy(c => c.Title).ToList();
         }
         catch (Exception ex)
@@ -40,7 +33,7 @@ public class IndexModel : PageModel
 
     public async Task<IActionResult> OnPostAddAsync()
     {
-        if (!ModelState.IsValid)
+        if (!ModelState.IsValid || NewChannel == null)
         {
             await OnGetAsync();
             return Page();
@@ -48,7 +41,7 @@ public class IndexModel : PageModel
 
         try
         {
-            await _backend.AddChannelAsync(NewChannel);
+            await backend.AddChannelAsync(NewChannel);
             SuccessMessage = $"Channel '{NewChannel.TgId}' added successfully";
             return RedirectToPage();
         }
@@ -60,32 +53,17 @@ public class IndexModel : PageModel
         }
     }
 
-    public async Task<IActionResult> OnPostDeleteAsync(int id)
+    public async Task<IActionResult> OnPostDeleteAsync(string tgId)
     {
         try
         {
-            await _backend.DeleteChannelAsync(id);
+            await backend.DeleteChannelAsync(tgId);
             SuccessMessage = "Channel deleted successfully";
             return RedirectToPage();
         }
         catch (Exception ex)
         {
             ErrorMessage = $"Failed to delete channel: {ex.Message}";
-            return RedirectToPage();
-        }
-    }
-
-    public async Task<IActionResult> OnPostRefreshAsync(int id)
-    {
-        try
-        {
-            await _backend.RefreshChannelAsync(id);
-            SuccessMessage = "Channel refresh initiated";
-            return RedirectToPage();
-        }
-        catch (Exception ex)
-        {
-            ErrorMessage = $"Failed to refresh channel: {ex.Message}";
             return RedirectToPage();
         }
     }

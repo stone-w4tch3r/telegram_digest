@@ -5,15 +5,8 @@ using TelegramDigest.Web.Services;
 
 namespace TelegramDigest.Web.Pages.Digests;
 
-public class IndexModel : PageModel
+public class IndexModel(BackendClient backend) : PageModel
 {
-    private readonly BackendClient _backend;
-
-    public IndexModel(BackendClient backend)
-    {
-        _backend = backend;
-    }
-
     public List<DigestSummaryViewModel> Digests { get; set; } = new();
 
     [TempData]
@@ -26,7 +19,7 @@ public class IndexModel : PageModel
     {
         try
         {
-            Digests = await _backend.GetDigestsAsync();
+            Digests = await backend.GetDigestsAsync();
             Digests = Digests.OrderByDescending(d => d.CreatedAt).ToList();
         }
         catch (Exception ex)
@@ -39,7 +32,7 @@ public class IndexModel : PageModel
     {
         try
         {
-            await _backend.GenerateDigestAsync();
+            await backend.GenerateDigestAsync();
             SuccessMessage = "Digest generation started successfully";
             return RedirectToPage();
         }

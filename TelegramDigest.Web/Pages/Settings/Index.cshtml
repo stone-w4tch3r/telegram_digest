@@ -1,10 +1,16 @@
 @page
+@using System.Diagnostics
 @model TelegramDigest.Web.Pages.Settings.IndexModel
 @{
     ViewData["Title"] = "Settings";
 }
 
 <h1>Settings</h1>
+
+@if (Model.Settings == null)
+{
+    throw new UnreachableException("Page is broken, settings are null when trying to render");
+}
 
 <form method="post" class="settings-form">
     <div class="card mb-4">
@@ -13,9 +19,9 @@
         </div>
         <div class="card-body">
             <div class="mb-3">
-                <label asp-for="Settings.RecipientEmail" class="form-label required"></label>
-                <input asp-for="Settings.RecipientEmail" class="form-control" />
-                <span asp-validation-for="Settings.RecipientEmail" class="text-danger"></span>
+                <label asp-for="@Model.Settings.RecipientEmail" class="form-label required"></label>
+                <input asp-for="@Model.Settings.RecipientEmail" class="form-control"/>
+                <span asp-validation-for="@Model.Settings.RecipientEmail" class="text-danger"></span>
             </div>
         </div>
     </div>
@@ -27,25 +33,25 @@
         <div class="card-body">
             <div class="row">
                 <div class="col-md-6 mb-3">
-                    <label asp-for="Settings.SmtpHost" class="form-label required"></label>
-                    <input asp-for="Settings.SmtpHost" class="form-control" />
-                    <span asp-validation-for="Settings.SmtpHost" class="text-danger"></span>
+                    <label asp-for="@Model.Settings.SmtpHost" class="form-label required"></label>
+                    <input asp-for="@Model.Settings.SmtpHost" class="form-control"/>
+                    <span asp-validation-for="@Model.Settings.SmtpHost" class="text-danger"></span>
                 </div>
                 <div class="col-md-6 mb-3">
-                    <label asp-for="Settings.SmtpPort" class="form-label required"></label>
-                    <input asp-for="Settings.SmtpPort" class="form-control" />
-                    <span asp-validation-for="Settings.SmtpPort" class="text-danger"></span>
+                    <label asp-for="@Model.Settings.SmtpPort" class="form-label required"></label>
+                    <input asp-for="@Model.Settings.SmtpPort" class="form-control"/>
+                    <span asp-validation-for="@Model.Settings.SmtpPort" class="text-danger"></span>
                 </div>
             </div>
             <div class="mb-3">
-                <label asp-for="Settings.SmtpUsername" class="form-label required"></label>
-                <input asp-for="Settings.SmtpUsername" class="form-control" />
-                <span asp-validation-for="Settings.SmtpUsername" class="text-danger"></span>
+                <label asp-for="@Model.Settings.SmtpUsername" class="form-label required"></label>
+                <input asp-for="@Model.Settings.SmtpUsername" class="form-control"/>
+                <span asp-validation-for="@Model.Settings.SmtpUsername" class="text-danger"></span>
             </div>
             <div class="mb-3">
-                <label asp-for="Settings.SmtpPassword" class="form-label required"></label>
-                <input asp-for="Settings.SmtpPassword" class="form-control" />
-                <span asp-validation-for="Settings.SmtpPassword" class="text-danger"></span>
+                <label asp-for="@Model.Settings.SmtpPassword" class="form-label required"></label>
+                <input asp-for="@Model.Settings.SmtpPassword" class="form-control"/>
+                <span asp-validation-for="@Model.Settings.SmtpPassword" class="text-danger"></span>
             </div>
         </div>
     </div>
@@ -56,9 +62,14 @@
         </div>
         <div class="card-body">
             <div class="mb-3">
-                <label asp-for="Settings.OpenAiApiKey" class="form-label required"></label>
-                <input asp-for="Settings.OpenAiApiKey" class="form-control" />
-                <span asp-validation-for="Settings.OpenAiApiKey" class="text-danger"></span>
+                <label asp-for="@Model.Settings.OpenAiApiKey" class="form-label required"></label>
+                <input asp-for="@Model.Settings.OpenAiApiKey" class="form-control"/>
+                <span asp-validation-for="@Model.Settings.OpenAiApiKey" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="@Model.Settings.OpenAiModel" class="form-label required"></label>
+                <input asp-for="@Model.Settings.OpenAiModel" class="form-control"/>
+                <span asp-validation-for="@Model.Settings.OpenAiModel" class="text-danger"></span>
             </div>
         </div>
     </div>
@@ -70,14 +81,9 @@
         <div class="card-body">
             <div class="row">
                 <div class="col-md-6 mb-3">
-                    <label asp-for="Settings.DigestTimeUtc" class="form-label required"></label>
-                    <input asp-for="Settings.DigestTimeUtc" class="form-control" />
-                    <span asp-validation-for="Settings.DigestTimeUtc" class="text-danger"></span>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label asp-for="Settings.PostsPerChannel" class="form-label required"></label>
-                    <input asp-for="Settings.PostsPerChannel" class="form-control" />
-                    <span asp-validation-for="Settings.PostsPerChannel" class="text-danger"></span>
+                    <label asp-for="@Model.Settings.DigestTimeUtc" class="form-label required"></label>
+                    <input asp-for="@Model.Settings.DigestTimeUtc" class="form-control"/>
+                    <span asp-validation-for="@Model.Settings.DigestTimeUtc" class="text-danger"></span>
                 </div>
             </div>
         </div>
@@ -89,5 +95,5 @@
 </form>
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
+    <partial name="_ValidationScriptsPartial"/>
 }

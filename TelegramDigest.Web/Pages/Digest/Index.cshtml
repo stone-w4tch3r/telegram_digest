@@ -1,4 +1,5 @@
-@page "{id:int}"
+@page "{id:guid}"
+@*//TODO what is this and how it works?*@
 @model TelegramDigest.Web.Pages.Digest.IndexModel
 @{
     ViewData["Title"] = $"Digest from {Model.Digest?.CreatedAt:MMM dd, yyyy}";
@@ -23,12 +24,6 @@ else
             <h2 class="card-title">
                 Digest from @Model.Digest.CreatedAt.ToString("MMMM dd, yyyy HH:mm")
             </h2>
-            <div class="mb-3">
-                <span class="badge bg-info">@Model.Digest.Posts.Count posts</span>
-                <span class="badge @(Model.Digest.EmailStatus == "Sent" ? "bg-success" : "bg-warning")">
-                    @Model.Digest.EmailStatus
-                </span>
-            </div>
             <h5>Summary</h5>
             <p class="card-text">@Model.Digest.Summary</p>
         </div>

@@ -5,19 +5,12 @@ using TelegramDigest.Web.Services;
 
 namespace TelegramDigest.Web.Pages.Settings;
 
-public class IndexModel : PageModel
+public class IndexModel(BackendClient backend) : PageModel
 {
-    private readonly BackendClient _backend;
+    [BindProperty] //TODO what is this?
+    public SettingsViewModel? Settings { get; set; }
 
-    public IndexModel(BackendClient backend)
-    {
-        _backend = backend;
-    }
-
-    [BindProperty]
-    public SettingsViewModel Settings { get; set; } = new();
-
-    [TempData]
+    [TempData] //TODO what is this?
     public string? SuccessMessage { get; set; }
 
     [TempData]
@@ -27,7 +20,7 @@ public class IndexModel : PageModel
     {
         try
         {
-            Settings = await _backend.GetSettingsAsync();
+            Settings = await backend.GetSettingsAsync();
             return Page();
         }
         catch (Exception ex)
@@ -39,14 +32,15 @@ public class IndexModel : PageModel
 
     public async Task<IActionResult> OnPostAsync()
     {
-        if (!ModelState.IsValid)
+        if (!ModelState.IsValid || Settings is null)
         {
+            //TODO error handling
             return Page();
         }
 
         try
         {
-            await _backend.UpdateSettingsAsync(Settings);
+            await backend.UpdateSettingsAsync(Settings);
             SuccessMessage = "Settings updated successfully";
             return RedirectToPage();
         }

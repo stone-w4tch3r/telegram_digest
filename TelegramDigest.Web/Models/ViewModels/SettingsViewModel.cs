@@ -10,7 +10,7 @@ public class SettingsViewModel
 
     [Required]
     [Display(Name = "SMTP Server")]
-    [DataType(DataType.Url)]
+    [DataType(DataType.Url)] //TODO fix, prevents using hostname
     public required string SmtpHost { get; init; }
 
     [Required]
@@ -24,7 +24,7 @@ public class SettingsViewModel
 
     [Required]
     [Display(Name = "SMTP Password")]
-    [DataType(DataType.Password)]
+    [DataType(DataType.Password)] //TODO fix, hides password
     public required string SmtpPassword { get; init; }
 
     [Required]

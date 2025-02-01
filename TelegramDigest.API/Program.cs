@@ -17,13 +17,11 @@ if (app.Environment.IsDevelopment())
     app.UseDeveloperExceptionPage();
     app.UseSwagger();
     app.UseSwaggerUI();
-    app.UseStaticFiles();
-    app.MapDefaultControllerRoute();
 }
 
 app.UseHttpsRedirection();
-app.UseAuthorization();
 app.MapControllers();
 
 await app.Services.InitializeTelegramDigest();
+
 await app.RunAsync();

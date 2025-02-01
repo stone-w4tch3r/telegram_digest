@@ -4,6 +4,9 @@ namespace TelegramDigest.Web.Models.ViewModels;
 
 public class ChannelViewModel
 {
+    //TODO validation
+    [Required]
+    [Display(Name = "Channel Id")]
     public required string TgId { get; init; }
 
     [Required]
@@ -15,8 +18,12 @@ public class ChannelViewModel
     [Url]
     public string Url => $"https://t.me/{TgId}";
 
+    [Required]
+    [Display(Name = "Channel Description")]
     public required string Description { get; init; }
 
+    [Required]
+    [Display(Name = "Channel Image")]
     public required string ImageUrl { get; init; }
 }
 

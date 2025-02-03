@@ -44,6 +44,10 @@ public class SettingsViewModel
     public required int OpenAiMaxToken { get; init; }
 
     [Required]
+    [Display(Name = "OpenAI Endpoint")]
+    public required Uri OpenAiEndpoint { get; init; }
+
+    [Required]
     [Display(Name = "Digest Time (UTC)")]
     [DataType(DataType.Time)]
     public required TimeOnly DigestTimeUtc { get; init; }

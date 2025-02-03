@@ -36,7 +36,7 @@ public record DigestDto(Guid DigestId, List<PostSummaryDto> Posts, DigestSummary
 
 public record SmtpSettingsDto(string Host, int Port, string Username, string Password, bool UseSsl);
 
-public record OpenAiSettingsDto(string ApiKey, string Model, int MaxTokens);
+public record OpenAiSettingsDto(string ApiKey, string Model, int MaxTokens, string Endpoint);
 
 public record SettingsDto(
     string EmailRecipient,

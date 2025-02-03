@@ -18,7 +18,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="UnitTests\" />
+      <ProjectReference Include="..\TelegramDigest.HostHandler\TelegramDigest.HostHandler.csproj" />
     </ItemGroup>
 
 </Project>

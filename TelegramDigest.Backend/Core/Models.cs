@@ -1,3 +1,5 @@
+using TelegramDigest.HostHandler;
+
 namespace TelegramDigest.Backend.Core;
 
 public record ChannelModel(ChannelTgId TgId, string Description, string Title, Uri ImageUrl);
@@ -36,12 +38,6 @@ public record SettingsModel(
     OpenAiSettingsModel OpenAiSettings
 );
 
-public record SmtpSettingsModel(
-    Hostname Host,
-    int Port,
-    string Username,
-    string Password,
-    bool UseSsl
-);
+public record SmtpSettingsModel(Host Host, int Port, string Username, string Password, bool UseSsl);
 
-public record OpenAiSettingsModel(string ApiKey, string Model, int MaxTokens);
+public record OpenAiSettingsModel(string ApiKey, string Model, int MaxTokens, Uri Endpoint);

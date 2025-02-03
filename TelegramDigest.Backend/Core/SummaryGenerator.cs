@@ -29,7 +29,8 @@ internal sealed class SummaryGenerator(
 
         _chatClient = new(
             model: settings.Value.OpenAiSettings.Model,
-            apiKey: settings.Value.OpenAiSettings.ApiKey
+            credential: new(settings.Value.OpenAiSettings.ApiKey),
+            options: new() { Endpoint = settings.Value.OpenAiSettings.Endpoint }
         );
 
         return Result.Ok(_chatClient);

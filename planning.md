@@ -19,6 +19,7 @@
 | [ ]  | Fix Digests UI Page                     | 1h    |
 | [ ]  | Fix Digest UI Page                      | 1h    |
 | [ ]  | Fix Channels UI Page                    | 1h    |
+| [ ]  | Use Backend types in VMs                | 1h    |
 | [ ]  | Add tests                               | 2h    |
 | [ ]  | Obtain API key and pay                  | 30min |
 

@@ -181,7 +181,7 @@ public class BackendClient(IMainService mainService, ILogger<BackendClient> logg
             return new()
             {
                 RecipientEmail = settings.EmailRecipient,
-                SmtpHost = settings.SmtpSettings.Host.Host,
+                SmtpHost = settings.SmtpSettings.Host.HostPart,
                 SmtpPort = settings.SmtpSettings.Port,
                 SmtpUsername = settings.SmtpSettings.Username,
                 SmtpPassword = settings.SmtpSettings.Password,
@@ -189,6 +189,7 @@ public class BackendClient(IMainService mainService, ILogger<BackendClient> logg
                 OpenAiApiKey = settings.OpenAiSettings.ApiKey,
                 OpenAiModel = settings.OpenAiSettings.Model,
                 OpenAiMaxToken = settings.OpenAiSettings.MaxTokens,
+                OpenAiEndpoint = settings.OpenAiSettings.Endpoint,
                 DigestTimeUtc = settings.DigestTime.Time,
             };
         }
@@ -213,7 +214,12 @@ public class BackendClient(IMainService mainService, ILogger<BackendClient> logg
                     settings.SmtpPassword,
                     settings.SmtpUseSsl
                 ),
-                new(settings.OpenAiApiKey, settings.OpenAiModel, settings.OpenAiMaxToken)
+                new(
+                    settings.OpenAiApiKey,
+                    settings.OpenAiModel,
+                    settings.OpenAiMaxToken,
+                    settings.OpenAiEndpoint
+                )
             );
 
             var result = await mainService.UpdateSettings(settingsModel);

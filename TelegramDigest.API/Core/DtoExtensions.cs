@@ -57,7 +57,8 @@ internal static class DtoExtensions
             OpenAiSettings: new(
                 ApiKey: dto.OpenAiSettings.ApiKey,
                 Model: dto.OpenAiSettings.Model,
-                MaxTokens: dto.OpenAiSettings.MaxTokens
+                MaxTokens: dto.OpenAiSettings.MaxTokens,
+                Endpoint: new(dto.OpenAiSettings.Endpoint)
             )
         );
 
@@ -67,7 +68,7 @@ internal static class DtoExtensions
             EmailRecipient: settings.EmailRecipient,
             DigestTimeUtc: settings.DigestTime.Time,
             SmtpSettings: new(
-                Host: settings.SmtpSettings.Host.Host,
+                Host: settings.SmtpSettings.Host.HostPart,
                 Port: settings.SmtpSettings.Port,
                 Username: settings.SmtpSettings.Username,
                 Password: settings.SmtpSettings.Password,
@@ -76,7 +77,8 @@ internal static class DtoExtensions
             OpenAiSettings: new(
                 ApiKey: settings.OpenAiSettings.ApiKey,
                 Model: settings.OpenAiSettings.Model,
-                MaxTokens: settings.OpenAiSettings.MaxTokens
+                MaxTokens: settings.OpenAiSettings.MaxTokens,
+                Endpoint: settings.OpenAiSettings.Endpoint.ToString()
             )
         );
     }

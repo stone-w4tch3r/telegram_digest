@@ -2,6 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Net.Sockets;
+using System.Text.Json.Serialization;
 
 namespace TelegramDigest.HostHandler;
 
@@ -149,6 +150,12 @@ public sealed record Host
 
         return true;
     }
+
+#pragma warning disable CS8618, CS9264
+    [JsonConstructor]
+    private Host()
+#pragma warning restore CS8618, CS9264
+    { }
 
     private static (string Host, int? Port) ParseHost(string value, HostnameType type)
     {

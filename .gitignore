@@ -696,4 +696,4 @@ $RECYCLE.BIN/
 
 # custom
 
-/runtime/
+**/runtime/

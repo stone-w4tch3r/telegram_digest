@@ -24,7 +24,11 @@ internal sealed class SettingsManager : ISettingsManager
     private const string SettingsPath = "runtime/settings.json";
     private readonly FileInfo _settingsFileInfo;
     private readonly ILogger<SettingsManager> _logger;
-    private readonly JsonSerializerOptions _jsonOptions = new() { WriteIndented = true };
+    private readonly JsonSerializerOptions _jsonOptions = new()
+    {
+        WriteIndented = true,
+        IncludeFields = true,
+    };
 
     /// <summary>
     /// Manages application settings with file-based persistence

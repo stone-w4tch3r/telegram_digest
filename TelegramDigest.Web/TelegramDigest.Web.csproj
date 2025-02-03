@@ -8,10 +8,4 @@
       <ProjectReference Include="..\TelegramDigest.Backend\TelegramDigest.Backend.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <_ContentIncludedByDefault Remove="Pages\Channels\Index.cshtml" />
-      <_ContentIncludedByDefault Remove="Pages\Digest\Index.cshtml" />
-      <_ContentIncludedByDefault Remove="Pages\Digests\Index.cshtml" />
-    </ItemGroup>
-
 </Project>

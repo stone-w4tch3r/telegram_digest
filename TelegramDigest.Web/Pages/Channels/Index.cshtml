@@ -22,10 +22,7 @@
                     <thead>
                     <tr>
                         <th>Name</th>
-                        <th>Status</th>
-                        <th>Last Update</th>
-                        <th>Posts</th>
-                        <th>Actions</th>
+                        <th></th>
                     </tr>
                     </thead>
                     <tbody>
@@ -67,7 +64,6 @@
             <div class="card-body">
                 <form method="post" asp-page-handler="Add">
                     <div class="mb-3">
-                        @* TODO how binding works, what about nullable? *@
                         <label asp-for="NewChannel!.TgId" class="form-label required"></label>
                         <input asp-for="NewChannel!.TgId" class="form-control"/>
                         <span asp-validation-for="NewChannel!.TgId" class="text-danger"></span>

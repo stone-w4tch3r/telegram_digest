@@ -1,0 +1,52 @@
+@using Microsoft.AspNetCore.Mvc.ModelBinding
+@if (TempData[nameof(BasePageModel.SuccessMessage)] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData[nameof(BasePageModel.SuccessMessage)]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (TempData[nameof(BasePageModel.ErrorMessage)] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData[nameof(BasePageModel.ErrorMessage)]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <h5>Error happened!</h5>
+
+        @* Display non-keyed errors first *@
+        @foreach (var error in ViewData.ModelState[""]?.Errors ?? Enumerable.Empty<ModelError>())
+        {
+            <div>@error.ErrorMessage</div>
+        }
+
+        @* Display keyed errors in collapsible section *@
+        @if (ViewData.ModelState.Keys.Any(k => !string.IsNullOrEmpty(k) && ViewData.ModelState[k] is { } m && m.Errors.Any()))
+        {
+            <div class="mt-2">
+                <button class="btn btn-danger btn-sm" type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#keyedErrors"
+                        aria-expanded="false">
+                    Detailed Errors
+                </button>
+                <div class="collapse mt-2" id="keyedErrors">
+                    @foreach (var modelStateEntry in ViewData.ModelState.Where(x => !string.IsNullOrEmpty(x.Key) && x.Value is not null))
+                    {
+                        foreach (var error in modelStateEntry.Value!.Errors)
+                        {
+                            <div>
+                                <strong>@modelStateEntry.Key:</strong> @error.ErrorMessage
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        }
+    </div>
+}

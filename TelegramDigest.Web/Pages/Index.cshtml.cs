@@ -1,10 +1,10 @@
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using TelegramDigest.Web.Models.ViewModels;
+using TelegramDigest.Web.Pages.Shared;
 using TelegramDigest.Web.Services;
 
 namespace TelegramDigest.Web.Pages;
 
-public class IndexModel(BackendClient backend, ILogger<IndexModel> logger) : PageModel
+public class IndexModel(BackendClient backend, ILogger<IndexModel> logger) : BasePageModel
 {
     public DigestSummaryViewModel? LatestDigest { get; set; }
     public int TotalChannels { get; set; }

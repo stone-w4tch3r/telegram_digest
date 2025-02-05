@@ -1,22 +1,17 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using TelegramDigest.Web.Models.ViewModels;
+using TelegramDigest.Web.Pages.Shared;
 using TelegramDigest.Web.Services;
 
 namespace TelegramDigest.Web.Pages.Channels;
 
-public class IndexModel(BackendClient backend) : PageModel
+public class IndexModel(BackendClient backend) : BasePageModel
 {
     public List<ChannelViewModel> Channels { get; set; } = [];
 
     [BindProperty]
     public AddChannelViewModel? NewChannel { get; set; }
-
-    [TempData]
-    public string? SuccessMessage { get; set; }
-
-    [TempData]
-    public string? ErrorMessage { get; set; }
 
     public async Task OnGetAsync()
     {

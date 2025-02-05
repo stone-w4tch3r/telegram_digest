@@ -6,6 +6,7 @@
     <title>@ViewData["Title"] - Telegram Digest</title>
     @* <script type="importmap"></script> *@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="~/lib/bootstrap-icons/font/bootstrap-icons.min.css"/>
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true"/>
     @* <link rel="stylesheet" href="~/TelegramDigest.Web.styles.css" asp-append-version="true"/> *@
 </head>
@@ -25,23 +26,8 @@
 </header>
 
 <div class="container">
-    @if (TempData["Success"] != null)
-    {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            @TempData["Success"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    }
-    @if (TempData["Error"] != null)
-    {
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            @TempData["Error"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    }
-    <main role="main" class="pb-3">
-        @RenderBody()
-    </main>
+    <partial name="_ErrorsPartial" />
+    @RenderBody()
 </div>
 
 <footer class="border-top footer text-muted">

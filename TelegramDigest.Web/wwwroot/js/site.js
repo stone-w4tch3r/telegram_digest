@@ -6,11 +6,6 @@ document.addEventListener("DOMContentLoaded", function () {
   var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
     return new bootstrap.Tooltip(tooltipTriggerEl);
   });
-
-  // Auto-hide alerts after 5 seconds
-  setTimeout(function () {
-    $(".alert").alert("close");
-  }, 5000);
 });
 
 // Confirm delete actions

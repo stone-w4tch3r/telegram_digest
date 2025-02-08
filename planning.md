@@ -25,6 +25,11 @@
 | [ ]  | Fix digest deletion                     | 30min |
 | [ ]  | Show exception stacktrace in UI         | 30min |
 | [ ]  | Fix newlines in UI                      | 30min |
+| [ ]  | Add 404 page                            | 30min |
+| [ ]  | Async digest generation                 | 1h    |
+| [ ]  | Parametrized digest generation          | 1h    |
+| [ ]  | Reimplement and test email sending      | 1h    |
+| [ ]  | Digest publishing to RSS                | 1h    |
 | [ ]  | Use Backend types in VMs                | 1h    |
 | [ ]  | Add tests                               | 2h    |
 | [ ]  | Add jinja template to prompts           | 1h    |

@@ -1,8 +1,11 @@
 @page "{id:guid}"
-@*//TODO what is this and how it works?*@
+@using System.Diagnostics
+@using Microsoft.AspNetCore.Mvc.TagHelpers
 @model TelegramDigest.Web.Pages.Digest.IndexModel
 @{
-    ViewData["Title"] = $"Digest from {Model.Summary?.CreatedAt:MMM dd, yyyy}";
+    ViewData["Title"] = Model.Summary != null
+        ? $"Digest from {Model.Summary?.CreatedAt:MMM dd, yyyy}"
+        : "Digest not found";
 }
 
 <div class="mb-4">
@@ -13,10 +16,12 @@
 
 @if (Model.Summary == null)
 {
+    var id = Model.Id ?? throw new UnreachableException("Error in frontend! Can't load digest id");
     <div class="alert alert-warning">
-        Digest not found.
+        Digest @id not found.
     </div>
-} else if (Model.Posts == null)
+}
+else if (Model.Posts == null)
 {
     <div class="alert alert-warning">
         Failed to load posts.

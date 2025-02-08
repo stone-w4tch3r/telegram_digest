@@ -12,7 +12,7 @@ public interface IApplicationFacade
     internal Task<Result> AddChannel(string channelName);
     internal Task<Result> RemoveChannel(string channelName);
     internal Task<Result<List<DigestSummaryDto>>> GetDigestSummaries();
-    internal Task<Result<DigestDto>> GetDigest(Guid digestId);
+    internal Task<Result<DigestDto?>> GetDigest(Guid digestId);
     internal Task<Result<DigestGenerationDto>> GenerateDigest();
     internal Task<Result<SettingsDto>> GetSettings();
     internal Task<Result> UpdateSettings(SettingsDto settingsDto);
@@ -58,10 +58,10 @@ internal sealed class BackendFacade(IMainService mainService, ILogger<BackendFac
         return result.Map(summaries => summaries.Select(s => s.ToDto()).ToList());
     }
 
-    public async Task<Result<DigestDto>> GetDigest(Guid digestId)
+    public async Task<Result<DigestDto?>> GetDigest(Guid digestId)
     {
         var result = await mainService.GetDigest(new(digestId));
-        return result.Map(digest => digest.ToDto());
+        return result.Map(digest => digest?.ToDto());
     }
 
     public async Task<Result<DigestGenerationDto>> GenerateDigest()

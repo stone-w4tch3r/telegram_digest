@@ -27,7 +27,6 @@ public class BackendClient(IMainService mainService, ILogger<BackendClient> logg
                     CreatedAt = d.CreatedAt,
                     DateFrom = d.DateFrom,
                     DateTo = d.DateTo,
-                    Posts = null!, //TODO fix
                 })
                 .ToList();
         }
@@ -38,7 +37,10 @@ public class BackendClient(IMainService mainService, ILogger<BackendClient> logg
         }
     }
 
-    public async Task<DigestSummaryViewModel?> GetDigestAsync(Guid id)
+    public async Task<(
+        DigestSummaryViewModel summary,
+        PostSummaryViewModel[] posts
+    )?> GetDigestAsync(Guid id)
     {
         try
         {
@@ -48,18 +50,24 @@ public class BackendClient(IMainService mainService, ILogger<BackendClient> logg
                 logger.LogError("Failed to get digest {DigestId}: {Errors}", id, result.Errors);
                 throw new($"Failed to get digest {id}");
             }
-
-            return new()
+            if (result.Value is null)
             {
-                Id = result.Value.DigestId.Id,
-                Title = result.Value.DigestSummary.Title,
-                Summary = result.Value.DigestSummary.PostsSummary,
-                PostsCount = result.Value.DigestSummary.PostsCount,
-                AverageImportance = result.Value.DigestSummary.AverageImportance,
-                CreatedAt = result.Value.DigestSummary.CreatedAt,
-                DateFrom = result.Value.DigestSummary.DateFrom,
-                DateTo = result.Value.DigestSummary.DateTo,
-                Posts = result
+                return null;
+            }
+
+            return (
+                new()
+                {
+                    Id = result.Value.DigestId.Id,
+                    Title = result.Value.DigestSummary.Title,
+                    Summary = result.Value.DigestSummary.PostsSummary,
+                    PostsCount = result.Value.DigestSummary.PostsCount,
+                    AverageImportance = result.Value.DigestSummary.AverageImportance,
+                    CreatedAt = result.Value.DigestSummary.CreatedAt,
+                    DateFrom = result.Value.DigestSummary.DateFrom,
+                    DateTo = result.Value.DigestSummary.DateTo,
+                },
+                result
                     .Value.PostsSummaries.Select(p => new PostSummaryViewModel
                     {
                         ChannelName = p.ChannelTgId.ChannelName,
@@ -68,8 +76,8 @@ public class BackendClient(IMainService mainService, ILogger<BackendClient> logg
                         PostedAt = p.PublishedAt,
                         Importance = p.Importance.Value,
                     })
-                    .ToList(),
-            };
+                    .ToArray()
+            );
         }
         catch (Exception ex)
         {

@@ -8,7 +8,7 @@ internal interface IDigestRepository
     /// <summary>
     /// Loads complete digest including all post summaries and metadata
     /// </summary>
-    public Task<Result<DigestModel>> LoadDigest(DigestId digestId);
+    public Task<Result<DigestModel?>> LoadDigest(DigestId digestId);
 
     /// <summary>
     /// Saves a digest to the database
@@ -23,7 +23,7 @@ internal interface IDigestRepository
     /// <summary>
     /// Loads all digest summaries from the database
     /// </summary>
-    public Task<Result<List<DigestSummaryModel>>> LoadAllDigestSummaries();
+    public Task<Result<DigestSummaryModel[]>> LoadAllDigestSummaries();
 }
 
 internal sealed class DigestRepository(
@@ -34,7 +34,7 @@ internal sealed class DigestRepository(
     /// <summary>
     /// Loads complete digest including all post summaries and metadata
     /// </summary>
-    public async Task<Result<DigestModel>> LoadDigest(DigestId digestId)
+    public async Task<Result<DigestModel?>> LoadDigest(DigestId digestId)
     {
         try
         {
@@ -45,12 +45,16 @@ internal sealed class DigestRepository(
                 .Include(d => d.SummaryNav)
                 .FirstOrDefaultAsync(d => d.Id == digestId.Id);
 
-            if (digest?.SummaryNav == null || digest.PostsNav == null)
+            if (digest is null)
             {
-                return Result.Fail(new Error($"Digest {digestId} not found or incomplete"));
+                return Result.Ok<DigestModel?>(null);
+            }
+            if (digest.SummaryNav == null || digest.PostsNav == null)
+            {
+                return Result.Fail(new Error($"Failed to load digest {digestId} from database"));
             }
 
-            return Result.Ok(MapToModel(digest));
+            return Result.Ok<DigestModel?>(MapToModel(digest));
         }
         catch (Exception ex)
         {
@@ -93,7 +97,7 @@ internal sealed class DigestRepository(
         }
     }
 
-    public async Task<Result<List<DigestSummaryModel>>> LoadAllDigestSummaries()
+    public async Task<Result<DigestSummaryModel[]>> LoadAllDigestSummaries()
     {
         try
         {
@@ -101,7 +105,7 @@ internal sealed class DigestRepository(
                 .DigestSummaries.OrderByDescending(s => s.CreatedAt)
                 .ToListAsync();
 
-            return Result.Ok(summaries.Select(MapToSummaryModel).ToList());
+            return Result.Ok(summaries.Select(MapToSummaryModel).ToArray());
         }
         catch (Exception ex)
         {

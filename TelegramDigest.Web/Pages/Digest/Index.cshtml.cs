@@ -8,18 +8,21 @@ namespace TelegramDigest.Web.Pages.Digest;
 
 public class IndexModel(BackendClient backend) : BasePageModel
 {
-    public DigestSummaryViewModel? Digest { get; set; }
+    public DigestSummaryViewModel? Summary { get; set; }
+
+    public PostSummaryViewModel[]? Posts { get; set; }
 
     public async Task<IActionResult> OnGetAsync(Guid id)
     {
         try
         {
-            Digest = await backend.GetDigestAsync(id);
-
-            if (Digest == null)
+            var digestResult = await backend.GetDigestAsync(id);
+            if (digestResult is null)
             {
-                return NotFound();
+                return NotFound(); // TODO test
             }
+
+            (Summary, Posts) = digestResult.Value;
 
             return Page();
         }

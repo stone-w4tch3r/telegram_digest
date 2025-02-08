@@ -8,8 +8,8 @@ public interface IMainService
     public Task<Result<List<ChannelModel>>> GetChannels();
     public Task<Result> AddChannel(ChannelTgId channelTgId);
     public Task<Result> RemoveChannel(ChannelTgId channelTgId);
-    public Task<Result<List<DigestSummaryModel>>> GetDigestSummaries();
-    public Task<Result<DigestModel>> GetDigest(DigestId digestId);
+    public Task<Result<DigestSummaryModel[]>> GetDigestSummaries();
+    public Task<Result<DigestModel?>> GetDigest(DigestId digestId);
     public Task<Result<SettingsModel>> GetSettings();
     public Task<Result> UpdateSettings(SettingsModel settings);
 }
@@ -58,6 +58,10 @@ internal sealed class MainService(
         {
             return Result.Fail(digestResult.Errors);
         }
+        if (digestResult.Value is null)
+        {
+            return Result.Fail(new Error($"Failed to load created digest {digestId}"));
+        }
 
         var sendResult = await emailSender.SendDigest(digestResult.Value.DigestSummary);
         return sendResult.IsFailed
@@ -74,10 +78,10 @@ internal sealed class MainService(
     public async Task<Result> RemoveChannel(ChannelTgId channelTgId) =>
         await channelsService.RemoveChannel(channelTgId);
 
-    public async Task<Result<List<DigestSummaryModel>>> GetDigestSummaries() =>
+    public async Task<Result<DigestSummaryModel[]>> GetDigestSummaries() =>
         await digestsService.GetDigestSummaries();
 
-    public async Task<Result<DigestModel>> GetDigest(DigestId digestId) =>
+    public async Task<Result<DigestModel?>> GetDigest(DigestId digestId) =>
         await digestsService.GetDigest(digestId);
 
     public async Task<Result<SettingsModel>> GetSettings() => await settingsManager.LoadSettings();

@@ -5,8 +5,8 @@ namespace TelegramDigest.Backend.Core;
 internal interface IDigestsService
 {
     public Task<Result<DigestId?>> GenerateDigest(DateOnly from, DateOnly to);
-    public Task<Result<DigestModel>> GetDigest(DigestId digestId);
-    public Task<Result<List<DigestSummaryModel>>> GetDigestSummaries();
+    public Task<Result<DigestModel?>> GetDigest(DigestId digestId);
+    public Task<Result<DigestSummaryModel[]>> GetDigestSummaries();
 }
 
 internal sealed class DigestsService(
@@ -76,12 +76,12 @@ internal sealed class DigestsService(
             : Result.Fail(saveResult.Errors);
     }
 
-    public async Task<Result<DigestModel>> GetDigest(DigestId digestId)
+    public async Task<Result<DigestModel?>> GetDigest(DigestId digestId)
     {
         return await digestRepository.LoadDigest(digestId);
     }
 
-    public async Task<Result<List<DigestSummaryModel>>> GetDigestSummaries()
+    public async Task<Result<DigestSummaryModel[]>> GetDigestSummaries()
     {
         return await digestRepository.LoadAllDigestSummaries();
     }

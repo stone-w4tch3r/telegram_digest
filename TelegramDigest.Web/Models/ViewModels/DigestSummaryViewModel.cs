@@ -4,38 +4,38 @@ namespace TelegramDigest.Web.Models.ViewModels;
 
 public class DigestSummaryViewModel
 {
-    public required Guid Id { get; set; }
+    public required Guid Id { get; init; }
 
     [Display(Name = "Created At")]
-    public required DateTime CreatedAt { get; set; }
+    public required DateTime CreatedAt { get; init; }
 
-    public required string Summary { get; set; }
+    public required string Summary { get; init; }
 
-    public required List<PostSummaryViewModel> Posts { get; set; }
+    // public required List<PostSummaryViewModel> Posts { get; init; }
 
-    public required string Title { get; set; }
+    public required string Title { get; init; }
 
-    public required int PostsCount { get; set; }
+    public required int PostsCount { get; init; }
 
-    public required double AverageImportance { get; set; }
+    public required double AverageImportance { get; init; }
 
-    public required DateTime DateFrom { get; set; }
+    public required DateTime DateFrom { get; init; }
 
-    public required DateTime DateTo { get; set; }
+    public required DateTime DateTo { get; init; }
 }
 
 public class PostSummaryViewModel
 {
     [Display(Name = "Channel Name")]
-    public required string ChannelName { get; set; }
+    public required string ChannelName { get; init; }
 
-    public required string Summary { get; set; }
+    public required string Summary { get; init; }
 
     [Display(Name = "Original Link")]
-    public required string Url { get; set; }
+    public required string Url { get; init; }
 
     [Display(Name = "Posted At")]
-    public required DateTime PostedAt { get; set; }
+    public required DateTime PostedAt { get; init; }
 
-    public required int Importance { get; set; }
+    public required int Importance { get; init; }
 }

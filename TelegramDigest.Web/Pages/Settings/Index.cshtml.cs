@@ -7,7 +7,7 @@ namespace TelegramDigest.Web.Pages.Settings;
 
 public class IndexModel(BackendClient backend) : BasePageModel
 {
-    [BindProperty] //TODO what is this?
+    [BindProperty]
     public SettingsViewModel? Settings { get; set; }
 
     public async Task<IActionResult> OnGetAsync()

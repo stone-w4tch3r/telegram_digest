@@ -38,9 +38,19 @@ public record SmtpSettingsDto(string Host, int Port, string Username, string Pas
 
 public record OpenAiSettingsDto(string ApiKey, string Model, int MaxTokens, string Endpoint);
 
+public record PromptSettingsDto(
+    string PostSummarySystemPrompt,
+    string PostSummaryUserPrompt,
+    string PostImportanceSystemPrompt,
+    string PostImportanceUserPrompt,
+    string DigestSummarySystemPrompt,
+    string DigestSummaryUserPrompt
+);
+
 public record SettingsDto(
     string EmailRecipient,
     TimeOnly DigestTimeUtc,
     SmtpSettingsDto SmtpSettings,
-    OpenAiSettingsDto OpenAiSettings
+    OpenAiSettingsDto OpenAiSettings,
+    PromptSettingsDto PromptSettings
 );

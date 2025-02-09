@@ -199,6 +199,12 @@ public class BackendClient(IMainService mainService, ILogger<BackendClient> logg
                 OpenAiMaxToken = settings.OpenAiSettings.MaxTokens,
                 OpenAiEndpoint = settings.OpenAiSettings.Endpoint,
                 DigestTimeUtc = settings.DigestTime.Time,
+                PromptSystemDigestSummary = settings.PromptSettings.DigestSummarySystemPrompt,
+                PromptUserDigestSummary = settings.PromptSettings.DigestSummaryUserPrompt,
+                PromptSystemPostSummary = settings.PromptSettings.PostSummarySystemPrompt,
+                PromptUserPostSummary = settings.PromptSettings.PostSummaryUserPrompt,
+                PromptSystemPostImportance = settings.PromptSettings.PostImportanceSystemPrompt,
+                PromptUserPostImportance = settings.PromptSettings.PostImportanceUserPrompt,
             };
         }
         catch (Exception ex)
@@ -227,6 +233,14 @@ public class BackendClient(IMainService mainService, ILogger<BackendClient> logg
                     settings.OpenAiModel,
                     settings.OpenAiMaxToken,
                     settings.OpenAiEndpoint
+                ),
+                new(
+                    PostSummarySystemPrompt: settings.PromptSystemPostSummary,
+                    PostSummaryUserPrompt: new(settings.PromptUserPostSummary),
+                    PostImportanceSystemPrompt: settings.PromptSystemPostImportance,
+                    PostImportanceUserPrompt: new(settings.PromptUserPostImportance),
+                    DigestSummarySystemPrompt: settings.PromptSystemDigestSummary,
+                    DigestSummaryUserPrompt: new(settings.PromptUserDigestSummary)
                 )
             );
 

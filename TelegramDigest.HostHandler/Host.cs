@@ -6,7 +6,7 @@ using System.Text.Json.Serialization;
 
 namespace TelegramDigest.HostHandler;
 
-public sealed record Host
+public readonly record struct Host
 {
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     public enum HostnameType
@@ -153,7 +153,8 @@ public sealed record Host
 
 #pragma warning disable CS8618, CS9264
     [JsonConstructor]
-    private Host()
+    [Obsolete("For deserialization only", true)]
+    public Host()
 #pragma warning restore CS8618, CS9264
     { }
 

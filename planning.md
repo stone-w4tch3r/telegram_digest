@@ -19,8 +19,8 @@
 | [x]  | Fix Digest UI Page                      | 1h    |
 | [x]  | Fix Channels UI Page                    | 1h    |
 | [x]  | Fix Settings UI Page                    | 1h    |
-| [ ]  | Learn Razor binding                     | 30min |
-| [ ]  | Move prompt to settings                 | 30min |
+| [x]  | Learn Razor binding                     | 30min |
+| [x]  | Move prompt to settings                 | 30min |
 | [ ]  | Add all settings fields in UI           | 30min |
 | [ ]  | Fix digest deletion                     | 30min |
 | [ ]  | Show exception stacktrace in UI         | 30min |

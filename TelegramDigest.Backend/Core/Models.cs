@@ -35,9 +35,19 @@ public record SettingsModel(
     string EmailRecipient,
     TimeUtc DigestTime,
     SmtpSettingsModel SmtpSettings,
-    OpenAiSettingsModel OpenAiSettings
+    OpenAiSettingsModel OpenAiSettings,
+    PromptSettingsModel PromptSettings
 );
 
 public record SmtpSettingsModel(Host Host, int Port, string Username, string Password, bool UseSsl);
 
 public record OpenAiSettingsModel(string ApiKey, string Model, int MaxTokens, Uri Endpoint);
+
+public record PromptSettingsModel(
+    string PostSummarySystemPrompt,
+    TemplateWithPost PostSummaryUserPrompt,
+    string PostImportanceSystemPrompt,
+    TemplateWithPost PostImportanceUserPrompt,
+    string DigestSummarySystemPrompt,
+    TemplateWithDigest DigestSummaryUserPrompt
+);

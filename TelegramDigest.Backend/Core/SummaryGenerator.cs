@@ -15,22 +15,37 @@ internal sealed class SummaryGenerator(
 ) : ISummaryGenerator
 {
     private ChatClient? _chatClient;
+    private (string Model, string ApiKey, Uri Endpoint)? _lastClientSettings;
 
     private async Task<Result<ChatClient>> GetChatClient()
     {
-        if (_chatClient != null)
-            return Result.Ok(_chatClient);
-
-        var settings = await settingsManager.LoadSettings();
-        if (settings.IsFailed)
+        var settingsResult = await settingsManager.LoadSettings();
+        if (settingsResult.IsFailed)
         {
-            return Result.Fail(settings.Errors);
+            return Result.Fail(settingsResult.Errors);
+        }
+
+        if (
+            _chatClient != null
+            && _lastClientSettings != null
+            && settingsResult.Value.OpenAiSettings.Model == _lastClientSettings.Value.Model
+            && settingsResult.Value.OpenAiSettings.ApiKey == _lastClientSettings.Value.ApiKey
+            && settingsResult.Value.OpenAiSettings.Endpoint == _lastClientSettings.Value.Endpoint
+        )
+        {
+            return Result.Ok(_chatClient);
         }
 
         _chatClient = new(
-            model: settings.Value.OpenAiSettings.Model,
-            credential: new(settings.Value.OpenAiSettings.ApiKey),
-            options: new() { Endpoint = settings.Value.OpenAiSettings.Endpoint }
+            model: settingsResult.Value.OpenAiSettings.Model,
+            credential: new(settingsResult.Value.OpenAiSettings.ApiKey),
+            options: new() { Endpoint = settingsResult.Value.OpenAiSettings.Endpoint }
+        );
+
+        _lastClientSettings = (
+            settingsResult.Value.OpenAiSettings.Model,
+            settingsResult.Value.OpenAiSettings.ApiKey,
+            settingsResult.Value.OpenAiSettings.Endpoint
         );
 
         return Result.Ok(_chatClient);
@@ -40,8 +55,14 @@ internal sealed class SummaryGenerator(
     {
         try
         {
+            var settingsResult = await settingsManager.LoadSettings();
+            if (settingsResult.IsFailed)
+            {
+                return Result.Fail(settingsResult.Errors);
+            }
+            var prompts = settingsResult.Value.PromptSettings;
+
             var clientResult = await GetChatClient();
-            var client = clientResult.Value;
             if (clientResult.IsFailed)
             {
                 return Result.Fail(clientResult.Errors);
@@ -49,15 +70,15 @@ internal sealed class SummaryGenerator(
 
             var messages = (ChatMessage[])
                 [
-                    new SystemChatMessage(
-                        "You are a helpful assistant that creates concise one-sentence summaries of posts."
-                    ),
+                    new SystemChatMessage(prompts.PostSummarySystemPrompt),
                     new UserChatMessage(
-                        $"Summarize this post in one sentence:\n\n{post.HtmlContent}"
+                        prompts.PostSummaryUserPrompt.ReplacePlaceholder(
+                            post.HtmlContent.HtmlString
+                        )
                     ),
                 ];
 
-            var completionResult = await client.CompleteChatAsync(messages);
+            var completionResult = await clientResult.Value.CompleteChatAsync(messages);
 
             var importance = await EvaluatePostImportance(post);
             if (importance.IsFailed)
@@ -86,8 +107,14 @@ internal sealed class SummaryGenerator(
     {
         try
         {
+            var settingsResult = await settingsManager.LoadSettings();
+            if (settingsResult.IsFailed)
+            {
+                return Result.Fail(settingsResult.Errors);
+            }
+            var prompts = settingsResult.Value.PromptSettings;
+
             var clientResult = await GetChatClient();
-            var client = clientResult.Value;
             if (clientResult.IsFailed)
             {
                 return Result.Fail(clientResult.Errors);
@@ -95,15 +122,15 @@ internal sealed class SummaryGenerator(
 
             var messages = (ChatMessage[])
                 [
-                    new SystemChatMessage(
-                        "You are an assistant that evaluates content importance. Respond only with a number: 1 for low importance, 2 for medium importance, or 3 for high importance."
-                    ),
+                    new SystemChatMessage(prompts.PostImportanceSystemPrompt),
                     new UserChatMessage(
-                        $"Rate the importance of this post from 1 to 3:\n\n{post.HtmlContent}"
+                        prompts.PostImportanceUserPrompt.ReplacePlaceholder(
+                            post.HtmlContent.HtmlString
+                        )
                     ),
                 ];
 
-            var completion = await client.CompleteChatAsync(messages);
+            var completion = await clientResult.Value.CompleteChatAsync(messages);
             var importanceValue = int.Parse(completion.Value.Content[0].Text.Trim());
 
             return Result.Ok(new Importance(importanceValue));
@@ -119,6 +146,13 @@ internal sealed class SummaryGenerator(
     {
         try
         {
+            var settingsResult = await settingsManager.LoadSettings();
+            if (settingsResult.IsFailed)
+            {
+                return Result.Fail(settingsResult.Errors);
+            }
+            var prompts = settingsResult.Value.PromptSettings;
+
             var clientResult = await GetChatClient();
             if (clientResult.IsFailed)
             {
@@ -129,11 +163,9 @@ internal sealed class SummaryGenerator(
 
             var messages = (ChatMessage[])
                 [
-                    new SystemChatMessage(
-                        "You are a helpful assistant that creates brief summaries of multiple posts, highlighting key themes and important information."
-                    ),
+                    new SystemChatMessage(prompts.DigestSummarySystemPrompt),
                     new UserChatMessage(
-                        $"Create a brief summary of these posts:\n\n{postsContent}"
+                        prompts.DigestSummaryUserPrompt.ReplacePlaceholder(postsContent)
                     ),
                 ];
 

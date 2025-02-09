@@ -16,7 +16,7 @@ internal interface IChannelReader
 
 internal sealed class ChannelReader(ILogger<ChannelReader> logger) : IChannelReader
 {
-    private const string RssHubBaseUrl = "https://rsshub.app/telegram/channel";
+    private const string RSS_HUB_BASE_URL = "https://rsshub.app/telegram/channel";
 
     public Task<Result<List<PostModel>>> FetchPosts(
         ChannelTgId channelTgId,
@@ -34,7 +34,7 @@ internal sealed class ChannelReader(ILogger<ChannelReader> logger) : IChannelRea
 
             try
             {
-                var feedUrl = $"{RssHubBaseUrl}/{channelTgId.ChannelName}";
+                var feedUrl = $"{RSS_HUB_BASE_URL}/{channelTgId.ChannelName}";
                 using var reader = XmlReader.Create(feedUrl);
                 var feed = SyndicationFeed.Load(reader);
 
@@ -68,7 +68,7 @@ internal sealed class ChannelReader(ILogger<ChannelReader> logger) : IChannelRea
         {
             try
             {
-                var feedUrl = $"{RssHubBaseUrl}/{channelTgId.ChannelName}";
+                var feedUrl = $"{RSS_HUB_BASE_URL}/{channelTgId.ChannelName}";
                 using var reader = XmlReader.Create(feedUrl);
                 var feed = SyndicationFeed.Load(reader);
 

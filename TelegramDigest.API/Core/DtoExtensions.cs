@@ -59,6 +59,14 @@ internal static class DtoExtensions
                 Model: dto.OpenAiSettings.Model,
                 MaxTokens: dto.OpenAiSettings.MaxTokens,
                 Endpoint: new(dto.OpenAiSettings.Endpoint)
+            ),
+            PromptSettings: new(
+                PostSummarySystemPrompt: dto.PromptSettings.PostSummarySystemPrompt,
+                PostSummaryUserPrompt: new(dto.PromptSettings.PostSummaryUserPrompt),
+                PostImportanceSystemPrompt: dto.PromptSettings.PostImportanceSystemPrompt,
+                PostImportanceUserPrompt: new(dto.PromptSettings.PostImportanceUserPrompt),
+                DigestSummarySystemPrompt: dto.PromptSettings.DigestSummarySystemPrompt,
+                DigestSummaryUserPrompt: new(dto.PromptSettings.DigestSummaryUserPrompt)
             )
         );
 
@@ -79,6 +87,14 @@ internal static class DtoExtensions
                 Model: settings.OpenAiSettings.Model,
                 MaxTokens: settings.OpenAiSettings.MaxTokens,
                 Endpoint: settings.OpenAiSettings.Endpoint.ToString()
+            ),
+            PromptSettings: new(
+                PostSummarySystemPrompt: settings.PromptSettings.PostSummarySystemPrompt,
+                PostSummaryUserPrompt: settings.PromptSettings.PostSummaryUserPrompt,
+                PostImportanceSystemPrompt: settings.PromptSettings.PostImportanceSystemPrompt,
+                PostImportanceUserPrompt: settings.PromptSettings.PostImportanceUserPrompt,
+                DigestSummarySystemPrompt: settings.PromptSettings.DigestSummarySystemPrompt,
+                DigestSummaryUserPrompt: settings.PromptSettings.DigestSummaryUserPrompt
             )
         );
     }

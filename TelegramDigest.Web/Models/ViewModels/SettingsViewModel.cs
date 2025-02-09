@@ -51,4 +51,28 @@ public class SettingsViewModel
     [Display(Name = "Digest Time (UTC)")]
     [DataType(DataType.Time)]
     public required TimeOnly DigestTimeUtc { get; init; }
+
+    [Required]
+    [Display(Name = "Post Summary System Prompt")]
+    public required string PromptSystemPostSummary { get; init; }
+
+    [Required]
+    [Display(Name = "Post Summary User Prompt")]
+    public required string PromptUserPostSummary { get; init; }
+
+    [Required]
+    [Display(Name = "Post Importance System Prompt")]
+    public required string PromptSystemPostImportance { get; init; }
+
+    [Required]
+    [Display(Name = "Post Importance User Prompt")]
+    public required string PromptUserPostImportance { get; init; }
+
+    [Required]
+    [Display(Name = "Digest Summary System Prompt")]
+    public required string PromptSystemDigestSummary { get; init; }
+
+    [Required]
+    [Display(Name = "Prompt User Digest Summary")]
+    public required string PromptUserDigestSummary { get; init; }
 }

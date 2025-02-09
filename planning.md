@@ -52,3 +52,4 @@
 - add users and auth
 - make settings rendering dynamic
 - improve error handling by adding error "location" to UI
+- settings migration support

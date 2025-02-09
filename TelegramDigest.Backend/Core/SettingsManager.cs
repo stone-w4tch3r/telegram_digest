@@ -158,7 +158,7 @@ internal sealed class SettingsManager : ISettingsManager
                 ),
                 PostImportanceSystemPrompt: "You are a post reviewer.",
                 PostImportanceUserPrompt: new(
-                    "Please rate the importance of the following post on a scale of 1 to 10, where 1 is least important and 10 is most important.\n\n {Post}"
+                    "Please rate the importance of the following post on a scale of 1 to 10, where 1 is least important and 10 is most important.\n\n{Post}"
                 ),
                 DigestSummarySystemPrompt: "You are a summarizer of big digests. Use english language.",
                 DigestSummaryUserPrompt: new("Summarize the digest in one sentence:\n\n{Digest}")

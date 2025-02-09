@@ -4,7 +4,8 @@ namespace TelegramDigest.Web.Models.ViewModels;
 
 public class SettingsViewModel
 {
-    [Required, EmailAddress]
+    [Required]
+    [EmailAddress]
     [Display(Name = "Recipient Email")]
     public required string RecipientEmail { get; init; }
 
@@ -54,25 +55,25 @@ public class SettingsViewModel
 
     [Required]
     [Display(Name = "Post Summary System Prompt")]
-    public required string PromptSystemPostSummary { get; init; }
+    public required string PromptPostSummarySystem { get; init; }
 
     [Required]
     [Display(Name = "Post Summary User Prompt")]
-    public required string PromptUserPostSummary { get; init; }
+    public required string PromptPostSummaryUser { get; init; }
 
     [Required]
     [Display(Name = "Post Importance System Prompt")]
-    public required string PromptSystemPostImportance { get; init; }
+    public required string PromptPostImportanceSystem { get; init; }
 
     [Required]
     [Display(Name = "Post Importance User Prompt")]
-    public required string PromptUserPostImportance { get; init; }
+    public required string PromptPostImportanceUser { get; init; }
 
     [Required]
     [Display(Name = "Digest Summary System Prompt")]
-    public required string PromptSystemDigestSummary { get; init; }
+    public required string PromptDigestSummarySystem { get; init; }
 
     [Required]
-    [Display(Name = "Prompt User Digest Summary")]
-    public required string PromptUserDigestSummary { get; init; }
+    [Display(Name = "Digest Summary User Prompt")]
+    public required string PromptDigestSummaryUser { get; init; }
 }

@@ -15,13 +15,18 @@
 <form method="post" class="settings-form">
     <div class="card mb-4">
         <div class="card-header">
-            <h5 class="mb-0">Email Settings</h5>
+            <h5 class="mb-0">General Settings</h5>
         </div>
         <div class="card-body">
             <div class="mb-3">
                 <label asp-for="@Model.Settings.RecipientEmail" class="form-label required"></label>
                 <input asp-for="@Model.Settings.RecipientEmail" class="form-control"/>
                 <span asp-validation-for="@Model.Settings.RecipientEmail" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="@Model.Settings.DigestTimeUtc" class="form-label required"></label>
+                <input asp-for="@Model.Settings.DigestTimeUtc" class="form-control"/>
+                <span asp-validation-for="@Model.Settings.DigestTimeUtc" class="text-danger"></span>
             </div>
         </div>
     </div>
@@ -71,20 +76,59 @@
                 <input asp-for="@Model.Settings.OpenAiModel" class="form-control"/>
                 <span asp-validation-for="@Model.Settings.OpenAiModel" class="text-danger"></span>
             </div>
+            <div class="mb-3">
+                <label asp-for="@Model.Settings.OpenAiEndpoint" class="form-label required"></label>
+                <input asp-for="@Model.Settings.OpenAiEndpoint" class="form-control"/>
+                <span asp-validation-for="@Model.Settings.OpenAiEndpoint" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="@Model.Settings.OpenAiMaxToken" class="form-label required"></label>
+                <input asp-for="@Model.Settings.OpenAiMaxToken" class="form-control"/>
+                <span asp-validation-for="@Model.Settings.OpenAiMaxToken" class="text-danger"></span>
+            </div>
         </div>
     </div>
 
     <div class="card mb-4">
         <div class="card-header">
-            <h5 class="mb-0">Digest Settings</h5>
+            <h5 class="mb-0">Prompt Settings</h5>
         </div>
         <div class="card-body">
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label asp-for="@Model.Settings.DigestTimeUtc" class="form-label required"></label>
-                    <input asp-for="@Model.Settings.DigestTimeUtc" class="form-control"/>
-                    <span asp-validation-for="@Model.Settings.DigestTimeUtc" class="text-danger"></span>
-                </div>
+            <div class="mb-3">
+                <label asp-for="@Model.Settings.PromptPostSummarySystem" class="form-label required"></label>
+                <textarea asp-for="@Model.Settings.PromptPostSummarySystem"
+                          class="form-control input-multiline"></textarea>
+                <span asp-validation-for="@Model.Settings.PromptPostSummarySystem" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="@Model.Settings.PromptPostSummaryUser" class="form-label required"></label>
+                <textarea asp-for="@Model.Settings.PromptPostSummaryUser"
+                          class="form-control input-multiline"></textarea>
+                <span asp-validation-for="@Model.Settings.PromptPostSummaryUser" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="@Model.Settings.PromptPostImportanceSystem" class="form-label required"></label>
+                <textarea asp-for="@Model.Settings.PromptPostImportanceSystem"
+                          class="form-control input-multiline"></textarea>
+                <span asp-validation-for="@Model.Settings.PromptPostImportanceSystem" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="@Model.Settings.PromptPostImportanceUser" class="form-label required"></label>
+                <textarea asp-for="@Model.Settings.PromptPostImportanceUser"
+                          class="form-control input-multiline"></textarea>
+                <span asp-validation-for="@Model.Settings.PromptPostImportanceUser" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="@Model.Settings.PromptDigestSummarySystem" class="form-label required"></label>
+                <textarea asp-for="@Model.Settings.PromptDigestSummarySystem"
+                          class="form-control input-multiline"></textarea>
+                <span asp-validation-for="@Model.Settings.PromptDigestSummarySystem" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="@Model.Settings.PromptDigestSummaryUser" class="form-label required"></label>
+                <textarea asp-for="@Model.Settings.PromptDigestSummaryUser"
+                          class="form-control input-multiline"></textarea>
+                <span asp-validation-for="@Model.Settings.PromptDigestSummaryUser" class="text-danger"></span>
             </div>
         </div>
     </div>
@@ -94,6 +138,10 @@
     </div>
 </form>
 
+
 @section Scripts {
     <partial name="_ValidationScriptsPartial"/>
+    <script type="text/javascript">
+        autosize(document.getElementsByClassName('input-multiline'));
+    </script>
 }

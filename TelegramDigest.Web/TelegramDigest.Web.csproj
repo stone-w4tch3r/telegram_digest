@@ -8,4 +8,8 @@
       <ProjectReference Include="..\TelegramDigest.Backend\TelegramDigest.Backend.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="wwwroot\lib\autosize\src\autosize.js" />
+    </ItemGroup>
+
 </Project>

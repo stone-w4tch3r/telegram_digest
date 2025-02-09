@@ -199,12 +199,12 @@ public class BackendClient(IMainService mainService, ILogger<BackendClient> logg
                 OpenAiMaxToken = settings.OpenAiSettings.MaxTokens,
                 OpenAiEndpoint = settings.OpenAiSettings.Endpoint,
                 DigestTimeUtc = settings.DigestTime.Time,
-                PromptSystemDigestSummary = settings.PromptSettings.DigestSummarySystemPrompt,
-                PromptUserDigestSummary = settings.PromptSettings.DigestSummaryUserPrompt,
-                PromptSystemPostSummary = settings.PromptSettings.PostSummarySystemPrompt,
-                PromptUserPostSummary = settings.PromptSettings.PostSummaryUserPrompt,
-                PromptSystemPostImportance = settings.PromptSettings.PostImportanceSystemPrompt,
-                PromptUserPostImportance = settings.PromptSettings.PostImportanceUserPrompt,
+                PromptDigestSummarySystem = settings.PromptSettings.DigestSummarySystemPrompt,
+                PromptDigestSummaryUser = settings.PromptSettings.DigestSummaryUserPrompt,
+                PromptPostSummarySystem = settings.PromptSettings.PostSummarySystemPrompt,
+                PromptPostSummaryUser = settings.PromptSettings.PostSummaryUserPrompt,
+                PromptPostImportanceSystem = settings.PromptSettings.PostImportanceSystemPrompt,
+                PromptPostImportanceUser = settings.PromptSettings.PostImportanceUserPrompt,
             };
         }
         catch (Exception ex)
@@ -235,12 +235,12 @@ public class BackendClient(IMainService mainService, ILogger<BackendClient> logg
                     settings.OpenAiEndpoint
                 ),
                 new(
-                    PostSummarySystemPrompt: settings.PromptSystemPostSummary,
-                    PostSummaryUserPrompt: new(settings.PromptUserPostSummary),
-                    PostImportanceSystemPrompt: settings.PromptSystemPostImportance,
-                    PostImportanceUserPrompt: new(settings.PromptUserPostImportance),
-                    DigestSummarySystemPrompt: settings.PromptSystemDigestSummary,
-                    DigestSummaryUserPrompt: new(settings.PromptUserDigestSummary)
+                    PostSummarySystemPrompt: settings.PromptPostSummarySystem,
+                    PostSummaryUserPrompt: new(settings.PromptPostSummaryUser),
+                    PostImportanceSystemPrompt: settings.PromptPostImportanceSystem,
+                    PostImportanceUserPrompt: new(settings.PromptPostImportanceUser),
+                    DigestSummarySystemPrompt: settings.PromptDigestSummarySystem,
+                    DigestSummaryUserPrompt: new(settings.PromptDigestSummaryUser)
                 )
             );
 

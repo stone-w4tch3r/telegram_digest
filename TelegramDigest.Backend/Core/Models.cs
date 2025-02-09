@@ -45,9 +45,9 @@ public record OpenAiSettingsModel(string ApiKey, string Model, int MaxTokens, Ur
 
 public record PromptSettingsModel(
     string PostSummarySystemPrompt,
-    TemplateWithPost PostSummaryUserPrompt,
+    TemplateWithContent PostSummaryUserPrompt,
     string PostImportanceSystemPrompt,
-    TemplateWithPost PostImportanceUserPrompt,
+    TemplateWithContent PostImportanceUserPrompt,
     string DigestSummarySystemPrompt,
-    TemplateWithDigest DigestSummaryUserPrompt
+    TemplateWithContent DigestSummaryUserPrompt
 );

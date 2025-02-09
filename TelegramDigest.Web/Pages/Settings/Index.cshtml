@@ -14,7 +14,7 @@
 
 <form method="post" class="settings-form">
     <div class="card mb-4">
-        <div class="card-header">
+        <div class="card-header bg-primary text-white">
             <h5 class="mb-0">General Settings</h5>
         </div>
         <div class="card-body">
@@ -32,7 +32,7 @@
     </div>
 
     <div class="card mb-4">
-        <div class="card-header">
+        <div class="card-header bg-primary text-white">
             <h5 class="mb-0">SMTP Settings</h5>
         </div>
         <div class="card-body">
@@ -62,7 +62,7 @@
     </div>
 
     <div class="card mb-4">
-        <div class="card-header">
+        <div class="card-header bg-primary text-white">
             <h5 class="mb-0">OpenAI Settings</h5>
         </div>
         <div class="card-body">
@@ -90,45 +90,87 @@
     </div>
 
     <div class="card mb-4">
-        <div class="card-header">
+        <div class="card-header bg-primary text-white">
             <h5 class="mb-0">Prompt Settings</h5>
         </div>
+
         <div class="card-body">
-            <div class="mb-3">
-                <label asp-for="@Model.Settings.PromptPostSummarySystem" class="form-label required"></label>
-                <textarea asp-for="@Model.Settings.PromptPostSummarySystem"
-                          class="form-control input-multiline"></textarea>
-                <span asp-validation-for="@Model.Settings.PromptPostSummarySystem" class="text-danger"></span>
+
+            <!-- Info Section -->
+            <div class="alert alert-info p-3 mb-4">
+                <h6 class="alert-heading">What is difference between System and User prompt?</h6>
+                <p class="mb-2">
+                    <strong>System prompt:</strong> WHO YOU ARE - role and main instructions such as language.
+                    Establishes the AI's behavior.
+                    <br><em>Example: "You are a zoomer AI assistant who speaks in modern slang and emojis."</em>
+                </p>
+                <p class="mb-0">
+                    <strong>User Prompt:</strong> WHAT TO DO - specific instructions for processing posts.
+                    Must include {Content} placeholder.
+                    <br><em>Example: "Summarize this post in 3 sentences: {Content}"</em>
+                </p>
             </div>
-            <div class="mb-3">
-                <label asp-for="@Model.Settings.PromptPostSummaryUser" class="form-label required"></label>
-                <textarea asp-for="@Model.Settings.PromptPostSummaryUser"
-                          class="form-control input-multiline"></textarea>
-                <span asp-validation-for="@Model.Settings.PromptPostSummaryUser" class="text-danger"></span>
+
+            <!-- Post Summary Section -->
+            <div class="border rounded p-3 mb-4 bg-light">
+                <h6 class="border-bottom pb-2 mb-3">Post Summary</h6>
+
+                <div class="mb-4">
+                    <label asp-for="@Model.Settings.PromptPostSummarySystem"
+                           class="form-label required fw-bold"></label>
+                    <textarea asp-for="@Model.Settings.PromptPostSummarySystem"
+                              class="form-control input-multiline"></textarea>
+                    <span asp-validation-for="@Model.Settings.PromptPostSummarySystem" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="@Model.Settings.PromptPostSummaryUser" class="form-label required fw-bold"></label>
+                    <textarea asp-for="@Model.Settings.PromptPostSummaryUser"
+                              class="form-control input-multiline"></textarea>
+                    <span asp-validation-for="@Model.Settings.PromptPostSummaryUser" class="text-danger"></span>
+                </div>
             </div>
-            <div class="mb-3">
-                <label asp-for="@Model.Settings.PromptPostImportanceSystem" class="form-label required"></label>
-                <textarea asp-for="@Model.Settings.PromptPostImportanceSystem"
-                          class="form-control input-multiline"></textarea>
-                <span asp-validation-for="@Model.Settings.PromptPostImportanceSystem" class="text-danger"></span>
+
+            <!-- Post Importance Section -->
+            <div class="border rounded p-3 mb-4 bg-light">
+                <h6 class="border-bottom pb-2 mb-3">Post Importance</h6>
+
+                <div class="mb-4">
+                    <label asp-for="@Model.Settings.PromptPostImportanceSystem"
+                           class="form-label required fw-bold"></label>
+                    <textarea asp-for="@Model.Settings.PromptPostImportanceSystem"
+                              class="form-control input-multiline"></textarea>
+                    <span asp-validation-for="@Model.Settings.PromptPostImportanceSystem" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="@Model.Settings.PromptPostImportanceUser"
+                           class="form-label required fw-bold"></label>
+                    <textarea asp-for="@Model.Settings.PromptPostImportanceUser"
+                              class="form-control input-multiline"></textarea>
+                    <span asp-validation-for="@Model.Settings.PromptPostImportanceUser" class="text-danger"></span>
+                </div>
             </div>
-            <div class="mb-3">
-                <label asp-for="@Model.Settings.PromptPostImportanceUser" class="form-label required"></label>
-                <textarea asp-for="@Model.Settings.PromptPostImportanceUser"
-                          class="form-control input-multiline"></textarea>
-                <span asp-validation-for="@Model.Settings.PromptPostImportanceUser" class="text-danger"></span>
-            </div>
-            <div class="mb-3">
-                <label asp-for="@Model.Settings.PromptDigestSummarySystem" class="form-label required"></label>
-                <textarea asp-for="@Model.Settings.PromptDigestSummarySystem"
-                          class="form-control input-multiline"></textarea>
-                <span asp-validation-for="@Model.Settings.PromptDigestSummarySystem" class="text-danger"></span>
-            </div>
-            <div class="mb-3">
-                <label asp-for="@Model.Settings.PromptDigestSummaryUser" class="form-label required"></label>
-                <textarea asp-for="@Model.Settings.PromptDigestSummaryUser"
-                          class="form-control input-multiline"></textarea>
-                <span asp-validation-for="@Model.Settings.PromptDigestSummaryUser" class="text-danger"></span>
+
+            <!-- Digest Summary Section -->
+            <div class="border rounded p-3 bg-light">
+                <h6 class="border-bottom pb-2 mb-3">Digest Summary</h6>
+
+                <div class="mb-4">
+                    <label asp-for="@Model.Settings.PromptDigestSummarySystem"
+                           class="form-label required fw-bold"></label>
+                    <textarea asp-for="@Model.Settings.PromptDigestSummarySystem"
+                              class="form-control input-multiline"></textarea>
+                    <span asp-validation-for="@Model.Settings.PromptDigestSummarySystem" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="@Model.Settings.PromptDigestSummaryUser"
+                           class="form-label required fw-bold"></label>
+                    <textarea asp-for="@Model.Settings.PromptDigestSummaryUser"
+                              class="form-control input-multiline"></textarea>
+                    <span asp-validation-for="@Model.Settings.PromptDigestSummaryUser" class="text-danger"></span>
+                </div>
             </div>
         </div>
     </div>

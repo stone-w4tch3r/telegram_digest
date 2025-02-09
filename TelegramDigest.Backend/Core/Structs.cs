@@ -77,7 +77,7 @@ internal readonly partial record struct Template
     [GeneratedRegex(@"^\{[a-zA-Z0-9_]+\}$")]
     private static partial Regex TemplateRegex();
 
-    private readonly string _placeholder = "{Post}";
+    private readonly string _placeholder;
 
     public Template(string text, string placeholder)
     {
@@ -87,12 +87,19 @@ internal readonly partial record struct Template
         }
         if (string.IsNullOrWhiteSpace(text))
         {
-            throw new ArgumentException("Prompt cannot be empty", nameof(text));
+            throw new ArgumentException("Text cannot be empty", nameof(text));
         }
-        if (!text.Contains(placeholder))
+        if (!text.Contains(placeholder, StringComparison.OrdinalIgnoreCase))
         {
             throw new ArgumentException(
                 $"Prompt must contain {placeholder} placeholder",
+                nameof(text)
+            );
+        }
+        if (text.ToLower().Split([placeholder.ToLower()], StringSplitOptions.None).Length != 2)
+        {
+            throw new ArgumentException(
+                $"Prompt must contain exactly one {placeholder} placeholder",
                 nameof(text)
             );
         }
@@ -105,53 +112,31 @@ internal readonly partial record struct Template
 
     public override string ToString() => Text;
 
-    public string ReplacePlaceholder(string content) => Text.Replace(_placeholder, content);
+    public string ReplacePlaceholder(string content, StringComparison comparison) =>
+        Text.Replace(_placeholder, content, comparison);
 }
 
-public readonly record struct TemplateWithPost
+public readonly record struct TemplateWithContent
 {
     private readonly Template _template;
 
-    public TemplateWithPost(string text)
+    public TemplateWithContent(string text)
     {
-        _template = new(text, POST_PLACEHOLDER);
+        _template = new(text, PLACEHOLDER);
     }
 
-    public const string POST_PLACEHOLDER = "{Post}";
+    public const string PLACEHOLDER = "{Content}";
 
-    public string ReplacePlaceholder(string content) => _template.ReplacePlaceholder(content);
+    public string ReplacePlaceholder(string content) =>
+        _template.ReplacePlaceholder(content, StringComparison.OrdinalIgnoreCase);
 
     public string Text => _template.Text;
 
-    public static Result<TemplateWithPost> TryCreate(string text) =>
-        Result.Try(() => new TemplateWithPost(text));
+    public static Result<TemplateWithContent> TryCreate(string text) =>
+        Result.Try(() => new TemplateWithContent(text));
 
     public override string ToString() => _template.ToString();
 
-    public static implicit operator string(TemplateWithPost templateWithPost) =>
+    public static implicit operator string(TemplateWithContent templateWithPost) =>
         templateWithPost.ToString();
-}
-
-public readonly record struct TemplateWithDigest
-{
-    private readonly Template _template;
-
-    public TemplateWithDigest(string text)
-    {
-        _template = new(text, DIGEST_PLACEHOLDER);
-    }
-
-    public const string DIGEST_PLACEHOLDER = "{Digest}";
-
-    public string ReplacePlaceholder(string content) => _template.ReplacePlaceholder(content);
-
-    public string Text => _template.Text;
-
-    public static Result<TemplateWithDigest> TryCreate(string text) =>
-        Result.Try(() => new TemplateWithDigest(text));
-
-    public override string ToString() => _template.ToString();
-
-    public static implicit operator string(TemplateWithDigest templateWithDigest) =>
-        templateWithDigest.ToString();
 }

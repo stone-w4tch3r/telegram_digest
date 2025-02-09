@@ -154,14 +154,14 @@ internal sealed class SettingsManager : ISettingsManager
             new(
                 PostSummarySystemPrompt: "You are a summarizer of media posts. Use english language.",
                 PostSummaryUserPrompt: new(
-                    "Summarize the following post in one sentence:\n\n{Post}"
+                    "Summarize the following post in one sentence:\n\n{Content}"
                 ),
                 PostImportanceSystemPrompt: "You are a post reviewer.",
                 PostImportanceUserPrompt: new(
-                    "Please rate the importance of the following post on a scale of 1 to 10, where 1 is least important and 10 is most important.\n\n{Post}"
+                    "Please rate the importance of the following post on a scale of 1 to 10, where 1 is least important and 10 is most important.\n\n{Content}"
                 ),
                 DigestSummarySystemPrompt: "You are a summarizer of big digests. Use english language.",
-                DigestSummaryUserPrompt: new("Summarize the digest in one sentence:\n\n{Digest}")
+                DigestSummaryUserPrompt: new("Summarize the digest in one sentence:\n\n{Content}")
             )
         );
 

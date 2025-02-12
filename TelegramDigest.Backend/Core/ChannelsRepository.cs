@@ -76,7 +76,9 @@ internal sealed class ChannelsRepository(
         {
             var entity = await dbContext.Channels.FindAsync(channelId.ChannelName);
             if (entity == null)
+            {
                 return Result.Ok(); // Already deleted
+            }
 
             dbContext.Channels.Remove(entity);
             await dbContext.SaveChangesAsync();

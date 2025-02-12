@@ -118,13 +118,7 @@ public class BackendClient(IMainService mainService, ILogger<BackendClient> logg
             }
 
             return result
-                .Value.Select(c => new ChannelViewModel
-                {
-                    TgId = c.TgId.ChannelName,
-                    Description = c.Description,
-                    Title = c.Title,
-                    ImageUrl = c.ImageUrl.ToString(),
-                })
+                .Value.Select(c => new ChannelViewModel { TgId = c.TgId, Title = c.Title })
                 .ToList();
         }
         catch (Exception ex)
@@ -189,7 +183,7 @@ public class BackendClient(IMainService mainService, ILogger<BackendClient> logg
             return new()
             {
                 RecipientEmail = settings.EmailRecipient,
-                SmtpHost = settings.SmtpSettings.Host.HostPart,
+                SmtpHost = settings.SmtpSettings.Host,
                 SmtpPort = settings.SmtpSettings.Port,
                 SmtpUsername = settings.SmtpSettings.Username,
                 SmtpPassword = settings.SmtpSettings.Password,
@@ -222,7 +216,7 @@ public class BackendClient(IMainService mainService, ILogger<BackendClient> logg
                 settings.RecipientEmail,
                 new(settings.DigestTimeUtc),
                 new(
-                    new(settings.SmtpHost),
+                    settings.SmtpHost,
                     settings.SmtpPort,
                     settings.SmtpUsername,
                     settings.SmtpPassword,

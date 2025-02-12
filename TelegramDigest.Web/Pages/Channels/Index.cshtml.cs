@@ -27,9 +27,15 @@ public class IndexModel(BackendClient backend) : BasePageModel
 
     public async Task<IActionResult> OnPostAddAsync()
     {
-        if (!ModelState.IsValid || NewChannel == null)
+        if (!ModelState.IsValid)
         {
             await OnGetAsync();
+            return Page();
+        }
+        if (NewChannel == null)
+        {
+            await OnGetAsync();
+            ErrorMessage = "Error in web page! Can't read new channel data";
             return Page();
         }
 

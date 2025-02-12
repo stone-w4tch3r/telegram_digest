@@ -1,4 +1,7 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc;
+using TelegramDigest.Backend.Core;
+using Host = TelegramDigest.HostHandler.Host;
 
 namespace TelegramDigest.Web.Models.ViewModels;
 
@@ -11,8 +14,8 @@ public class SettingsViewModel
 
     [Required]
     [Display(Name = "SMTP Server")]
-    [DataType(DataType.Url)] //TODO fix, prevents using hostname
-    public required string SmtpHost { get; init; }
+    [ModelBinder(typeof(HostModelBinder))]
+    public required Host SmtpHost { get; init; }
 
     [Required]
     [Display(Name = "SMTP Port")]
@@ -25,7 +28,6 @@ public class SettingsViewModel
 
     [Required]
     [Display(Name = "SMTP Password")]
-    [DataType(DataType.Password)] //TODO fix, hides password
     public required string SmtpPassword { get; init; }
 
     [Required]
@@ -59,7 +61,8 @@ public class SettingsViewModel
 
     [Required]
     [Display(Name = "Post Summary User Prompt")]
-    public required string PromptPostSummaryUser { get; init; }
+    [ModelBinder(typeof(TemplateWithContentModelBinder))]
+    public required TemplateWithContent PromptPostSummaryUser { get; init; }
 
     [Required]
     [Display(Name = "Post Importance System Prompt")]
@@ -67,7 +70,8 @@ public class SettingsViewModel
 
     [Required]
     [Display(Name = "Post Importance User Prompt")]
-    public required string PromptPostImportanceUser { get; init; }
+    [ModelBinder(typeof(TemplateWithContentModelBinder))]
+    public required TemplateWithContent PromptPostImportanceUser { get; init; }
 
     [Required]
     [Display(Name = "Digest Summary System Prompt")]
@@ -75,5 +79,6 @@ public class SettingsViewModel
 
     [Required]
     [Display(Name = "Digest Summary User Prompt")]
-    public required string PromptDigestSummaryUser { get; init; }
+    [ModelBinder(typeof(TemplateWithContentModelBinder))]
+    public required TemplateWithContent PromptDigestSummaryUser { get; init; }
 }

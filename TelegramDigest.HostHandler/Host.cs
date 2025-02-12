@@ -39,10 +39,14 @@ public readonly record struct Host
             : HostPart;
     }
 
+    public static implicit operator string(Host id) => id.ToString();
+
     public static HostnameType DetermineHostType(string value)
     {
         if (string.IsNullOrEmpty(value))
+        {
             return HostnameType.Invalid;
+        }
 
         if (
             value.Count(c => c == '[') > 1
@@ -51,22 +55,31 @@ public readonly record struct Host
             || value.IndexOf(']') < value.IndexOf('[')
             || value.Contains("..")
             || value.EndsWith(':')
-            || value.Any(c => !".:[]-".Contains(c) && !char.IsLetterOrDigit(c))
+            || value.Any(c =>
+                (!char.IsLetterOrDigit(c) && !".:[]-".Contains(c)) || !char.IsAscii(c)
+            )
         )
+        {
             return HostnameType.Invalid;
+        }
 
         // Check for IPv6 with port: [IPv6]:port
         if (value.StartsWith('['))
         {
             var closingBracketIndex = value.IndexOf(']');
             if (closingBracketIndex == -1)
+            {
                 return HostnameType.Invalid;
+            }
 
             if (closingBracketIndex < value.Length - 1 && value[closingBracketIndex + 1] == ':')
             {
                 var portPart = value[(closingBracketIndex + 2)..];
                 if (!IsValidPort(portPart))
+                {
                     return HostnameType.Invalid;
+                }
+
                 var ipv6Part = value.Substring(1, closingBracketIndex - 1);
 
                 return IsIPv6(ipv6Part) ? HostnameType.IPv6WithPort : HostnameType.Invalid;
@@ -89,31 +102,52 @@ public readonly record struct Host
             var portPart = value[(lastColonIndex + 1)..];
 
             if (!IsValidPort(portPart))
+            {
                 return HostnameType.Invalid;
+            }
+
             if (IsIPv4(hostPart))
+            {
                 return HostnameType.IPv4WithPort;
+            }
+
             if (IsValidHostname(hostPart))
+            {
                 return HostnameType.HostnameWithPort;
+            }
 
             return IsIPv6(value) ? HostnameType.IPv6 : HostnameType.Invalid;
         }
 
         if (IsIPv4(value))
+        {
             return HostnameType.IPv4;
+        }
+
         if (IsIPv6(value))
+        {
             return HostnameType.IPv6;
+        }
+
         if (IsValidHostname(value))
+        {
             return HostnameType.Hostname;
+        }
+
         return HostnameType.Invalid;
     }
 
     public static bool IsValidPort(string portPart)
     {
         if (string.IsNullOrEmpty(portPart))
+        {
             return false;
+        }
 
         if (!int.TryParse(portPart, out var port))
+        {
             return false;
+        }
 
         return port is >= 0 and <= 65535;
     }
@@ -143,7 +177,7 @@ public readonly record struct Host
         {
             host = new(hostName);
         }
-        catch (ArgumentException e)
+        catch (ArgumentException)
         {
             return false;
         }
@@ -168,7 +202,9 @@ public readonly record struct Host
             HostnameType.IPv6WithPort => ParseIPv6WithPort(value),
             HostnameType.Hostname => ParseHost(value),
             HostnameType.HostnameWithPort => ParseHostnameWithPort(value),
-            HostnameType.Invalid => throw new ArgumentException($"Invalid host {value}"),
+            HostnameType.Invalid => throw new ArgumentException(
+                "Host must be a valid hostname or IP address without method or path, port allowed, only ASCII symbols"
+            ),
             _ => throw new UnreachableException(),
         };
     }
@@ -176,7 +212,9 @@ public readonly record struct Host
     private static (string Host, int? Port) ParseIPv4(string value)
     {
         if (!IsIPv4(value))
+        {
             throw new UnreachableException($"Host parser error {nameof(ParseIPv4)} with {value}");
+        }
 
         return (value, null);
     }
@@ -188,9 +226,11 @@ public readonly record struct Host
         var port = int.Parse(value[(lastColonIndex + 1)..]);
 
         if (!IsIPv4(host) || !IsValidPort(port.ToString()))
+        {
             throw new UnreachableException(
                 $"Host parser error {nameof(ParseIPv4WithPort)} with {value}"
             );
+        }
 
         return (host, port);
     }
@@ -198,10 +238,14 @@ public readonly record struct Host
     private static (string Host, int? Port) ParseIPv6(string value)
     {
         if (!IsIPv6(value))
+        {
             throw new UnreachableException($"Host parser error {nameof(ParseIPv6)} with {value}");
+        }
 
         if (value.StartsWith('[') && value.EndsWith(']'))
+        {
             value = value.Substring(1, value.Length - 2);
+        }
 
         return (value, null);
     }
@@ -214,9 +258,11 @@ public readonly record struct Host
         var port = int.Parse(portString);
 
         if (!IsIPv6(ipv6) || !IsValidPort(port.ToString()))
+        {
             throw new UnreachableException(
                 $"Host parser error {nameof(ParseIPv6WithPort)} with {value}"
             );
+        }
 
         return (ipv6, port);
     }
@@ -224,7 +270,9 @@ public readonly record struct Host
     private static (string Host, int? Port) ParseHost(string value)
     {
         if (!IsValidHostname(value))
+        {
             throw new UnreachableException($"Host parser error {nameof(ParseHost)} with {value}");
+        }
 
         return (value, null);
     }
@@ -236,9 +284,11 @@ public readonly record struct Host
         var port = int.Parse(value[(lastColonIndex + 1)..]);
 
         if (!IsValidHostname(host) || !IsValidPort(port.ToString()))
+        {
             throw new UnreachableException(
                 $"Host parser error {nameof(ParseHostnameWithPort)} with {value}"
             );
+        }
 
         return (host, port);
     }

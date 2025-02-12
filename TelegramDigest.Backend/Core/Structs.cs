@@ -3,30 +3,6 @@ using FluentResults;
 
 namespace TelegramDigest.Backend.Core;
 
-public readonly partial record struct ChannelTgId
-{
-    [GeneratedRegex("^[a-zA-Z0-9_]{5,32}$")]
-    private static partial Regex ChannelNamePattern();
-
-    public ChannelTgId(string ChannelName)
-    {
-        this.ChannelName = ChannelNamePattern().IsMatch(ChannelName)
-            ? ChannelName
-            : throw new ArgumentException(
-                $"Can't create ChannelId from invalid channel name. Got [{ChannelName}], expected [{ChannelNamePattern()}]"
-            );
-    }
-
-    public static Result<ChannelTgId> TryFromString(string channelName) =>
-        Result.Try(() => new ChannelTgId(channelName));
-
-    public override string ToString() => ChannelName;
-
-    public string ChannelName { get; }
-
-    public static implicit operator string(ChannelTgId id) => id.ToString();
-}
-
 public readonly record struct DigestId(Guid Id)
 {
     public static DigestId NewId() => new(Guid.NewGuid());
@@ -51,6 +27,33 @@ public readonly record struct Html(string HtmlString)
 }
 
 /// <summary>
+/// Telegram channel name, e.g. https://t.me/this_is_channel_name
+/// </summary>
+public readonly partial record struct ChannelTgId
+{
+    [GeneratedRegex("^[a-zA-Z][a-zA-Z0-9_]{4,31}$")]
+    private static partial Regex ChannelNamePattern();
+
+    public ChannelTgId(string ChannelName)
+    {
+        this.ChannelName = ChannelNamePattern().IsMatch(ChannelName)
+            ? ChannelName
+            : throw new ArgumentException(
+                "Channel name must be 5-32 characters, only letters, numbers, and underscores, starting with a letter"
+            );
+    }
+
+    public static Result<ChannelTgId> TryFromString(string channelName) =>
+        Result.Try(() => new ChannelTgId(channelName));
+
+    public override string ToString() => ChannelName;
+
+    public string ChannelName { get; }
+
+    public static implicit operator string(ChannelTgId id) => id.ToString();
+}
+
+/// <summary>
 /// Describes the importance of a post. Importance value must be between 1 and 10, inclusive
 /// </summary>
 public readonly record struct Importance
@@ -72,6 +75,9 @@ public readonly record struct Importance
     public static implicit operator string(Importance importance) => importance.ToString();
 }
 
+/// <summary>
+/// Basic template with a {placeholder} inside. Provides validation and helper methods such as ReplacePlaceholder
+/// </summary>
 internal readonly partial record struct Template
 {
     [GeneratedRegex(@"^\{[a-zA-Z0-9_]+\}$")]
@@ -116,6 +122,10 @@ internal readonly partial record struct Template
         Text.Replace(_placeholder, content, comparison);
 }
 
+/// <summary>
+/// Template with {Content} placeholder
+/// </summary>
+/// <see cref="Template"/>
 public readonly record struct TemplateWithContent
 {
     private readonly Template _template;

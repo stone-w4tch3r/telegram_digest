@@ -26,9 +26,14 @@ public class IndexModel(BackendClient backend) : BasePageModel
 
     public async Task<IActionResult> OnPostAsync()
     {
-        if (!ModelState.IsValid || Settings is null)
+        if (!ModelState.IsValid)
         {
             //TODO error handling
+            return Page();
+        }
+        if (Settings is null)
+        {
+            ErrorMessage = "Error in web page! Can't read new settings";
             return Page();
         }
 

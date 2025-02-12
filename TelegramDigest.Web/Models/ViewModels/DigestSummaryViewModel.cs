@@ -11,8 +11,6 @@ public class DigestSummaryViewModel
 
     public required string Summary { get; init; }
 
-    // public required List<PostSummaryViewModel> Posts { get; init; }
-
     public required string Title { get; init; }
 
     public required int PostsCount { get; init; }

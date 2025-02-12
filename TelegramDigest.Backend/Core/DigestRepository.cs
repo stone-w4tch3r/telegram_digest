@@ -117,7 +117,9 @@ internal sealed class DigestRepository(
     private static DigestModel MapToModel(DigestEntity entity)
     {
         if (entity.SummaryNav == null || entity.PostsNav == null)
+        {
             throw new ArgumentException("Digest entity is incomplete", nameof(entity));
+        }
 
         return new(
             DigestId: new(entity.Id),

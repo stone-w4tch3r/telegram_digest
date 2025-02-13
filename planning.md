@@ -34,7 +34,9 @@
 | [ ]  | Bug: newlines in UI                                       | 30min |
 | [ ]  | Bug: add new chanel: backend error not shown until reload | 30min |
 | [ ]  | Async digest generation                                   | 1h    |
-| [ ]  | Reimplement and test email sending                        | 1h    |
+| [ ]  | Reimplement and test email sending?                       | 1h    |
+| [ ]  | Configure deploy                                          | 2h    |
+| [ ]  | Add BaseUrl                                               | 2h    |
 
 ### Low priority
 
@@ -61,7 +63,6 @@
         - 404 / NotFoundError, OneOf?
 - handle 00:00 in GenerateDailyDigest
 - Check code quality
-- front BaseUrl
 - use Optional instead of nulls
 - use arrays instead of Lists if data is immutable
 - add users and auth

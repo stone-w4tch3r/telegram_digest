@@ -40,7 +40,7 @@ internal static class DtoExtensions
             Summary: model.Summary,
             Url: model.Url.ToString(),
             PublishedAt: model.PublishedAt,
-            Importance: model.Importance.Value
+            Importance: model.Importance.Number
         );
 
     internal static SettingsModel ToDomain(this SettingsDto dto) =>

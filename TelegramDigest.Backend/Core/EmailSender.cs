@@ -63,7 +63,7 @@ internal sealed class EmailSender(ISettingsManager settingsManager, ILogger<Emai
             {digest.Title}
 
             Posts: {digest.PostsCount}
-            Average Importance: {digest.AverageImportance}/3
+            Average Importance: {digest.AverageImportance}/10
 
             View full digest: https://your-app-url/digest/{digest.DigestId}
 

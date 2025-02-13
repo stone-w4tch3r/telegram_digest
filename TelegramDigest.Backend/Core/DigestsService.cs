@@ -7,6 +7,7 @@ internal interface IDigestsService
     public Task<Result<DigestId?>> GenerateDigest(DateOnly from, DateOnly to);
     public Task<Result<DigestModel?>> GetDigest(DigestId digestId);
     public Task<Result<DigestSummaryModel[]>> GetDigestSummaries();
+    public Task<Result<DigestModel[]>> GetAllDigests();
 }
 
 internal sealed class DigestsService(
@@ -84,5 +85,10 @@ internal sealed class DigestsService(
     public async Task<Result<DigestSummaryModel[]>> GetDigestSummaries()
     {
         return await digestRepository.LoadAllDigestSummaries();
+    }
+
+    public async Task<Result<DigestModel[]>> GetAllDigests()
+    {
+        return await digestRepository.LoadAllDigests();
     }
 }

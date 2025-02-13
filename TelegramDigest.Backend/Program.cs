@@ -37,6 +37,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ISummaryGenerator, SummaryGenerator>();
         services.AddScoped<IEmailSender, EmailSender>();
         services.AddScoped<IMainService, MainService>();
+        services.AddScoped<IRssService, RssService>();
         services.AddScoped<ISettingsManager, SettingsManager>(sp =>
         {
             var logger = sp.GetRequiredService<ILogger<SettingsManager>>();

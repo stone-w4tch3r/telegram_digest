@@ -58,19 +58,19 @@ public readonly partial record struct ChannelTgId
 /// </summary>
 public readonly record struct Importance
 {
-    public Importance(int Value)
+    public Importance(int Number)
     {
-        this.Value = Value is > 0 and <= 10
-            ? Value
+        this.Number = Number is > 0 and <= 10
+            ? Number
             : throw new ArgumentOutOfRangeException(
-                nameof(Value),
+                nameof(Number),
                 "Importance value must be between 1 and 10, inclusive"
             );
     }
 
-    public int Value { get; }
+    public int Number { get; }
 
-    public override string ToString() => Value.ToString();
+    public override string ToString() => Number.ToString();
 
     public static implicit operator string(Importance importance) => importance.ToString();
 }

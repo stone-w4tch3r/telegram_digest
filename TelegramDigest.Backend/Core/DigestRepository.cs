@@ -24,6 +24,8 @@ internal interface IDigestRepository
     /// Loads all digest summaries from the database
     /// </summary>
     public Task<Result<DigestSummaryModel[]>> LoadAllDigestSummaries();
+
+    Task<Result<DigestModel[]>> LoadAllDigests();
 }
 
 internal sealed class DigestRepository(
@@ -114,6 +116,30 @@ internal sealed class DigestRepository(
         }
     }
 
+    public async Task<Result<DigestModel[]>> LoadAllDigests()
+    {
+        try
+        {
+            var digests = await dbContext
+                .Digests.Include(d => d.PostsNav)!
+                .ThenInclude(p => p.ChannelNav)
+                .Include(d => d.SummaryNav)
+                .ToListAsync();
+
+            if (digests.Any(d => d.SummaryNav == null || d.PostsNav == null))
+            {
+                return Result.Fail(new Error("Failed to load digests from database"));
+            }
+
+            return Result.Ok(digests.Select(MapToModel).ToArray());
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to load digests");
+            return Result.Fail(new Error("Database operation failed").CausedBy(ex));
+        }
+    }
+
     private static DigestModel MapToModel(DigestEntity entity)
     {
         if (entity.SummaryNav == null || entity.PostsNav == null)
@@ -161,7 +187,7 @@ internal sealed class DigestRepository(
                     Summary = p.Summary,
                     Url = p.Url.ToString(),
                     PublishedAt = p.PublishedAt,
-                    Importance = p.Importance.Value,
+                    Importance = p.Importance.Number,
                 })
                 .ToList(),
         };

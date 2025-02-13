@@ -1,3 +1,4 @@
+using System.ServiceModel.Syndication;
 using FluentResults;
 
 namespace TelegramDigest.Backend.Core;
@@ -12,6 +13,7 @@ public interface IMainService
     public Task<Result<DigestModel?>> GetDigest(DigestId digestId);
     public Task<Result<SettingsModel>> GetSettings();
     public Task<Result> UpdateSettings(SettingsModel settings);
+    public Task<Result<SyndicationFeed>> GetRssFeed();
 }
 
 /// <summary>
@@ -22,6 +24,7 @@ internal sealed class MainService(
     IChannelsService channelsService,
     IEmailSender emailSender,
     ISettingsManager settingsManager,
+    IRssService rssService,
     ILogger<MainService> logger
 ) : IMainService
 {
@@ -88,4 +91,6 @@ internal sealed class MainService(
 
     public async Task<Result> UpdateSettings(SettingsModel settings) =>
         await settingsManager.SaveSettings(settings);
+
+    public async Task<Result<SyndicationFeed>> GetRssFeed() => await rssService.GenerateRssFeed();
 }

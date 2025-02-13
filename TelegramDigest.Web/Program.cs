@@ -5,6 +5,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+builder.Services.AddControllers();
 builder.Services.AddTelegramDigest(builder.Configuration);
 builder.Services.AddScoped<BackendClient>();
 
@@ -25,6 +26,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 app.MapRazorPages();
+app.MapControllers();
 
 await app.Services.InitializeTelegramDigest();
 

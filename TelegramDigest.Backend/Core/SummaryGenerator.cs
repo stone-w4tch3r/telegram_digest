@@ -199,7 +199,7 @@ internal sealed class SummaryGenerator(
 
         var successfulResults = importanceResults
             .Where(r => r.IsSuccess)
-            .Select(r => r.Value.Value)
+            .Select(r => r.Value.Number)
             .ToArray();
 
         return successfulResults.Length != 0 ? successfulResults.Average() : 0;

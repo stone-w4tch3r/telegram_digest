@@ -25,14 +25,15 @@
 | [x]  | Use Backend types in VMs                                                    | 1h    |
 | [x]  | Digest publishing to RSS, RSS Validation via https://validator.w3.org/feed/ | 1h    |
 | [x]  | Error handling: redirect to base page from handlers (eg add)                | 1h    |
+| [x]  | Bug: channel deletion                                                       | 30min |
 
 ### High priority
 
 | Done | Task                                                      | Time  |
 |------|-----------------------------------------------------------|-------|
-| [ ]  | Bug: digest deletion                                      | 30min |
 | [ ]  | Bug: newlines in UI                                       | 30min |
 | [ ]  | Bug: add new chanel: backend error not shown until reload | 30min |
+| [ ]  | digest deletion                                           | 30min |
 | [ ]  | Async digest generation                                   | 1h    |
 | [ ]  | Reimplement and test email sending?                       | 1h    |
 | [ ]  | Configure deploy                                          | 2h    |

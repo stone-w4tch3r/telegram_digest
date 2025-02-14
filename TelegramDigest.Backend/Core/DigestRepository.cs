@@ -16,11 +16,6 @@ internal interface IDigestRepository
     public Task<Result> SaveDigest(DigestModel digest);
 
     /// <summary>
-    /// Checks if a post is already included in any digest
-    /// </summary>
-    public Task<Result<bool>> CheckIfPostIsSaved(Uri postUrl);
-
-    /// <summary>
     /// Loads all digest summaries from the database
     /// </summary>
     public Task<Result<DigestSummaryModel[]>> LoadAllDigestSummaries();
@@ -77,24 +72,6 @@ internal sealed class DigestRepository(
         catch (Exception ex)
         {
             logger.LogError(ex, "Failed to save digest {DigestId}", digest.DigestId);
-            return Result.Fail(new Error("Database operation failed").CausedBy(ex));
-        }
-    }
-
-    /// <summary>
-    /// Checks if a post is already included in any digest
-    /// </summary>
-    public async Task<Result<bool>> CheckIfPostIsSaved(Uri postUrl)
-    {
-        try
-        {
-            return Result.Ok(
-                await dbContext.PostSummaries.AnyAsync(p => p.Url == postUrl.ToString())
-            );
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Failed to check post {PostUrl}", postUrl);
             return Result.Fail(new Error("Database operation failed").CausedBy(ex));
         }
     }

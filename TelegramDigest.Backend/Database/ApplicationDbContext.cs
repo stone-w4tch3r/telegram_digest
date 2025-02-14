@@ -31,6 +31,8 @@ internal sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext
             builder.Property(e => e.Title).IsRequired();
             builder.Property(e => e.Description).IsRequired();
             builder.Property(e => e.ImageUrl).IsRequired();
+            builder.Property(e => e.IsDeleted).IsRequired();
+            builder.HasIndex(e => e.IsDeleted);
         }
     }
 

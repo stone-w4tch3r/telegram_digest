@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TelegramDigest.Backend.Database;
 
@@ -10,9 +11,11 @@ using TelegramDigest.Backend.Database;
 namespace TelegramDigest.Backend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250214210003_ChannelCascadeDelete")]
+    partial class ChannelCascadeDelete
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.1");
@@ -48,17 +51,12 @@ namespace TelegramDigest.Backend.Migrations
                         .HasMaxLength(2048)
                         .HasColumnType("TEXT");
 
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("INTEGER");
-
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("TEXT");
 
                     b.HasKey("TgId");
-
-                    b.HasIndex("IsDeleted");
 
                     b.ToTable("Channels", (string)null);
                 });
@@ -174,7 +172,7 @@ namespace TelegramDigest.Backend.Migrations
                     b.HasOne("TelegramDigest.Backend.Database.ChannelEntity", "ChannelNav")
                         .WithMany()
                         .HasForeignKey("ChannelTgId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("ChannelNav");

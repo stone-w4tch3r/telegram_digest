@@ -15,6 +15,8 @@ internal sealed class ChannelEntity
 
     [MaxLength(2048)]
     public required string ImageUrl { get; init; } = null!;
+
+    public required bool IsDeleted { get; set; }
 }
 
 internal sealed class DigestEntity

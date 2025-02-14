@@ -25,6 +25,7 @@ internal sealed class ChannelsRepository(
                 Title = channel.Title,
                 Description = channel.Description,
                 ImageUrl = channel.ImageUrl.ToString(),
+                IsDeleted = false,
             };
 
             var existing = await dbContext.Channels.FindAsync(entity.TgId);
@@ -51,7 +52,7 @@ internal sealed class ChannelsRepository(
     {
         try
         {
-            var entities = await dbContext.Channels.ToListAsync();
+            var entities = await dbContext.Channels.Where(e => !e.IsDeleted).ToListAsync();
             var channels = entities
                 .Select(e => new ChannelModel(
                     TgId: new(e.TgId),
@@ -80,7 +81,7 @@ internal sealed class ChannelsRepository(
                 return Result.Ok(); // Already deleted
             }
 
-            dbContext.Channels.Remove(entity);
+            entity.IsDeleted = true;
             await dbContext.SaveChangesAsync();
             return Result.Ok();
         }

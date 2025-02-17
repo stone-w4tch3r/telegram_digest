@@ -3,3 +3,4 @@
 
 # ReSharper properties
 resharper_braces_for_ifelse = required
+resharper_enforce_if_statement_braces_highlighting = hint

@@ -22,6 +22,6 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.MapControllers();
 
-await app.Services.InitializeTelegramDigest();
+await app.Services.UseTelegramDigest();
 
 await app.RunAsync();

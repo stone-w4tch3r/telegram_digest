@@ -16,7 +16,7 @@ public static class ServiceCollectionExtensions
         ConfigureServices(services, configuration);
     }
 
-    public static async Task InitializeTelegramDigest(this IServiceProvider serviceProvider)
+    public static async Task UseTelegramDigest(this IServiceProvider serviceProvider)
     {
         await InitializeDbAsync(serviceProvider);
     }

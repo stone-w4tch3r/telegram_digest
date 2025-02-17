@@ -26,6 +26,7 @@
 | [x]  | Digest publishing to RSS, RSS Validation via https://validator.w3.org/feed/ | 1h    |
 | [x]  | Error handling: redirect to base page from handlers (eg add)                | 1h    |
 | [x]  | Bug: channel deletion                                                       | 30min |
+| [x]  | Add BaseUrl                                                                 | 2h    |
 
 ### High priority
 
@@ -33,17 +34,16 @@
 |------|-----------------------------------------------------------|-------|
 | [ ]  | Bug: newlines in UI                                       | 30min |
 | [ ]  | Bug: add new chanel: backend error not shown until reload | 30min |
-| [ ]  | digest deletion                                           | 30min |
-| [ ]  | Async digest generation                                   | 1h    |
-| [ ]  | Reimplement and test email sending?                       | 1h    |
-| [ ]  | Configure deploy                                          | 2h    |
-| [ ]  | Add BaseUrl                                               | 2h    |
+| [ ]  | digest deletion                                           | 1h    |
+| [ ]  | Async digest generation                                   | 2h    |
+| [ ]  | Reimplement and test email sending?                       | 2h    |
+| [ ]  | Parametrized digest generation                            | 3h    |
+| [ ]  | Configure deploy                                          | 4h    |
 
 ### Low priority
 
 | Done | Task                                              | Time  |
 |------|---------------------------------------------------|-------|
-| [ ]  | Parametrized digest generation                    | 1h    |
 | [ ]  | Any RSS: Add any RSS feed in UI                   | 1h    |
 | [ ]  | Any RSS: Handle any rss feed in SummaryGenerator  | 1h    |
 | [ ]  | Any RSS: rename digest UI items                   | 1h    |
@@ -55,6 +55,7 @@
 | [ ]  | Tests: unit                                       | 2h    |
 | [ ]  | Tests: integration                                | 2h    |
 | [ ]  | Tests: UI                                         | 2h    |
+| [ ]  | Tests: validators                                 | 2h    |
 
 ### Future
 

@@ -8,7 +8,7 @@ Telegram Digest is a simple application that will create a summary digest from m
 
 ```bash
 dotnet tool install --global dotnet-ef
-dotnet ef migrations add InitialMigration --project TelegramDigest.Application/TelegramDigest.Application.csproj --startup-project TelegramDigest.API/TelegramDigest.API.csproj
+dotnet ef migrations add InitialMigration --project TelegramDigest.Backend/TelegramDigest.Backend.csproj --startup-project TelegramDigest.Web/TelegramDigest.Web.csproj
 ```
 
 ## About

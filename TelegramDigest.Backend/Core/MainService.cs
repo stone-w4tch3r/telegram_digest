@@ -5,11 +5,34 @@ namespace TelegramDigest.Backend.Core;
 
 public interface IMainService
 {
+    /// <summary>
+    /// Generates and sends daily digest according to configured schedule
+    /// </summary>
     public Task<Result<DigestId?>> ProcessDailyDigest();
+
+    /// <summary>
+    /// Returns all non-deleted channels
+    /// </summary>
     public Task<Result<List<ChannelModel>>> GetChannels();
-    public Task<Result> AddChannel(ChannelTgId channelTgId);
+
+    /// <summary>
+    /// Adds or updates a channel
+    /// </summary>
+    public Task<Result> AddOrUpdateChannel(ChannelTgId channelTgId);
+
+    /// <summary>
+    /// Marks a channel as deleted (soft delete)
+    /// </summary>
     public Task<Result> RemoveChannel(ChannelTgId channelTgId);
+
+    /// <summary>
+    /// Loads all digest summaries (metadata for each digest) without posts
+    /// </summary>
     public Task<Result<DigestSummaryModel[]>> GetDigestSummaries();
+
+    /// <summary>
+    /// Loads complete digest including all post summaries and metadata
+    /// </summary>
     public Task<Result<DigestModel?>> GetDigest(DigestId digestId);
     public Task<Result<SettingsModel>> GetSettings();
     public Task<Result> UpdateSettings(SettingsModel settings);
@@ -28,9 +51,6 @@ internal sealed class MainService(
     ILogger<MainService> logger
 ) : IMainService
 {
-    /// <summary>
-    /// Generates and sends daily digest according to configured schedule
-    /// </summary>
     public async Task<Result<DigestId?>> ProcessDailyDigest()
     {
         logger.LogInformation("Starting daily digest processing");
@@ -72,25 +92,48 @@ internal sealed class MainService(
             : Result.Ok((DigestId?)digestId);
     }
 
-    public async Task<Result<List<ChannelModel>>> GetChannels() =>
-        await channelsService.GetChannels();
+    public async Task<Result<List<ChannelModel>>> GetChannels()
+    {
+        return await channelsService.GetChannels();
+    }
 
-    public async Task<Result> AddChannel(ChannelTgId channelTgId) =>
-        await channelsService.AddChannel(channelTgId);
+    public async Task<Result> AddOrUpdateChannel(ChannelTgId channelTgId)
+    {
+        return await channelsService.AddOrUpdateChannel(channelTgId);
+    }
 
-    public async Task<Result> RemoveChannel(ChannelTgId channelTgId) =>
-        await channelsService.RemoveChannel(channelTgId);
+    public async Task<Result> RemoveChannel(ChannelTgId channelTgId)
+    {
+        return await channelsService.RemoveChannel(channelTgId);
+    }
 
-    public async Task<Result<DigestSummaryModel[]>> GetDigestSummaries() =>
-        await digestsService.GetDigestSummaries();
+    public async Task<Result<DigestSummaryModel[]>> GetDigestSummaries()
+    {
+        return await digestsService.GetDigestSummaries();
+    }
 
-    public async Task<Result<DigestModel?>> GetDigest(DigestId digestId) =>
-        await digestsService.GetDigest(digestId);
+    public async Task<Result<DigestModel?>> GetDigest(DigestId digestId)
+    {
+        return await digestsService.GetDigest(digestId);
+    }
 
-    public async Task<Result<SettingsModel>> GetSettings() => await settingsManager.LoadSettings();
+    public async Task<Result<SettingsModel>> GetSettings()
+    {
+        return await settingsManager.LoadSettings();
+    }
 
-    public async Task<Result> UpdateSettings(SettingsModel settings) =>
-        await settingsManager.SaveSettings(settings);
+    public async Task<Result> UpdateSettings(SettingsModel settings)
+    {
+        return await settingsManager.SaveSettings(settings);
+    }
 
-    public async Task<Result<SyndicationFeed>> GetRssFeed() => await rssService.GenerateRssFeed();
+    public async Task<Result<SyndicationFeed>> GetRssFeed()
+    {
+        return await rssService.GenerateRssFeed();
+    }
+
+    public async Task<Result> DeleteDigest(DigestId digestId)
+    {
+        return await digestsService.DeleteDigest(digestId);
+    }
 }

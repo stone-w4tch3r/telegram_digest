@@ -18,7 +18,7 @@ public class BackendClient(IMainService mainService, ILogger<BackendClient> logg
         return result
             .Value.Select(d => new DigestSummaryViewModel
             {
-                Id = d.DigestId.Id,
+                Id = d.DigestId.Guid,
                 Title = d.Title,
                 Summary = d.PostsSummary,
                 PostsCount = d.PostsCount,
@@ -49,7 +49,7 @@ public class BackendClient(IMainService mainService, ILogger<BackendClient> logg
         return (
             new()
             {
-                Id = result.Value.DigestId.Id,
+                Id = result.Value.DigestId.Guid,
                 Title = result.Value.DigestSummary.Title,
                 Summary = result.Value.DigestSummary.PostsSummary,
                 PostsCount = result.Value.DigestSummary.PostsCount,
@@ -97,9 +97,9 @@ public class BackendClient(IMainService mainService, ILogger<BackendClient> logg
             .ToList();
     }
 
-    public async Task AddChannelAsync(AddChannelViewModel channel)
+    public async Task AddOrUpdateChannelAsync(AddChannelViewModel channel)
     {
-        var result = await mainService.AddChannel(new(channel.TgId));
+        var result = await mainService.AddOrUpdateChannel(new(channel.TgId));
         if (result.IsFailed)
         {
             logger.LogError("Failed to add channel: {Errors}", result.Errors);

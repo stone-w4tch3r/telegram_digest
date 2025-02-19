@@ -3,11 +3,11 @@ using FluentResults;
 
 namespace TelegramDigest.Backend.Core;
 
-public readonly record struct DigestId(Guid Id)
+public readonly record struct DigestId(Guid Guid)
 {
     public static DigestId NewId() => new(Guid.NewGuid());
 
-    public override string ToString() => Id.ToString();
+    public override string ToString() => Guid.ToString();
 
     public static implicit operator string(DigestId id) => id.ToString();
 }

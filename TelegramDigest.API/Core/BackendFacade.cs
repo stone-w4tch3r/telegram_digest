@@ -9,7 +9,7 @@ namespace TelegramDigest.API.Core;
 public interface IApplicationFacade
 {
     public Task<Result<List<ChannelDto>>> GetChannels();
-    internal Task<Result> AddChannel(string channelName);
+    internal Task<Result> AddOrUpdateChannel(string channelName);
     internal Task<Result> RemoveChannel(string channelName);
     internal Task<Result<List<DigestSummaryDto>>> GetDigestSummaries();
     internal Task<Result<DigestDto?>> GetDigest(Guid digestId);
@@ -30,7 +30,7 @@ internal sealed class BackendFacade(IMainService mainService, ILogger<BackendFac
         return result.Map(channels => channels.Select(c => c.ToDto()).ToList());
     }
 
-    public async Task<Result> AddChannel(string channelName)
+    public async Task<Result> AddOrUpdateChannel(string channelName)
     {
         var channelIdResult = ChannelTgId.TryFromString(channelName);
         if (channelIdResult.IsFailed)
@@ -38,7 +38,7 @@ internal sealed class BackendFacade(IMainService mainService, ILogger<BackendFac
             logger.LogError("Failed to parse channel name: {ChannelName}", channelName);
             return Result.Fail(channelIdResult.Errors);
         }
-        return await mainService.AddChannel(channelIdResult.Value);
+        return await mainService.AddOrUpdateChannel(channelIdResult.Value);
     }
 
     public async Task<Result> RemoveChannel(string channelName)
@@ -76,7 +76,7 @@ internal sealed class BackendFacade(IMainService mainService, ILogger<BackendFac
         return summariesResult.IsFailed
             ? Result.Fail(summariesResult.Errors)
             : Result.Ok<DigestGenerationDto>(
-                digestResult.Value?.Id is { } id
+                digestResult.Value?.Guid is { } id
                     ? new(id, DigestGenerationStatus.Success)
                     : new(null, DigestGenerationStatus.NoPosts)
             );

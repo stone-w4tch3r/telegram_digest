@@ -41,7 +41,7 @@ public class IndexModel(BackendClient backend) : BasePageModel
 
         try
         {
-            await backend.AddChannelAsync(NewChannel);
+            await backend.AddOrUpdateChannelAsync(NewChannel);
             SuccessMessage = $"Channel '{NewChannel.TgId}' added successfully";
             return RedirectToPage();
         }

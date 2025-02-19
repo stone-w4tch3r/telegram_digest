@@ -17,7 +17,7 @@ internal static class DtoExtensions
 
     internal static DigestSummaryDto ToDto(this DigestSummaryModel model) =>
         new(
-            DigestId: model.DigestId.Id,
+            DigestId: model.DigestId.Guid,
             Title: model.Title,
             Summary: model.PostsSummary,
             PostsCount: model.PostsCount,
@@ -29,7 +29,7 @@ internal static class DtoExtensions
 
     internal static DigestDto ToDto(this DigestModel model) =>
         new(
-            DigestId: model.DigestId.Id,
+            DigestId: model.DigestId.Guid,
             Posts: model.PostsSummaries.Select(p => p.ToDto()).ToList(),
             Summary: model.DigestSummary.ToDto()
         );

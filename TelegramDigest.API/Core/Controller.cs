@@ -51,7 +51,7 @@ public class Controller(IApplicationFacade applicationFacade) : ControllerBase
     [HttpPost("channels/{channelName}")]
     public async Task<IActionResult> AddChannel(string channelName)
     {
-        var result = await applicationFacade.AddChannel(channelName);
+        var result = await applicationFacade.AddOrUpdateChannel(channelName);
         return result.IsSuccess ? Ok() : BadRequest(result.Errors);
     }
 

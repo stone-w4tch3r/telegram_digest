@@ -4,8 +4,19 @@ namespace TelegramDigest.Backend.Core;
 
 internal interface IChannelsService
 {
-    public Task<Result> AddChannel(ChannelTgId channelTgId);
+    /// <summary>
+    /// Adds or updates a channel
+    /// </summary>
+    public Task<Result> AddOrUpdateChannel(ChannelTgId channelTgId);
+
+    /// <summary>
+    /// Returns all non-deleted channels
+    /// </summary>
     public Task<Result<List<ChannelModel>>> GetChannels();
+
+    /// <summary>
+    /// Marks a channel as deleted (soft delete)
+    /// </summary>
     public Task<Result> RemoveChannel(ChannelTgId channelTgId);
 }
 
@@ -17,7 +28,7 @@ internal sealed class ChannelsService(
 {
     private readonly ILogger<ChannelsService> _logger = logger;
 
-    public async Task<Result> AddChannel(ChannelTgId channelTgId)
+    public async Task<Result> AddOrUpdateChannel(ChannelTgId channelTgId)
     {
         var channelResult = await channelReader.FetchChannelInfo(channelTgId);
         if (channelResult.IsFailed)

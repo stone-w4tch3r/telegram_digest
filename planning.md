@@ -48,6 +48,7 @@
 | [ ]  | Any RSS: Handle any rss feed in SummaryGenerator  | 1h    |
 | [ ]  | Any RSS: rename digest UI items                   | 1h    |
 | [ ]  | Add more parameters and jinja template to prompts | 1h    |
+| [ ]  | Add XML docs in existing code                     | 1h    |
 | [ ]  | Obtain API key and pay                            | 30min |
 | [ ]  | Error handling: exception stacktrace in UI        | 30min |
 | [ ]  | Error handling: 404 page                          | 30min |

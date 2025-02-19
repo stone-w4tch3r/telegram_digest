@@ -5,8 +5,19 @@ namespace TelegramDigest.Backend.Core;
 
 internal interface IChannelsRepository
 {
+    /// <summary>
+    /// Saves or updates a channel in the repository
+    /// </summary>
     public Task<Result> SaveChannel(ChannelModel channel);
+
+    /// <summary>
+    /// Retrieves all non-deleted channels from the repository
+    /// </summary>
     public Task<Result<List<ChannelModel>>> LoadChannels();
+
+    /// <summary>
+    /// Marks a channel as deleted in the repository (soft delete)
+    /// </summary>
     public Task<Result> DeleteChannel(ChannelTgId channelId);
 }
 

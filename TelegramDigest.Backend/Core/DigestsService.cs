@@ -4,10 +4,30 @@ namespace TelegramDigest.Backend.Core;
 
 internal interface IDigestsService
 {
+    /// <summary>
+    /// Generate new digest within the specified time range
+    /// </summary>
     public Task<Result<DigestId?>> GenerateDigest(DateOnly from, DateOnly to);
+
+    /// <summary>
+    /// Loads complete digest including all post summaries and metadata
+    /// </summary>
     public Task<Result<DigestModel?>> GetDigest(DigestId digestId);
+
+    /// <summary>
+    /// Loads all digest summaries (metadata for each digest) without posts
+    /// </summary>
     public Task<Result<DigestSummaryModel[]>> GetDigestSummaries();
+
+    /// <summary>
+    /// Loads all digests including all post summaries and metadata
+    /// </summary>
     public Task<Result<DigestModel[]>> GetAllDigests();
+
+    /// <summary>
+    /// Deletes a digest and all associated posts.
+    /// </summary>
+    public Task<Result> DeleteDigest(DigestId digestId);
 }
 
 internal sealed class DigestsService(
@@ -90,5 +110,10 @@ internal sealed class DigestsService(
     public async Task<Result<DigestModel[]>> GetAllDigests()
     {
         return await digestRepository.LoadAllDigests();
+    }
+
+    public async Task<Result> DeleteDigest(DigestId digestId)
+    {
+        return await digestRepository.DeleteDigest(digestId);
     }
 }

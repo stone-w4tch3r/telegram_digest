@@ -57,6 +57,7 @@
 | [ ]  | Tests: integration                                | 2h    |
 | [ ]  | Tests: UI                                         | 2h    |
 | [ ]  | Tests: validators                                 | 2h    |
+| [ ]  | Allow empty API key                               | 1h    |
 
 ### Future
 

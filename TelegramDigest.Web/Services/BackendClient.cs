@@ -70,6 +70,16 @@ public class BackendClient(IMainService mainService, ILogger<BackendClient> logg
         );
     }
 
+    public async Task DeleteDigest(Guid id)
+    {
+        var result = await mainService.DeleteDigest(new(id));
+        if (result.IsFailed)
+        {
+            logger.LogError("Failed to delete digest {DigestId}: {Errors}", id, result.Errors);
+            throw new($"Failed to delete digest {id}");
+        }
+    }
+
     public async Task GenerateDigest()
     {
         var result = await mainService.ProcessDailyDigest();

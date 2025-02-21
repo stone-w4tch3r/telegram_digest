@@ -34,6 +34,11 @@ public interface IMainService
     /// Loads complete digest including all post summaries and metadata
     /// </summary>
     public Task<Result<DigestModel?>> GetDigest(DigestId digestId);
+
+    /// <summary>
+    /// Deletes a digest and all its posts
+    /// </summary>
+    public Task<Result> DeleteDigest(DigestId digestId);
     public Task<Result<SettingsModel>> GetSettings();
     public Task<Result> UpdateSettings(SettingsModel settings);
     public Task<Result<SyndicationFeed>> GetRssFeed();

@@ -36,4 +36,19 @@ public class IndexModel(BackendClient backend) : BasePageModel
             return RedirectToPage();
         }
     }
+
+    public async Task<IActionResult> OnPostDeleteAsync(Guid id)
+    {
+        try
+        {
+            await backend.DeleteDigest(id);
+            SuccessMessage = "Digest deleted successfully";
+            return RedirectToPage();
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Failed to delete digest: {ex.Message}";
+            return RedirectToPage();
+        }
+    }
 }

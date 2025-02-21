@@ -27,6 +27,7 @@
 | [x]  | Error handling: redirect to base page from handlers (eg add)                | 1h    |
 | [x]  | Bug: channel deletion                                                       | 30min |
 | [x]  | Add BaseUrl                                                                 | 2h    |
+| [x]  | digest deletion                                                             | 6h    |
 
 ### High priority
 
@@ -34,10 +35,9 @@
 |------|-----------------------------------------------------------|-------|
 | [ ]  | Bug: newlines in UI                                       | 30min |
 | [ ]  | Bug: add new chanel: backend error not shown until reload | 30min |
-| [ ]  | digest deletion                                           | 6h    |
-| [ ]  | Async digest generation                                   | 2h    |
+| [ ]  | Digest generation: Async digest generation                | 3h    |
+| [ ]  | Digest generation: Parametrized                           | 3h    |
 | [ ]  | Reimplement and test email sending?                       | 2h    |
-| [ ]  | Parametrized digest generation                            | 3h    |
 | [ ]  | Configure deploy                                          | 4h    |
 
 ### Low priority

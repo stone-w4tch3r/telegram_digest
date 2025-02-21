@@ -13,7 +13,7 @@ public class IndexModel(BackendClient backend) : BasePageModel
     {
         try
         {
-            Digests = await backend.GetDigestsAsync();
+            Digests = await backend.GetDigestSummaries();
             Digests = Digests.OrderByDescending(d => d.CreatedAt).ToList();
         }
         catch (Exception ex)
@@ -26,7 +26,7 @@ public class IndexModel(BackendClient backend) : BasePageModel
     {
         try
         {
-            await backend.GenerateDigestAsync();
+            await backend.GenerateDigest();
             SuccessMessage = "Digest generation started successfully";
             return RedirectToPage();
         }

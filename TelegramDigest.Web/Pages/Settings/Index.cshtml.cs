@@ -14,7 +14,7 @@ public class IndexModel(BackendClient backend) : BasePageModel
     {
         try
         {
-            Settings = await backend.GetSettingsAsync();
+            Settings = await backend.GetSettings();
             return Page();
         }
         catch (Exception ex)
@@ -39,7 +39,7 @@ public class IndexModel(BackendClient backend) : BasePageModel
 
         try
         {
-            await backend.UpdateSettingsAsync(Settings);
+            await backend.UpdateSettings(Settings);
             SuccessMessage = "Settings updated successfully";
             return RedirectToPage();
         }

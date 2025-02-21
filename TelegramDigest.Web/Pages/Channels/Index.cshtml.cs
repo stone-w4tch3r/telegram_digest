@@ -16,7 +16,7 @@ public class IndexModel(BackendClient backend) : BasePageModel
     {
         try
         {
-            Channels = await backend.GetChannelsAsync();
+            Channels = await backend.GetChannels();
             Channels = Channels.OrderBy(c => c.Title).ToList();
         }
         catch (Exception ex)
@@ -41,7 +41,7 @@ public class IndexModel(BackendClient backend) : BasePageModel
 
         try
         {
-            await backend.AddOrUpdateChannelAsync(NewChannel);
+            await backend.AddOrUpdateChannel(NewChannel);
             SuccessMessage = $"Channel '{NewChannel.TgId}' added successfully";
             return RedirectToPage();
         }

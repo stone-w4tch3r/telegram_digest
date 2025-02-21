@@ -6,7 +6,7 @@ namespace TelegramDigest.Web.Services;
 
 public class BackendClient(IMainService mainService, ILogger<BackendClient> logger)
 {
-    public async Task<List<DigestSummaryViewModel>> GetDigestsAsync()
+    public async Task<List<DigestSummaryViewModel>> GetDigestSummaries()
     {
         var result = await mainService.GetDigestSummaries();
         if (result.IsFailed)
@@ -30,10 +30,9 @@ public class BackendClient(IMainService mainService, ILogger<BackendClient> logg
             .ToList();
     }
 
-    public async Task<(
-        DigestSummaryViewModel summary,
-        PostSummaryViewModel[] posts
-    )?> GetDigestAsync(Guid id)
+    public async Task<(DigestSummaryViewModel summary, PostSummaryViewModel[] posts)?> GetDigest(
+        Guid id
+    )
     {
         var result = await mainService.GetDigest(new(id));
         if (result.IsFailed)
@@ -71,7 +70,7 @@ public class BackendClient(IMainService mainService, ILogger<BackendClient> logg
         );
     }
 
-    public async Task GenerateDigestAsync()
+    public async Task GenerateDigest()
     {
         var result = await mainService.ProcessDailyDigest();
         if (result.IsFailed)
@@ -83,7 +82,7 @@ public class BackendClient(IMainService mainService, ILogger<BackendClient> logg
         //TODO show generated digest Id
     }
 
-    public async Task<List<ChannelViewModel>> GetChannelsAsync()
+    public async Task<List<ChannelViewModel>> GetChannels()
     {
         var result = await mainService.GetChannels();
         if (result.IsFailed)
@@ -97,7 +96,7 @@ public class BackendClient(IMainService mainService, ILogger<BackendClient> logg
             .ToList();
     }
 
-    public async Task AddOrUpdateChannelAsync(AddChannelViewModel channel)
+    public async Task AddOrUpdateChannel(AddChannelViewModel channel)
     {
         var result = await mainService.AddOrUpdateChannel(new(channel.TgId));
         if (result.IsFailed)
@@ -117,7 +116,7 @@ public class BackendClient(IMainService mainService, ILogger<BackendClient> logg
         }
     }
 
-    public async Task<SettingsViewModel> GetSettingsAsync()
+    public async Task<SettingsViewModel> GetSettings()
     {
         var result = await mainService.GetSettings();
         if (result.IsFailed)
@@ -149,7 +148,7 @@ public class BackendClient(IMainService mainService, ILogger<BackendClient> logg
         };
     }
 
-    public async Task UpdateSettingsAsync(SettingsViewModel settings)
+    public async Task UpdateSettings(SettingsViewModel settings)
     {
         var settingsModel = new SettingsModel(
             settings.RecipientEmail,

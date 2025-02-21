@@ -34,7 +34,7 @@
 |------|-----------------------------------------------------------|-------|
 | [ ]  | Bug: newlines in UI                                       | 30min |
 | [ ]  | Bug: add new chanel: backend error not shown until reload | 30min |
-| [ ]  | digest deletion                                           | 1h    |
+| [ ]  | digest deletion                                           | 6h    |
 | [ ]  | Async digest generation                                   | 2h    |
 | [ ]  | Reimplement and test email sending?                       | 2h    |
 | [ ]  | Parametrized digest generation                            | 3h    |

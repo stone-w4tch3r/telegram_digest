@@ -26,7 +26,7 @@ public class IndexModel(BackendClient backend) : BasePageModel
                 );
             }
 
-            var digestResult = await backend.GetDigestAsync(id);
+            var digestResult = await backend.GetDigest(id);
             if (digestResult is null)
             {
                 return Page();

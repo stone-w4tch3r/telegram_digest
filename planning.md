@@ -60,8 +60,7 @@
 
 ### Future
 
-- change line length in csharpier
-- improve openapi/swagger support in controller
+- improve openapi/swagger support in api controller
     - fix error codes
         - 404 / NotFoundError, OneOf?
 - handle 00:00 in GenerateDailyDigest
@@ -71,3 +70,4 @@
 - add users and auth
 - improve error handling by adding error "location" to UI
 - settings migration support
+- simplify db schema (remove digests table)

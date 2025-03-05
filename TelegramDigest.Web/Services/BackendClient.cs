@@ -80,16 +80,16 @@ public class BackendClient(IMainService mainService, ILogger<BackendClient> logg
         }
     }
 
-    public async Task GenerateDigest()
+    public async Task<Guid> GenerateDigest()
     {
-        var result = await mainService.ProcessDailyDigest();
-        if (result.IsFailed)
+        var digestResult = await mainService.ProcessDailyDigest();
+        if (digestResult.IsFailed)
         {
-            logger.LogError("Failed to generate digest: {Errors}", result.Errors);
+            logger.LogError("Failed to generate digest: {Errors}", digestResult.Errors);
             throw new("Failed to generate digest");
         }
 
-        //TODO show generated digest Id
+        return digestResult.Value!.Value.Guid;
     }
 
     public async Task<List<ChannelViewModel>> GetChannels()
@@ -203,5 +203,30 @@ public class BackendClient(IMainService mainService, ILogger<BackendClient> logg
             throw new("Failed to get RSS feed");
         }
         return result.Value;
+    }
+
+    public async Task<DigestProgressViewModel> GetDigestProgress(Guid id)
+    {
+        // TODO
+        await Task.Delay(500);
+
+        var random = new Random().Next(0, 2) == 0;
+        var randomStatus = new Random().Next(0, 4) switch
+        {
+            0 => DigestStatus.InProgress,
+            1 => DigestStatus.Completed,
+            2 => DigestStatus.Failed,
+            _ => DigestStatus.InProgress,
+        };
+
+        return new()
+        {
+            Id = id,
+            Status = randomStatus,
+            PercentComplete = 50,
+            Message = random ? $"Digest {id} generation is in progress..." : null,
+            StartedAt = DateTime.UtcNow,
+            CompletedAt = random ? DateTime.UtcNow : null,
+        };
     }
 }

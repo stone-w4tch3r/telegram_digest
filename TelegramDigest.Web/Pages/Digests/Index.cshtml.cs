@@ -26,9 +26,9 @@ public class IndexModel(BackendClient backend) : BasePageModel
     {
         try
         {
-            await backend.GenerateDigest();
-            SuccessMessage = "Digest generation started successfully";
-            return RedirectToPage();
+            var digestId = await backend.GenerateDigest();
+            SuccessMessage = "Digest generation queued successfully";
+            return RedirectToPage("/Digest/Progress", new { id = digestId });
         }
         catch (Exception ex)
         {

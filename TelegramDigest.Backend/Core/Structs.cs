@@ -3,8 +3,11 @@ using FluentResults;
 
 namespace TelegramDigest.Backend.Core;
 
-public readonly record struct DigestId(Guid Guid)
+public readonly record struct DigestId(Guid Guid = new())
 {
+    public DigestId()
+        : this(Guid.NewGuid()) { }
+
     public static DigestId NewId() => new(Guid.NewGuid());
 
     public override string ToString() => Guid.ToString();
@@ -14,6 +17,10 @@ public readonly record struct DigestId(Guid Guid)
 
 public readonly record struct TimeUtc(TimeOnly Time)
 {
+    [Obsolete("Do not use parameterless constructor", true)]
+    public TimeUtc()
+        : this(TimeOnly.MinValue) { }
+
     public override string ToString() => Time.ToString();
 
     public static implicit operator string(TimeUtc time) => time.ToString();
@@ -21,6 +28,10 @@ public readonly record struct TimeUtc(TimeOnly Time)
 
 public readonly record struct Html(string HtmlString)
 {
+    [Obsolete("Do not use parameterless constructor", true)]
+    public Html()
+        : this(string.Empty) { }
+
     public override string ToString() => HtmlString;
 
     public static implicit operator string(Html html) => html.ToString();
@@ -31,6 +42,10 @@ public readonly record struct Html(string HtmlString)
 /// </summary>
 public readonly partial record struct ChannelTgId
 {
+    [Obsolete("Do not use parameterless constructor", true)]
+    public ChannelTgId()
+        : this(string.Empty) { }
+
     [GeneratedRegex("^[a-zA-Z][a-zA-Z0-9_]{4,31}$")]
     private static partial Regex ChannelNamePattern();
 
@@ -58,6 +73,10 @@ public readonly partial record struct ChannelTgId
 /// </summary>
 public readonly record struct Importance
 {
+    [Obsolete("Do not use parameterless constructor", true)]
+    public Importance()
+        : this(default) { }
+
     public Importance(int Number)
     {
         this.Number = Number is > 0 and <= 10
@@ -80,6 +99,10 @@ public readonly record struct Importance
 /// </summary>
 internal readonly partial record struct Template
 {
+    [Obsolete("Do not use parameterless constructor", true)]
+    public Template()
+        : this(string.Empty, string.Empty) { }
+
     [GeneratedRegex(@"^\{[a-zA-Z0-9_]+\}$")]
     private static partial Regex TemplateRegex();
 
@@ -128,6 +151,10 @@ internal readonly partial record struct Template
 /// <see cref="Template"/>
 public readonly record struct TemplateWithContent
 {
+    [Obsolete("Do not use parameterless constructor", true)]
+    public TemplateWithContent()
+        : this(string.Empty) { }
+
     private readonly Template _template;
 
     public TemplateWithContent(string text)

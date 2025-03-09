@@ -31,6 +31,12 @@ public record DigestSummaryModel(
     DateTime DateTo
 );
 
+public enum DigestGenerationStatusModel
+{
+    Success,
+    NoPosts,
+}
+
 public record SettingsModel(
     string EmailRecipient,
     TimeUtc DigestTime,

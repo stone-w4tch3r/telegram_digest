@@ -185,7 +185,7 @@ public readonly record struct Host
         return true;
     }
 
-#pragma warning disable CS8618, CS9264
+#pragma warning disable CS8618, CS9264 //Non-nullable variable must contain a non-null value when exiting constructor
     [JsonConstructor]
     [Obsolete("For deserialization only", true)]
     public Host()

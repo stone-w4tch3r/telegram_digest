@@ -32,9 +32,10 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IChannelReader, ChannelReader>();
         services.AddScoped<IChannelsService, ChannelsService>();
         services.AddScoped<IChannelsRepository, ChannelsRepository>();
-        services.AddScoped<IDigestsService, DigestsService>();
+        services.AddScoped<IDigestService, DigestService>();
         services.AddScoped<IDigestRepository, DigestRepository>();
         services.AddScoped<ISummaryGenerator, SummaryGenerator>();
+        services.AddScoped<ITaskQueue, TaskQueue>();
         services.AddScoped<IEmailSender, EmailSender>();
         services.AddScoped<IMainService, MainService>();
         services.AddScoped<IRssService, RssService>();

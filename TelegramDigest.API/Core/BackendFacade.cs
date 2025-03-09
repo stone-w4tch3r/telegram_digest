@@ -66,20 +66,34 @@ internal sealed class BackendFacade(IMainService mainService, ILogger<BackendFac
 
     public async Task<Result<DigestGenerationDto>> GenerateDigest()
     {
-        var digestResult = await mainService.ProcessDailyDigest();
+        var digestId = new DigestId();
+        var digestResult = await mainService.ProcessDigestForLastPeriod(digestId);
         if (digestResult.IsFailed)
         {
             return Result.Fail(digestResult.Errors);
         }
 
         var summariesResult = await GetDigestSummaries();
-        return summariesResult.IsFailed
-            ? Result.Fail(summariesResult.Errors)
-            : Result.Ok<DigestGenerationDto>(
-                digestResult.Value?.Guid is { } id
-                    ? new(id, DigestGenerationStatus.Success)
-                    : new(null, DigestGenerationStatus.NoPosts)
-            );
+        if (summariesResult.IsFailed)
+        {
+            return Result.Fail(summariesResult.Errors);
+        }
+
+        return Result.Ok<DigestGenerationDto>(
+            digestResult.Value switch
+            {
+                DigestGenerationStatusModel.Success => new(
+                    digestId.Guid,
+                    DigestGenerationStatusDto.Success
+                ),
+                DigestGenerationStatusModel.NoPosts => new(null, DigestGenerationStatusDto.NoPosts),
+                _ => throw new ArgumentOutOfRangeException(
+                    nameof(digestResult),
+                    digestResult,
+                    null
+                ),
+            }
+        );
     }
 
     public async Task<Result<SettingsDto>> GetSettings()

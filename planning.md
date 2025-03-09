@@ -27,6 +27,8 @@
 | [x]  | Error handling: redirect to base page from handlers (eg add)                | 1h    |
 | [x]  | Bug: channel deletion                                                       | 30min |
 | [x]  | Add BaseUrl                                                                 | 2h    |
+| [x]  | Digest generation: Digest Progress page                                     | 2h    |
+| [x]  | Digest generation: Async queue                                              | 3h    |
 | [x]  | digest deletion                                                             | 6h    |
 
 ### High priority
@@ -35,8 +37,8 @@
 |------|-----------------------------------------------------------|-------|
 | [ ]  | Bug: newlines in UI                                       | 30min |
 | [ ]  | Bug: add new chanel: backend error not shown until reload | 30min |
-| [ ]  | Digest generation: Async digest generation                | 3h    |
 | [ ]  | Digest generation: Parametrized                           | 3h    |
+| [ ]  | Digest generation: Digest generation status service       | 3h    |
 | [ ]  | Reimplement and test email sending?                       | 2h    |
 | [ ]  | Configure deploy                                          | 4h    |
 
@@ -72,3 +74,4 @@
 - improve error handling by adding error "location" to UI
 - settings migration support
 - simplify db schema (remove digests table)
+- auto apply runtime argument null checks via code generation on compilation

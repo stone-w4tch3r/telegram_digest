@@ -6,9 +6,14 @@ namespace TelegramDigest.Backend.Core;
 public interface IMainService
 {
     /// <summary>
-    /// Generates and sends daily digest according to configured schedule
+    /// Generates daily digest for the last period, based on settings
     /// </summary>
-    public Task<Result<DigestId?>> ProcessDailyDigest();
+    public Task<Result<DigestGenerationStatusModel>> ProcessDigestForLastPeriod(DigestId digestId);
+
+    /// <summary>
+    /// Queues the generation of a digest for the last period
+    /// </summary>
+    public Task<Result> QueueDigestForLastPeriod(DigestId digestId);
 
     /// <summary>
     /// Returns all non-deleted channels
@@ -39,6 +44,12 @@ public interface IMainService
     /// Deletes a digest and all its posts
     /// </summary>
     public Task<Result> DeleteDigest(DigestId digestId);
+
+    /// <summary>
+    /// Send digest over email
+    /// </summary>
+    public Task<Result> SendDigestOverEmail(DigestId digestId);
+
     public Task<Result<SettingsModel>> GetSettings();
     public Task<Result> UpdateSettings(SettingsModel settings);
     public Task<Result<SyndicationFeed>> GetRssFeed();
@@ -48,17 +59,20 @@ public interface IMainService
 /// Coordinates application services and implements core business logic
 /// </summary>
 internal sealed class MainService(
-    IDigestsService digestsService,
+    IDigestService digestService,
     IChannelsService channelsService,
     IEmailSender emailSender,
     ISettingsManager settingsManager,
     IRssService rssService,
+    ITaskQueue taskQueue,
     ILogger<MainService> logger
 ) : IMainService
 {
-    public async Task<Result<DigestId?>> ProcessDailyDigest()
+    public async Task<Result<DigestGenerationStatusModel>> ProcessDigestForLastPeriod(
+        DigestId digestId
+    )
     {
-        logger.LogInformation("Starting daily digest processing");
+        logger.LogDebug("Start processing digest for last period");
 
         var settings = await settingsManager.LoadSettings();
         if (settings.IsFailed)
@@ -70,31 +84,49 @@ internal sealed class MainService(
         var dateFrom = DateOnly.FromDateTime(DateTime.UtcNow.Date.AddDays(-1));
         var dateTo = DateOnly.FromDateTime(DateTime.UtcNow.Date);
 
-        var generationResult = await digestsService.GenerateDigest(dateFrom, dateTo);
+        var generationResult = await digestService.GenerateDigest(digestId, dateFrom, dateTo);
         if (generationResult.IsFailed)
         {
+            logger.LogError(
+                "Failed to generate digest: {Errors}",
+                string.Join(", ", generationResult.Errors)
+            );
             return Result.Fail(generationResult.Errors);
         }
-        if (generationResult.Value is null)
-        {
-            return Result.Ok((DigestId?)null);
-        }
 
-        var digestId = generationResult.Value.Value;
-        var digestResult = await digestsService.GetDigest(digestId);
+        logger.LogInformation("Digest generation completed successfully");
+        return Result.Ok(generationResult.Value);
+    }
+
+    [Obsolete("Will be removed before release")]
+    public async Task<Result> SendDigestOverEmail(DigestId digestId)
+    {
+        var digestResult = await digestService.GetDigest(digestId);
         if (digestResult.IsFailed)
         {
             return Result.Fail(digestResult.Errors);
         }
         if (digestResult.Value is null)
         {
-            return Result.Fail(new Error($"Failed to load created digest {digestId}"));
+            return Result.Fail(new Error($"Failed to load digest {digestId} for email"));
         }
 
         var sendResult = await emailSender.SendDigest(digestResult.Value.DigestSummary);
-        return sendResult.IsFailed
-            ? Result.Fail(sendResult.Errors)
-            : Result.Ok((DigestId?)digestId);
+        return sendResult.IsFailed ? Result.Fail(sendResult.Errors) : Result.Ok();
+    }
+
+    public Task<Result> QueueDigestForLastPeriod(DigestId digestId)
+    {
+        logger.LogDebug("Queueing digest generation for last period");
+        taskQueue.QueueTask(async ct =>
+        {
+            logger.LogDebug("Start processing digest for last period from queue");
+            await ProcessDigestForLastPeriod(digestId);
+            logger.LogDebug("Finished processing digest for last period from queue");
+        });
+
+        logger.LogDebug("Queued digest generation successfully");
+        return Task.FromResult(Result.Ok());
     }
 
     public async Task<Result<List<ChannelModel>>> GetChannels()
@@ -114,12 +146,12 @@ internal sealed class MainService(
 
     public async Task<Result<DigestSummaryModel[]>> GetDigestSummaries()
     {
-        return await digestsService.GetDigestSummaries();
+        return await digestService.GetDigestSummaries();
     }
 
     public async Task<Result<DigestModel?>> GetDigest(DigestId digestId)
     {
-        return await digestsService.GetDigest(digestId);
+        return await digestService.GetDigest(digestId);
     }
 
     public async Task<Result<SettingsModel>> GetSettings()
@@ -139,6 +171,6 @@ internal sealed class MainService(
 
     public async Task<Result> DeleteDigest(DigestId digestId)
     {
-        return await digestsService.DeleteDigest(digestId);
+        return await digestService.DeleteDigest(digestId);
     }
 }

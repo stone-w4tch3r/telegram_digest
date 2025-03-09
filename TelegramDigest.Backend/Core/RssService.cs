@@ -15,18 +15,18 @@ internal interface IRssService
 
 internal sealed class RssService : IRssService
 {
-    private readonly IDigestsService _digestsService;
+    private readonly IDigestService _digestService;
     private readonly ISettingsManager _settingsManager;
     private readonly ILogger<RssService> _logger;
     private const string FEED_BASE_URL = "https://your-app-url"; // TODO: Move to settings
 
     public RssService(
-        IDigestsService digestsService,
+        IDigestService digestService,
         ISettingsManager settingsManager,
         ILogger<RssService> logger
     )
     {
-        _digestsService = digestsService;
+        _digestService = digestService;
         _settingsManager = settingsManager;
         _logger = logger;
     }
@@ -35,7 +35,7 @@ internal sealed class RssService : IRssService
     {
         try
         {
-            var digestsResult = await _digestsService.GetAllDigests();
+            var digestsResult = await _digestService.GetAllDigests();
             if (digestsResult.IsFailed)
             {
                 return Result.Fail(digestsResult.Errors);

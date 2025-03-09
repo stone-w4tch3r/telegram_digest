@@ -21,7 +21,7 @@ internal sealed class Scheduler(ILogger<Scheduler> logger, IServiceScopeFactory 
             // Check settings every minute for schedule changes
             using var scope = scopeFactory.CreateScope();
             var settingsManager = scope.ServiceProvider.GetRequiredService<SettingsManager>();
-            var mainService = scope.ServiceProvider.GetRequiredService<MainService>();
+            var mainService = scope.ServiceProvider.GetRequiredService<IMainService>();
             await UpdateSchedule(settingsManager, mainService);
             await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
         }
@@ -30,7 +30,7 @@ internal sealed class Scheduler(ILogger<Scheduler> logger, IServiceScopeFactory 
     /// <summary>
     /// Updates the schedule based on settings and creates/updates timer if needed
     /// </summary>
-    private async Task UpdateSchedule(SettingsManager settingsManager, MainService mainService)
+    private async Task UpdateSchedule(SettingsManager settingsManager, IMainService mainService)
     {
         try
         {
@@ -112,25 +112,34 @@ internal sealed class Scheduler(ILogger<Scheduler> logger, IServiceScopeFactory 
     /// <summary>
     /// Executes digest generation and handles any errors
     /// </summary>
-    private async Task ExecuteDigestGeneration(MainService mainService)
+    private async Task ExecuteDigestGeneration(IMainService mainService)
     {
         try
         {
-            logger.LogInformation("Starting scheduled digest generation");
+            var digestId = new DigestId();
+            logger.LogInformation("Starting scheduled digest generation, id {id}", digestId);
 
-            var result = await mainService.ProcessDailyDigest();
-
-            if (result.IsFailed)
+            var queueResult = await mainService.QueueDigestForLastPeriod(digestId);
+            if (queueResult.IsFailed)
             {
                 logger.LogError(
-                    "Scheduled digest generation failed: {Errors}",
-                    string.Join(", ", result.Errors)
+                    "Failed to queue digest generation: {Errors}",
+                    string.Join(", ", queueResult.Errors)
                 );
+                return;
             }
-            else
-            {
-                logger.LogInformation("Scheduled digest generation completed successfully");
-            }
+
+            // var sendResult = await mainService.SendDigestOverEmail(digestId);
+            // if (sendResult.IsFailed)
+            // {
+            //     logger.LogError(
+            //         "Failed to send digest over email: {Errors}",
+            //         string.Join(", ", sendResult.Errors)
+            //     );
+            //     return;
+            // }
+
+            logger.LogInformation("Scheduled digest generation completed successfully");
         }
         catch (Exception ex)
         {

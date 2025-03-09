@@ -2,12 +2,16 @@ using FluentResults;
 
 namespace TelegramDigest.Backend.Core;
 
-internal interface IDigestsService
+internal interface IDigestService
 {
     /// <summary>
     /// Generate new digest within the specified time range
     /// </summary>
-    public Task<Result<DigestId?>> GenerateDigest(DateOnly from, DateOnly to);
+    public Task<Result<DigestGenerationStatusModel>> GenerateDigest(
+        DigestId digestId,
+        DateOnly from,
+        DateOnly to
+    );
 
     /// <summary>
     /// Loads complete digest including all post summaries and metadata
@@ -30,21 +34,23 @@ internal interface IDigestsService
     public Task<Result> DeleteDigest(DigestId digestId);
 }
 
-internal sealed class DigestsService(
+internal sealed class DigestService(
     IDigestRepository digestRepository,
     IChannelReader channelReader,
     IChannelsRepository channelsRepository,
     ISummaryGenerator summaryGenerator,
-    ILogger<DigestsService> logger
-) : IDigestsService
+    ILogger<DigestService> logger
+) : IDigestService
 {
-    private readonly ILogger<DigestsService> _logger = logger;
-
     /// <summary>
     /// Creates a new digest from posts within the specified time range
     /// </summary>
     /// <returns>DigestId of the generated digest or error if generation failed</returns>
-    public async Task<Result<DigestId?>> GenerateDigest(DateOnly from, DateOnly to)
+    public async Task<Result<DigestGenerationStatusModel>> GenerateDigest(
+        DigestId digestId,
+        DateOnly from,
+        DateOnly to
+    )
     {
         var channels = await channelsRepository.LoadChannels();
         if (channels.IsFailed)
@@ -64,8 +70,8 @@ internal sealed class DigestsService(
 
         if (posts.Count == 0)
         {
-            _logger.LogWarning("No posts found from [{from}] to [{to}] in any channel", from, to);
-            return Result.Ok();
+            logger.LogWarning("No posts found from [{from}] to [{to}] in any channel", from, to);
+            return Result.Ok(DigestGenerationStatusModel.NoPosts);
         }
 
         var summaries = new List<PostSummaryModel>();
@@ -84,7 +90,6 @@ internal sealed class DigestsService(
             return Result.Fail(digestSummaryResult.Errors);
         }
 
-        var digestId = DigestId.NewId();
         var digest = new DigestModel(
             DigestId: digestId,
             PostsSummaries: summaries,
@@ -93,7 +98,7 @@ internal sealed class DigestsService(
 
         var saveResult = await digestRepository.SaveDigest(digest);
         return saveResult.IsSuccess
-            ? Result.Ok((DigestId?)digestId)
+            ? Result.Ok(DigestGenerationStatusModel.Success)
             : Result.Fail(saveResult.Errors);
     }
 

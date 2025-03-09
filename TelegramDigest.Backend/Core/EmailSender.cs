@@ -3,6 +3,7 @@ using FluentResults;
 
 namespace TelegramDigest.Backend.Core;
 
+[Obsolete("Will be removed before release")]
 internal interface IEmailSender
 {
     /// <summary>
@@ -11,6 +12,7 @@ internal interface IEmailSender
     public Task<Result> SendDigest(DigestSummaryModel digest);
 }
 
+[Obsolete("Will be removed before release")]
 internal sealed class EmailSender(ISettingsManager settingsManager, ILogger<EmailSender> logger)
     : IEmailSender
 {

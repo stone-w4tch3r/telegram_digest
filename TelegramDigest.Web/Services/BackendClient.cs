@@ -80,16 +80,17 @@ public class BackendClient(IMainService mainService, ILogger<BackendClient> logg
         }
     }
 
-    public async Task<Guid> GenerateDigest()
+    public async Task<Guid> QueueDigest()
     {
-        var digestResult = await mainService.ProcessDailyDigest();
+        var digestId = Guid.NewGuid();
+        var digestResult = await mainService.QueueDigestForLastPeriod(new(digestId));
         if (digestResult.IsFailed)
         {
             logger.LogError("Failed to generate digest: {Errors}", digestResult.Errors);
             throw new("Failed to generate digest");
         }
 
-        return digestResult.Value!.Value.Guid;
+        return digestId;
     }
 
     public async Task<List<ChannelViewModel>> GetChannels()

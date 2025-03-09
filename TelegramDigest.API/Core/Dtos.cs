@@ -24,13 +24,13 @@ public record PostSummaryDto(
 );
 
 [JsonConverter(typeof(JsonStringEnumConverter))]
-public enum DigestGenerationStatus
+public enum DigestGenerationStatusDto
 {
     Success,
     NoPosts,
 }
 
-public record DigestGenerationDto(Guid? GeneratedDigestId, DigestGenerationStatus Status);
+public record DigestGenerationDto(Guid? GeneratedDigestId, DigestGenerationStatusDto Status);
 
 public record DigestDto(Guid DigestId, List<PostSummaryDto> Posts, DigestSummaryDto Summary);
 

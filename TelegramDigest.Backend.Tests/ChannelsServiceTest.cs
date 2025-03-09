@@ -1,6 +1,6 @@
 ﻿namespace TelegramDigest.Application.Tests;
 
-public class ChannelsServiceTest
+public sealed class ChannelsServiceTest
 {
     [SetUp]
     public void Setup() { }

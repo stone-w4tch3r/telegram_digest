@@ -3,7 +3,7 @@ using TelegramDigest.HostHandler;
 namespace TelegramDigest.Application.Tests.UnitTests;
 
 [TestFixture]
-public class HostTests
+public sealed class HostTests
 {
     [TestCase("example.com", Host.HostnameType.Hostname)]
     [TestCase("1.1.1.1", Host.HostnameType.IPv4)]

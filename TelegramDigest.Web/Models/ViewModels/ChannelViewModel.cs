@@ -4,7 +4,7 @@ using TelegramDigest.Backend.Core;
 
 namespace TelegramDigest.Web.Models.ViewModels;
 
-public class ChannelViewModel
+public sealed record class ChannelViewModel
 {
     [Required]
     [Display(Name = "Channel Id")]
@@ -21,7 +21,7 @@ public class ChannelViewModel
     public string Url => $"https://t.me/{TgId}";
 }
 
-public class AddChannelViewModel
+public sealed record class AddChannelViewModel
 {
     [Required]
     [Display(Name = "Channel Id")]

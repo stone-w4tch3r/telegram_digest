@@ -5,7 +5,7 @@ using TelegramDigest.Web.Services;
 
 namespace TelegramDigest.Web.Pages.Digest;
 
-public class ProgressModel(BackendClient backend) : BasePageModel
+public sealed class ProgressModel(BackendClient backend) : BasePageModel
 {
     public DigestProgressViewModel? Progress { get; set; }
 

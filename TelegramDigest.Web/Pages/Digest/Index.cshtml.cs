@@ -6,7 +6,7 @@ using TelegramDigest.Web.Services;
 
 namespace TelegramDigest.Web.Pages.Digest;
 
-public class IndexModel(BackendClient backend) : BasePageModel
+public sealed class IndexModel(BackendClient backend) : BasePageModel
 {
     [BindProperty(SupportsGet = true)]
     public Guid? Id { get; set; }

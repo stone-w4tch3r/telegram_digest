@@ -75,3 +75,4 @@
 - settings migration support
 - simplify db schema (remove digests table)
 - auto apply runtime argument null checks via code generation on compilation
+- use attributes for entity declaration

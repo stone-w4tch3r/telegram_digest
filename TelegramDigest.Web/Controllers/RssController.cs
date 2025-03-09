@@ -8,7 +8,7 @@ using TelegramDigest.Web.Services;
 
 namespace TelegramDigest.Web.Controllers;
 
-public class RssController(
+public sealed class RssController(
     BackendClient backendClient,
     IMemoryCache cache,
     ILogger<RssController> logger

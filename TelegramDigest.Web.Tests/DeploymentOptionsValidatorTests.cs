@@ -3,7 +3,7 @@ using TelegramDigest.Web.DeploymentOptions;
 
 namespace TelegramDigest.Web.Tests
 {
-    public class UrlBasePathAttributeTests
+    public sealed class UrlBasePathAttributeTests
     {
         [TestCase(null)]
         [TestCase("")]

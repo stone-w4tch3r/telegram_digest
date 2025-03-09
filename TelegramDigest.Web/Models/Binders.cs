@@ -4,7 +4,7 @@ using Host = TelegramDigest.HostHandler.Host;
 
 namespace TelegramDigest.Web.Models;
 
-public class ChannelTgIdModelBinder : IModelBinder
+public sealed class ChannelTgIdModelBinder : IModelBinder
 {
     public Task BindModelAsync(ModelBindingContext bindingContext)
     {
@@ -42,7 +42,7 @@ public class ChannelTgIdModelBinder : IModelBinder
     }
 }
 
-public class TemplateWithContentModelBinder : IModelBinder
+public sealed class TemplateWithContentModelBinder : IModelBinder
 {
     public Task BindModelAsync(ModelBindingContext bindingContext)
     {
@@ -81,7 +81,7 @@ public class TemplateWithContentModelBinder : IModelBinder
     }
 }
 
-public class HostModelBinder : IModelBinder
+public sealed class HostModelBinder : IModelBinder
 {
     public Task BindModelAsync(ModelBindingContext bindingContext)
     {

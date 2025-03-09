@@ -4,7 +4,7 @@ using TelegramDigest.Web.Models.ViewModels;
 
 namespace TelegramDigest.Web.Services;
 
-public class BackendClient(IMainService mainService, ILogger<BackendClient> logger)
+public sealed class BackendClient(IMainService mainService, ILogger<BackendClient> logger)
 {
     public async Task<List<DigestSummaryViewModel>> GetDigestSummaries()
     {

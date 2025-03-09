@@ -8,8 +8,10 @@ namespace TelegramDigest.Backend.Core;
 /// Background service that schedules and executes daily digest generation
 /// </summary>
 [UsedImplicitly]
-internal sealed class Scheduler(ILogger<Scheduler> logger, IServiceScopeFactory scopeFactory)
-    : BackgroundService
+internal sealed class SchedulerBackgroundService(
+    ILogger<SchedulerBackgroundService> logger,
+    IServiceScopeFactory scopeFactory
+) : BackgroundService
 {
     private Timer? _timer;
     private TimeUtc _lastScheduledTimeUtc = new(TimeOnly.MinValue);

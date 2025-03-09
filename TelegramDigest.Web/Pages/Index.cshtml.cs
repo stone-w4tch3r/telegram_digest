@@ -4,7 +4,7 @@ using TelegramDigest.Web.Services;
 
 namespace TelegramDigest.Web.Pages;
 
-public class IndexModel(BackendClient backend, ILogger<IndexModel> logger) : BasePageModel
+public sealed class IndexModel(BackendClient backend, ILogger<IndexModel> logger) : BasePageModel
 {
     public DigestSummaryViewModel? LatestDigest { get; set; }
     public int TotalChannels { get; set; }

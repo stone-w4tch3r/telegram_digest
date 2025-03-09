@@ -5,7 +5,7 @@ using TelegramDigest.Web.Services;
 
 namespace TelegramDigest.Web.Pages.Channels;
 
-public class IndexModel(BackendClient backend) : BasePageModel
+public sealed class IndexModel(BackendClient backend) : BasePageModel
 {
     public List<ChannelViewModel> Channels { get; set; } = [];
 

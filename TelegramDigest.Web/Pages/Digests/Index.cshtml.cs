@@ -5,7 +5,7 @@ using TelegramDigest.Web.Services;
 
 namespace TelegramDigest.Web.Pages.Digests;
 
-public class IndexModel(BackendClient backend) : BasePageModel
+public sealed class IndexModel(BackendClient backend) : BasePageModel
 {
     public List<DigestSummaryViewModel> Digests { get; set; } = new();
 

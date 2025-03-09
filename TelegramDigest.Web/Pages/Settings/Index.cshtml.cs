@@ -5,7 +5,7 @@ using TelegramDigest.Web.Services;
 
 namespace TelegramDigest.Web.Pages.Settings;
 
-public class IndexModel(BackendClient backend) : BasePageModel
+public sealed class IndexModel(BackendClient backend) : BasePageModel
 {
     [BindProperty]
     public SettingsViewModel? Settings { get; set; }

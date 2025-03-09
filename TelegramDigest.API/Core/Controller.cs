@@ -4,7 +4,7 @@ namespace TelegramDigest.API.Core;
 
 [ApiController]
 [Route("api")]
-public class Controller(IApplicationFacade applicationFacade) : ControllerBase
+public sealed class Controller(IApplicationFacade applicationFacade) : ControllerBase
 {
     [HttpGet("digest-summaries")]
     public async Task<ActionResult<List<DigestSummaryDto>>> GetDigestSummaries()

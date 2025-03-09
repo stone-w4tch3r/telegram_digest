@@ -3,7 +3,7 @@ using System.Diagnostics;
 
 namespace TelegramDigest.Web.DeploymentOptions;
 
-public class UrlBasePathAttribute : ValidationAttribute
+public sealed class UrlBasePathAttribute : ValidationAttribute
 {
     protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
     {

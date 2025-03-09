@@ -11,16 +11,16 @@ internal sealed class ChannelEntity
     /// Channel ID (part of the channel URL)
     /// </summary>
     [MaxLength(32)]
-    public required string TgId { get; init; } = null!;
+    public required string TgId { get; init; }
 
     [MaxLength(100)]
-    public required string Title { get; init; } = null!;
+    public required string Title { get; init; }
 
     [MaxLength(1000)]
-    public required string Description { get; init; } = null!;
+    public required string Description { get; init; }
 
     [MaxLength(2048)]
-    public required string ImageUrl { get; init; } = null!;
+    public required string ImageUrl { get; init; }
 
     /// <summary>
     /// Soft delete flag
@@ -57,10 +57,10 @@ internal sealed class DigestSummaryEntity
     public required Guid Id { get; init; }
 
     [MaxLength(200)]
-    public required string Title { get; init; } = null!;
+    public required string Title { get; init; }
 
     [MaxLength(8192)]
-    public required string PostsSummary { get; init; } = null!;
+    public required string PostsSummary { get; init; }
 
     public required int PostsCount { get; init; }
 
@@ -86,13 +86,13 @@ internal sealed class PostSummaryEntity
     public required Guid Id { get; init; }
 
     [MaxLength(32)]
-    public required string ChannelTgId { get; init; } = null!;
+    public required string ChannelTgId { get; init; }
 
     [MaxLength(2000)]
-    public required string Summary { get; init; } = null!;
+    public required string Summary { get; init; }
 
     [MaxLength(2048)]
-    public required string Url { get; init; } = null!;
+    public required string Url { get; init; }
 
     public required DateTime PublishedAt { get; init; }
 

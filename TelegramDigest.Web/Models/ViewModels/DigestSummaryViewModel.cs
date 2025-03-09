@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace TelegramDigest.Web.Models.ViewModels;
 
-public class DigestSummaryViewModel
+public sealed record class DigestSummaryViewModel
 {
     [Required]
     public required Guid Id { get; init; }
@@ -30,7 +30,7 @@ public class DigestSummaryViewModel
     public required DateTime DateTo { get; init; }
 }
 
-public class PostSummaryViewModel
+public sealed record class PostSummaryViewModel
 {
     [Required]
     [Display(Name = "Channel Name")]

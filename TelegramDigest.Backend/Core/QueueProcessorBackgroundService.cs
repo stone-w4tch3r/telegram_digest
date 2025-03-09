@@ -1,16 +1,17 @@
 using System.Threading.Channels;
+using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 namespace TelegramDigest.Backend.Core;
 
-public interface ITaskQueue
+internal interface ITaskQueue
 {
-    void QueueTask(Func<CancellationToken, Task> workItem);
-    Task<Func<CancellationToken, Task>> WaitForDequeue(CancellationToken ct);
+    public void QueueTask(Func<CancellationToken, Task> workItem);
+    public Task<Func<CancellationToken, Task>> WaitForDequeue(CancellationToken ct);
 }
 
-public class TaskQueue : ITaskQueue
+internal sealed class TaskQueue : ITaskQueue
 {
     private readonly Channel<Func<CancellationToken, Task>> _queue = Channel.CreateUnbounded<
         Func<CancellationToken, Task>
@@ -40,10 +41,11 @@ public class TaskQueue : ITaskQueue
     }
 }
 
-public class TasksBackgroundService(
+[UsedImplicitly]
+internal sealed class QueueProcessorBackgroundService(
     ITaskQueue taskQueue,
     IServiceProvider serviceProvider,
-    ILogger<TasksBackgroundService> logger
+    ILogger<QueueProcessorBackgroundService> logger
 ) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken ct)

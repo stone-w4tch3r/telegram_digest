@@ -2,11 +2,17 @@ using System.ComponentModel.DataAnnotations;
 
 namespace TelegramDigest.Web.Models.ViewModels;
 
-public enum DigestStatus
+public enum DigestStepViewModelEnum
 {
-    InProgress,
-    Completed,
-    Failed,
+    Queued,
+    ProcessingStarted,
+    RssReadingStarted,
+    RssReadingFinished,
+    AiProcessing,
+    Success,
+    Cancelled,
+    Error,
+    NoPostsFound,
 }
 
 public sealed record class DigestProgressViewModel
@@ -19,14 +25,47 @@ public sealed record class DigestProgressViewModel
     public required int PercentComplete { get; init; }
 
     [Required]
-    public required DigestStatus Status { get; init; }
+    public required DigestStepViewModelEnum CurrentStep { get; init; }
 
-    [Required]
-    public required string? Message { get; init; }
+    public required string? ErrorMessage { get; init; }
 
     [Required]
     public required DateTime StartedAt { get; init; }
 
-    [Required]
     public required DateTime? CompletedAt { get; init; }
+
+    [Required]
+    public required DigestStepViewModel[] Steps { get; init; }
+
+    [Required]
+    public required bool IsStepsOrderValid { get; init; }
+}
+
+public sealed record class DigestStepViewModel
+{
+    public DigestStepViewModel()
+    {
+        if (Type != DigestStepViewModelEnum.RssReadingStarted && Channels != null)
+        {
+            throw new ArgumentException("Channels should be null if Type is not RssReadingStarted");
+        }
+        if (Type != DigestStepViewModelEnum.RssReadingFinished && PostsCount != null)
+        {
+            throw new ArgumentException(
+                "PostsCount should be null if Type is not RssReadingFinished"
+            );
+        }
+    }
+
+    [Required]
+    public required DigestStepViewModelEnum Type { get; init; }
+
+    [Required]
+    public required DateTime Timestamp { get; init; }
+
+    public required string? Message { get; init; }
+
+    public required string[]? Channels { get; init; }
+
+    public required int? PostsCount { get; init; }
 }

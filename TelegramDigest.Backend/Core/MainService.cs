@@ -1,5 +1,6 @@
 using System.ServiceModel.Syndication;
 using FluentResults;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace TelegramDigest.Backend.Core;
 
@@ -8,7 +9,9 @@ public interface IMainService
     /// <summary>
     /// Generates daily digest for the last period, based on settings
     /// </summary>
-    public Task<Result<DigestGenerationStatusModel>> ProcessDigestForLastPeriod(DigestId digestId);
+    public Task<Result<DigestGenerationResultTypeModelEnum>> ProcessDigestForLastPeriod(
+        DigestId digestId
+    );
 
     /// <summary>
     /// Queues the generation of a digest for the last period
@@ -46,12 +49,28 @@ public interface IMainService
     public Task<Result> DeleteDigest(DigestId digestId);
 
     /// <summary>
+    /// Returns history of digest statuses
+    /// </summary>
+    public Task<Result<IDigestStepModel[]>> GetDigestSteps(DigestId digestId);
+
+    /// <summary>
     /// Send digest over email
     /// </summary>
     public Task<Result> SendDigestOverEmail(DigestId digestId);
 
+    /// <summary>
+    /// Loads user settings
+    /// </summary>
     public Task<Result<SettingsModel>> GetSettings();
+
+    /// <summary>
+    /// Saves user settings
+    /// </summary>
     public Task<Result> UpdateSettings(SettingsModel settings);
+
+    /// <summary>
+    /// Returns list of digests as RSS feed
+    /// </summary>
     public Task<Result<SyndicationFeed>> GetRssFeed();
 }
 
@@ -62,17 +81,25 @@ internal sealed class MainService(
     IDigestService digestService,
     IChannelsService channelsService,
     IEmailSender emailSender,
+    IServiceProvider serviceProvider,
     ISettingsManager settingsManager,
     IRssService rssService,
     ITaskQueue taskQueue,
+    IDigestStepsService digestStepsService,
     ILogger<MainService> logger
 ) : IMainService
 {
-    public async Task<Result<DigestGenerationStatusModel>> ProcessDigestForLastPeriod(
+    public async Task<Result<DigestGenerationResultTypeModelEnum>> ProcessDigestForLastPeriod(
         DigestId digestId
     )
     {
-        logger.LogDebug("Start processing digest for last period");
+        await digestStepsService.AddStep(
+            new SimpleStepModel
+            {
+                DigestId = digestId,
+                Type = DigestStepTypeModelEnum.ProcessingStarted,
+            }
+        );
 
         var settings = await settingsManager.LoadSettings();
         if (settings.IsFailed)
@@ -98,35 +125,21 @@ internal sealed class MainService(
         return Result.Ok(generationResult.Value);
     }
 
-    [Obsolete("Will be removed before release")]
-    public async Task<Result> SendDigestOverEmail(DigestId digestId)
+    public async Task<Result> QueueDigestForLastPeriod(DigestId digestId)
     {
-        var digestResult = await digestService.GetDigest(digestId);
-        if (digestResult.IsFailed)
-        {
-            return Result.Fail(digestResult.Errors);
-        }
-        if (digestResult.Value is null)
-        {
-            return Result.Fail(new Error($"Failed to load digest {digestId} for email"));
-        }
+        await digestStepsService.AddStep(
+            new SimpleStepModel { DigestId = digestId, Type = DigestStepTypeModelEnum.Queued }
+        );
 
-        var sendResult = await emailSender.SendDigest(digestResult.Value.DigestSummary);
-        return sendResult.IsFailed ? Result.Fail(sendResult.Errors) : Result.Ok();
-    }
-
-    public Task<Result> QueueDigestForLastPeriod(DigestId digestId)
-    {
-        logger.LogDebug("Queueing digest generation for last period");
         taskQueue.QueueTask(async ct =>
         {
-            logger.LogDebug("Start processing digest for last period from queue");
-            await ProcessDigestForLastPeriod(digestId);
-            logger.LogDebug("Finished processing digest for last period from queue");
+            // use own scope and services to avoid issues with disposing of captured scope
+            using var scope = serviceProvider.CreateScope();
+            var scopedMainService = scope.ServiceProvider.GetRequiredService<IMainService>();
+            await scopedMainService.ProcessDigestForLastPeriod(digestId);
         });
 
-        logger.LogDebug("Queued digest generation successfully");
-        return Task.FromResult(Result.Ok());
+        return Result.Ok();
     }
 
     public async Task<Result<List<ChannelModel>>> GetChannels()
@@ -154,6 +167,11 @@ internal sealed class MainService(
         return await digestService.GetDigest(digestId);
     }
 
+    public async Task<Result<IDigestStepModel[]>> GetDigestSteps(DigestId digestId)
+    {
+        return await digestStepsService.GetAllSteps(digestId);
+    }
+
     public async Task<Result<SettingsModel>> GetSettings()
     {
         return await settingsManager.LoadSettings();
@@ -172,5 +190,22 @@ internal sealed class MainService(
     public async Task<Result> DeleteDigest(DigestId digestId)
     {
         return await digestService.DeleteDigest(digestId);
+    }
+
+    [Obsolete("Will be removed before release")]
+    public async Task<Result> SendDigestOverEmail(DigestId digestId)
+    {
+        var digestResult = await digestService.GetDigest(digestId);
+        if (digestResult.IsFailed)
+        {
+            return Result.Fail(digestResult.Errors);
+        }
+        if (digestResult.Value is null)
+        {
+            return Result.Fail(new Error($"Failed to load digest {digestId} for email"));
+        }
+
+        var sendResult = await emailSender.SendDigest(digestResult.Value.DigestSummary);
+        return sendResult.IsFailed ? Result.Fail(sendResult.Errors) : Result.Ok();
     }
 }

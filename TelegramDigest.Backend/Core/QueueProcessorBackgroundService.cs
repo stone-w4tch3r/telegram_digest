@@ -1,6 +1,5 @@
 using System.Threading.Channels;
 using JetBrains.Annotations;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 namespace TelegramDigest.Backend.Core;
@@ -56,8 +55,6 @@ internal sealed class QueueProcessorBackgroundService(
             var workItem = await taskQueue.WaitForDequeue(ct);
             try
             {
-                using var scope = serviceProvider.CreateScope();
-
                 // execute task
                 await workItem(ct);
             }

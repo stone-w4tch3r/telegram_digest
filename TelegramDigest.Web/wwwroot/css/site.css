@@ -49,3 +49,14 @@ body {
   color: red;
   margin-left: 4px;
 }
+
+.stack-trace {
+  font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
+  font-size: 0.875rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 400px;
+  overflow-y: auto;
+  overflow-x: auto;
+}

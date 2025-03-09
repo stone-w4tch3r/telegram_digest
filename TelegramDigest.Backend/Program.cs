@@ -29,13 +29,18 @@ public static class ServiceCollectionExtensions
         );
 
         // Application services
+        services.AddHostedService<QueueProcessorBackgroundService>();
+        services.AddHostedService<SchedulerBackgroundService>();
         services.AddScoped<IChannelReader, ChannelReader>();
         services.AddScoped<IChannelsService, ChannelsService>();
         services.AddScoped<IChannelsRepository, ChannelsRepository>();
         services.AddScoped<IDigestService, DigestService>();
+        services.AddScoped<IDigestService, DigestService>();
         services.AddScoped<IDigestRepository, DigestRepository>();
-        services.AddScoped<ISummaryGenerator, SummaryGenerator>();
-        services.AddScoped<ITaskQueue, TaskQueue>();
+        services.AddScoped<IDigestStepsService, DigestStepsService>();
+        services.AddScoped<IDigestStepsRepository, DigestStepsRepository>();
+        services.AddScoped<IAiSummarizer, AiSummarizer>();
+        services.AddSingleton<ITaskQueue, TaskQueue>();
         services.AddScoped<IEmailSender, EmailSender>();
         services.AddScoped<IMainService, MainService>();
         services.AddScoped<IRssService, RssService>();

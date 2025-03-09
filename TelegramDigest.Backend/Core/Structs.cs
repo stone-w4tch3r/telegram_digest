@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using FluentResults;
 
@@ -49,12 +50,21 @@ public readonly partial record struct ChannelTgId
     [GeneratedRegex("^[a-zA-Z][a-zA-Z0-9_]{4,31}$")]
     private static partial Regex ChannelNamePattern();
 
+    [JsonConstructor]
     public ChannelTgId(string ChannelName)
     {
+        if (string.IsNullOrWhiteSpace(ChannelName))
+        {
+            throw new ArgumentException(
+                "ChannelName cannot be null or whitespace.",
+                nameof(ChannelName)
+            );
+        }
+
         this.ChannelName = ChannelNamePattern().IsMatch(ChannelName)
             ? ChannelName
             : throw new ArgumentException(
-                "Channel name must be 5-32 characters, only letters, numbers, and underscores, starting with a letter"
+                $"Channel name must be 5-32 characters, only letters, numbers, and underscores, starting with a letter, got {ChannelName}"
             );
     }
 

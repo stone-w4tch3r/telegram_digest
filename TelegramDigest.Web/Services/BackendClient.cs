@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.ServiceModel.Syndication;
 using TelegramDigest.Backend.Core;
 using TelegramDigest.Web.Models.ViewModels;
@@ -208,26 +209,100 @@ public sealed class BackendClient(IMainService mainService, ILogger<BackendClien
 
     public async Task<DigestProgressViewModel> GetDigestProgress(Guid id)
     {
-        // TODO
-        await Task.Delay(500);
-
-        var random = new Random().Next(0, 2) == 0;
-        var randomStatus = new Random().Next(0, 4) switch
+        var result = await mainService.GetDigestSteps(new(id));
+        if (result.IsFailed || result.Value.Length == 0)
         {
-            0 => DigestStatus.InProgress,
-            1 => DigestStatus.Completed,
-            2 => DigestStatus.Failed,
-            _ => DigestStatus.InProgress,
-        };
+            logger.LogError("Failed to get digest statuses: {Errors}", result.Errors);
+            throw new("Failed to get digest statuses");
+        }
 
+        var steps = result.Value.OrderBy(x => x.Timestamp).ToArray();
         return new()
         {
             Id = id,
-            Status = randomStatus,
-            PercentComplete = 50,
-            Message = random ? $"Digest {id} generation is in progress..." : null,
-            StartedAt = DateTime.UtcNow,
-            CompletedAt = random ? DateTime.UtcNow : null,
+            StartedAt = steps[0].Timestamp,
+            CompletedAt = steps[^1].Type.MapToVm().IsFinished() ? steps[^1].Timestamp : null,
+            CurrentStep = steps.Last().Type.MapToVm(),
+            PercentComplete =
+                steps[^1].Type.MapToVm().IsFinished() ? 100
+                : steps[^1] is AiProcessingStepModel aiStatus ? aiStatus.Percentage
+                : 1,
+            Steps = steps
+                .Select(x => new DigestStepViewModel
+                {
+                    Type = x.Type.MapToVm(),
+                    Message = x.Message,
+                    Timestamp = x.Timestamp,
+                    Channels = x is RssReadingStartedStepModel readingStartedStep
+                        ? readingStartedStep.Channels.Select(c => c.ChannelName).ToArray()
+                        : null,
+                    PostsCount = x is RssReadingFinishedStepModel readingFinishedStep
+                        ? readingFinishedStep.PostsCount
+                        : null,
+                })
+                .ToArray(),
+            ErrorMessage = steps[^1] is ErrorStepModel error ? error.FormatErrorStep() : null,
+            IsStepsOrderValid = steps.IsStepsOrderValid(),
         };
     }
+}
+
+public static class StepsHelper
+{
+    public static DigestStepViewModelEnum MapToVm(this DigestStepTypeModelEnum step) =>
+        step switch
+        {
+            DigestStepTypeModelEnum.Queued => DigestStepViewModelEnum.Queued,
+            DigestStepTypeModelEnum.ProcessingStarted => DigestStepViewModelEnum.ProcessingStarted,
+            DigestStepTypeModelEnum.RssReadingStarted => DigestStepViewModelEnum.RssReadingStarted,
+            DigestStepTypeModelEnum.RssReadingFinished =>
+                DigestStepViewModelEnum.RssReadingFinished,
+            DigestStepTypeModelEnum.AiProcessing => DigestStepViewModelEnum.AiProcessing,
+            DigestStepTypeModelEnum.Success => DigestStepViewModelEnum.Success,
+            DigestStepTypeModelEnum.Cancelled => DigestStepViewModelEnum.Cancelled,
+            DigestStepTypeModelEnum.Error => DigestStepViewModelEnum.Error,
+            DigestStepTypeModelEnum.NoPostsFound => DigestStepViewModelEnum.NoPostsFound,
+            _ => throw new UnreachableException($"Invalid {nameof(DigestStepTypeModelEnum)}"),
+        };
+
+    public static string FormatErrorStep(this ErrorStepModel errorStep) =>
+        (errorStep.Message is { } m ? m + "\n\n" : "")
+        + (errorStep.Exception is { } ex ? ex + "\n\n" : "")
+        + (errorStep.Errors is { } er ? string.Join("\n\ncaused  by: ", er) : "");
+
+    public static bool IsFinished(this DigestStepViewModelEnum step)
+    {
+        return step
+            is DigestStepViewModelEnum.Success
+                or DigestStepViewModelEnum.Error
+                or DigestStepViewModelEnum.Cancelled
+                or DigestStepViewModelEnum.NoPostsFound;
+    }
+
+    public static bool IsStepsOrderValid(this IDigestStepModel[] steps)
+    {
+        for (var i = 1; i < steps.Length; i++)
+        {
+            if (GetStepWeight(steps[i - 1].Type) >= GetStepWeight(steps[i].Type))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static int GetStepWeight(DigestStepTypeModelEnum stepType) =>
+        stepType switch
+        {
+            DigestStepTypeModelEnum.Queued => 0,
+            DigestStepTypeModelEnum.ProcessingStarted => 1,
+            DigestStepTypeModelEnum.RssReadingStarted => 2,
+            DigestStepTypeModelEnum.RssReadingFinished => 3,
+            DigestStepTypeModelEnum.NoPostsFound => 3,
+            DigestStepTypeModelEnum.AiProcessing => 5,
+            DigestStepTypeModelEnum.Cancelled => 100,
+            DigestStepTypeModelEnum.Error => 101,
+            DigestStepTypeModelEnum.Success => 1000,
+            _ => throw new UnreachableException($"Invalid {nameof(DigestStepTypeModelEnum)}"),
+        };
 }

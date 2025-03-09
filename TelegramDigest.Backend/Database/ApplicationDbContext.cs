@@ -9,6 +9,7 @@ internal sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext
     internal DbSet<DigestEntity> Digests => Set<DigestEntity>();
     internal DbSet<PostSummaryEntity> PostSummaries => Set<PostSummaryEntity>();
     internal DbSet<DigestSummaryEntity> DigestSummaries => Set<DigestSummaryEntity>();
+    internal DbSet<DigestStepEntity> DigestSteps => Set<DigestStepEntity>();
 
     /// <summary>
     /// Applies entity configurations
@@ -19,6 +20,7 @@ internal sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext
         modelBuilder.ApplyConfiguration(new DigestConfiguration());
         modelBuilder.ApplyConfiguration(new PostSummaryConfiguration());
         modelBuilder.ApplyConfiguration(new DigestSummaryConfiguration());
+        modelBuilder.ApplyConfiguration(new DigestStepsConfiguration());
     }
 
     private sealed class ChannelConfiguration : IEntityTypeConfiguration<ChannelEntity>
@@ -93,6 +95,29 @@ internal sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext
             builder.Property(e => e.CreatedAt).IsRequired();
             builder.Property(e => e.DateFrom).IsRequired();
             builder.Property(e => e.DateTo).IsRequired();
+        }
+    }
+
+    private sealed class DigestStepsConfiguration : IEntityTypeConfiguration<DigestStepEntity>
+    {
+        public void Configure(EntityTypeBuilder<DigestStepEntity> builder)
+        {
+            builder.ToTable("DigestStatuses");
+
+            // Configure TPH
+            builder
+                .HasDiscriminator<string>("EntityType")
+                .HasValue<SimpleStepEntity>("Simple")
+                .HasValue<AiProcessingStepEntity>("AiProcessing")
+                .HasValue<RssReadingStartedStepEntity>("RssReadingStarted")
+                .HasValue<RssReadingFinishedStepEntity>("RssReadingFinished")
+                .HasValue<ErrorStepEntity>("Error");
+
+            // Index for faster lookups by DigestId
+            builder.HasIndex(e => e.DigestId);
+
+            // Index for faster lookups by Type
+            builder.HasIndex(e => e.Type);
         }
     }
 }

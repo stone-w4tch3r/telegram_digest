@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using FluentResults;
 using TelegramDigest.Backend.Core;
 
@@ -82,15 +83,16 @@ internal sealed class BackendFacade(IMainService mainService, ILogger<BackendFac
         return Result.Ok<DigestGenerationDto>(
             digestResult.Value switch
             {
-                DigestGenerationStatusModel.Success => new(
+                DigestGenerationResultTypeModelEnum.Success => new(
                     digestId.Guid,
                     DigestGenerationStatusDto.Success
                 ),
-                DigestGenerationStatusModel.NoPosts => new(null, DigestGenerationStatusDto.NoPosts),
-                _ => throw new ArgumentOutOfRangeException(
-                    nameof(digestResult),
-                    digestResult,
-                    null
+                DigestGenerationResultTypeModelEnum.NoPosts => new(
+                    null,
+                    DigestGenerationStatusDto.NoPosts
+                ),
+                _ => throw new UnreachableException(
+                    $"Invalid value of {nameof(DigestGenerationResultTypeModelEnum)} provided"
                 ),
             }
         );

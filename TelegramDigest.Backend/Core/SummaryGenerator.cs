@@ -3,16 +3,14 @@ using OpenAI.Chat;
 
 namespace TelegramDigest.Backend.Core;
 
-internal interface ISummaryGenerator
+internal interface IAiSummarizer
 {
     public Task<Result<PostSummaryModel>> GenerateSummary(PostModel post);
     public Task<Result<DigestSummaryModel>> GeneratePostsSummary(List<PostModel> posts);
 }
 
-internal sealed class SummaryGenerator(
-    ISettingsManager settingsManager,
-    ILogger<SummaryGenerator> logger
-) : ISummaryGenerator
+internal sealed class AiSummarizer(ISettingsManager settingsManager, ILogger<AiSummarizer> logger)
+    : IAiSummarizer
 {
     private ChatClient? _chatClient;
     private (string Model, string ApiKey, Uri Endpoint)? _lastClientSettings;

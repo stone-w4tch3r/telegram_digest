@@ -32,6 +32,8 @@
 | [x]  | digest deletion                                                             | 6h    |
 | [x]  | Digest generation: Digest generation status service                         | 3h    |
 | [x]  | Digest generation: display errors in progress                               | 1h    |
+| [x]  | Digest generation: show steps in progress                                   | 1h    |
+| [x]  | Digest generation: fix progress                                             | 1h    |
 
 ### High priority
 
@@ -40,8 +42,8 @@
 | [ ]  | Bug: newlines in UI                                       | 30min |
 | [ ]  | Bug: add new chanel: backend error not shown until reload | 30min |
 | [ ]  | Digest generation: Parametrized                           | 3h    |
-| [ ]  | Digest generation: fix progress                           | 3h    |
-| [ ]  | Digest generation: show steps in progress                 | 1h    |
+| [ ]  | Digest generation: queue monitor                          | 3h    |
+| [ ]  | Digest generation: cancellation                           | 1h    |
 | [ ]  | Reimplement and test email sending?                       | 2h    |
 | [ ]  | Configure deploy                                          | 4h    |
 

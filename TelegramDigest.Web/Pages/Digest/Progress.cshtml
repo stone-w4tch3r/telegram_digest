@@ -29,7 +29,8 @@
 
     <div class="card mt-4">
         <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center">
+            <!-- Card top -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
                 <h5 class="card-title mb-0">Status: @Model.Progress.CurrentStep</h5>
 
                 <button class="btn btn-sm btn-outline-primary" onclick="location.reload();">
@@ -37,6 +38,22 @@
                 </button>
             </div>
 
+            <!-- Time -->
+            <div class="d-flex gap-3 text-muted small mb-3">
+                <div>
+                    <i class="bi bi-clock"></i>
+                    Started: @Model.Progress.StartedAt.ToString("MMM dd, yyyy HH:mm:ss")
+                </div>
+                @if (Model.Progress.CompletedAt.HasValue)
+                {
+                    <div>
+                        <i class="bi bi-check-circle"></i>
+                        Finished: @Model.Progress.CompletedAt.Value.ToString("MMM dd, yyyy HH:mm:ss")
+                    </div>
+                }
+            </div>
+
+            <!-- Progress -->
             <div class="progress mt-3 mb-3">
                 <div class="progress-bar @bgColor" role="progressbar"
                      style="width: @Model.Progress.PercentComplete%;"
@@ -47,23 +64,72 @@
                 </div>
             </div>
 
+            <!-- Error -->
             @if (Model.Progress.ErrorMessage != null)
             {
                 <pre
                     class="stack-trace p-3 border border-danger rounded text-bg-light">@Model.Progress.ErrorMessage</pre>
             }
 
-            <p class="text-muted">
-                Started: @Model.Progress.StartedAt.ToString("MMM dd, yyyy HH:mm:ss")
-            </p>
+            <!-- Steps -->
+            <div class="mt-4">
+                <div class="list-group">
+                    @foreach (var step in Model.Progress.Steps)
+                    {
+                        var stepClass = "list-group-item";
 
-            @if (Model.Progress.CompletedAt.HasValue)
-            {
-                <p class="text-muted">
-                    Completed: @Model.Progress.CompletedAt.Value.ToString("MMM dd, yyyy HH:mm:ss")
-                </p>
-            }
+                        stepClass += step.Type switch
+                        {
+                            DigestStepViewModelEnum.Error => " list-group-item-danger",
+                            DigestStepViewModelEnum.Success => " list-group-item-success",
+                            DigestStepViewModelEnum.Cancelled or DigestStepViewModelEnum.NoPostsFound => " list-group-item-secondary",
+                            _ => " list-group-item-info"
+                        };
 
+                        <div class="@stepClass">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <strong>@step.Type</strong>
+
+                                    @if (step is { Type: DigestStepViewModelEnum.AiProcessing })
+                                    {
+                                        <span>@step.PercentComplete%</span>
+                                    }
+                                </div>
+
+                                <small>@step.Timestamp.ToString("HH:mm:ss")</small>
+                            </div>
+
+                            @if (!string.IsNullOrEmpty(step.Message))
+                            {
+                                <p class="mb-1">@step.Message</p>
+                            }
+
+                            @if (step is { Type: DigestStepViewModelEnum.RssReadingStarted, Channels.Length: > 0 })
+                            {
+                                <div class="mt-2">
+                                    <small>Channels:</small>
+                                    <ul class="list-unstyled ms-3">
+                                        @foreach (var channel in step.Channels)
+                                        {
+                                            <li><small>• @channel</small></li>
+                                        }
+                                    </ul>
+                                </div>
+                            }
+
+                            @if (step is { Type: DigestStepViewModelEnum.RssReadingFinished, PostsCount: not null })
+                            {
+                                <div class="mt-1">
+                                    <small>Posts found: @step.PostsCount</small>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Bottom exit button -->
             <div class="mt-3">
                 @if (Model.Progress.CurrentStep == DigestStepViewModelEnum.Success)
                 {

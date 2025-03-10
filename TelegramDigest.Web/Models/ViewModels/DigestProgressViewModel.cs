@@ -36,9 +36,6 @@ public sealed record class DigestProgressViewModel
 
     [Required]
     public required DigestStepViewModel[] Steps { get; init; }
-
-    [Required]
-    public required bool IsStepsOrderValid { get; init; }
 }
 
 public sealed record class DigestStepViewModel
@@ -55,6 +52,12 @@ public sealed record class DigestStepViewModel
                 "PostsCount should be null if Type is not RssReadingFinished"
             );
         }
+        if (Type != DigestStepViewModelEnum.AiProcessing && PercentComplete != null)
+        {
+            throw new ArgumentException(
+                "PercentComplete should be null if Type is not AiProcessing"
+            );
+        }
     }
 
     [Required]
@@ -66,6 +69,8 @@ public sealed record class DigestStepViewModel
     public required string? Message { get; init; }
 
     public required string[]? Channels { get; init; }
+
+    public required int? PercentComplete { get; init; }
 
     public required int? PostsCount { get; init; }
 }

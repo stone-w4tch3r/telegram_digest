@@ -41,6 +41,7 @@ public sealed class BackendClient(IMainService mainService, ILogger<BackendClien
             logger.LogError("Failed to get digest {DigestId}: {Errors}", id, result.Errors);
             throw new($"Failed to get digest {id}");
         }
+
         if (result.Value is null)
         {
             return null;
@@ -204,6 +205,7 @@ public sealed class BackendClient(IMainService mainService, ILogger<BackendClien
             logger.LogError("Failed to get RSS feed: {Errors}", result.Errors);
             throw new("Failed to get RSS feed");
         }
+
         return result.Value;
     }
 
@@ -225,7 +227,8 @@ public sealed class BackendClient(IMainService mainService, ILogger<BackendClien
             CurrentStep = steps.Last().Type.MapToVm(),
             PercentComplete =
                 steps[^1].Type.MapToVm().IsFinished() ? 100
-                : steps[^1] is AiProcessingStepModel aiStatus ? aiStatus.Percentage
+                : steps.LastOrDefault(x => x is AiProcessingStepModel) is AiProcessingStepModel s
+                    ? s.Percentage
                 : 1,
             Steps = steps
                 .Select(x => new DigestStepViewModel
@@ -239,10 +242,10 @@ public sealed class BackendClient(IMainService mainService, ILogger<BackendClien
                     PostsCount = x is RssReadingFinishedStepModel readingFinishedStep
                         ? readingFinishedStep.PostsCount
                         : null,
+                    PercentComplete = x is AiProcessingStepModel aiStep ? aiStep.Percentage : null,
                 })
                 .ToArray(),
             ErrorMessage = steps[^1] is ErrorStepModel error ? error.FormatErrorStep() : null,
-            IsStepsOrderValid = steps.IsStepsOrderValid(),
         };
     }
 }
@@ -278,31 +281,4 @@ public static class StepsHelper
                 or DigestStepViewModelEnum.Cancelled
                 or DigestStepViewModelEnum.NoPostsFound;
     }
-
-    public static bool IsStepsOrderValid(this IDigestStepModel[] steps)
-    {
-        for (var i = 1; i < steps.Length; i++)
-        {
-            if (GetStepWeight(steps[i - 1].Type) >= GetStepWeight(steps[i].Type))
-            {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private static int GetStepWeight(DigestStepTypeModelEnum stepType) =>
-        stepType switch
-        {
-            DigestStepTypeModelEnum.Queued => 0,
-            DigestStepTypeModelEnum.ProcessingStarted => 1,
-            DigestStepTypeModelEnum.RssReadingStarted => 2,
-            DigestStepTypeModelEnum.RssReadingFinished => 3,
-            DigestStepTypeModelEnum.NoPostsFound => 3,
-            DigestStepTypeModelEnum.AiProcessing => 5,
-            DigestStepTypeModelEnum.Cancelled => 100,
-            DigestStepTypeModelEnum.Error => 101,
-            DigestStepTypeModelEnum.Success => 1000,
-            _ => throw new UnreachableException($"Invalid {nameof(DigestStepTypeModelEnum)}"),
-        };
 }

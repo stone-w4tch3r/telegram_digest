@@ -58,6 +58,7 @@ internal sealed class AiSummarizer(ISettingsManager settingsManager, ILogger<AiS
             {
                 return Result.Fail(settingsResult.Errors);
             }
+
             var prompts = settingsResult.Value.PromptSettings;
 
             var clientResult = await GetChatClient();
@@ -97,7 +98,9 @@ internal sealed class AiSummarizer(ISettingsManager settingsManager, ILogger<AiS
         catch (Exception ex)
         {
             logger.LogError(ex, "Failed to generate summary for post {PostUrl}", post.Url);
-            return Result.Fail(new Error("Summary generation failed").CausedBy(ex));
+            return Result.Fail(
+                new Error($"Failed to generate summary for post {post.Url}").CausedBy(ex)
+            );
         }
     }
 
@@ -110,6 +113,7 @@ internal sealed class AiSummarizer(ISettingsManager settingsManager, ILogger<AiS
             {
                 return Result.Fail(settingsResult.Errors);
             }
+
             var prompts = settingsResult.Value.PromptSettings;
 
             var clientResult = await GetChatClient();
@@ -136,7 +140,9 @@ internal sealed class AiSummarizer(ISettingsManager settingsManager, ILogger<AiS
         catch (Exception ex)
         {
             logger.LogError(ex, "Failed to evaluate importance for post {Url}", post.Url);
-            return Result.Fail(new Error("Importance evaluation failed").CausedBy(ex));
+            return Result.Fail(
+                new Error($"Failed to evaluate importance for post {post.Url}").CausedBy(ex)
+            );
         }
     }
 
@@ -149,6 +155,7 @@ internal sealed class AiSummarizer(ISettingsManager settingsManager, ILogger<AiS
             {
                 return Result.Fail(settingsResult.Errors);
             }
+
             var prompts = settingsResult.Value.PromptSettings;
 
             var clientResult = await GetChatClient();

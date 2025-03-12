@@ -1,10 +1,11 @@
 using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using TelegramDigest.Backend.Core;
 
-// ReSharper disable MethodSupportsCancellation
 namespace TelegramDigest.Application.Tests.UnitTests;
 
 [TestFixture]
+[SuppressMessage("ReSharper", "MethodSupportsCancellation")]
 public class TaskTrackerTests
 {
     private TaskTracker<string> _taskTracker;
@@ -18,7 +19,7 @@ public class TaskTrackerTests
     [Test]
     public void AddTaskToWaitQueue_ShouldAddTask()
     {
-        var task = new Func<CancellationToken, Task>(ct => Task.CompletedTask);
+        var task = new Func<CancellationToken, Task>(_ => Task.CompletedTask);
         var key = "task1";
 
         _taskTracker.AddTaskToWaitQueue(task, key);
@@ -30,7 +31,7 @@ public class TaskTrackerTests
     [Test]
     public void AddTaskToWaitQueue_ShouldThrowException_WhenTaskAlreadyInProgress()
     {
-        var task = new Func<CancellationToken, Task>(ct => Task.CompletedTask);
+        var task = new Func<CancellationToken, Task>(_ => Task.CompletedTask);
         var key = "task1";
 
         _taskTracker.AddTaskToWaitQueue(task, key);
@@ -42,7 +43,7 @@ public class TaskTrackerTests
     [Test]
     public async Task DequeueWaitingTask_ShouldReturnTask()
     {
-        var task = new Func<CancellationToken, Task>(ct => Task.CompletedTask);
+        var task = new Func<CancellationToken, Task>(_ => Task.CompletedTask);
         var key = "task1";
 
         _taskTracker.AddTaskToWaitQueue(task, key);
@@ -56,7 +57,7 @@ public class TaskTrackerTests
     [Test]
     public void MoveTaskToInProgress_ShouldMoveTask()
     {
-        var task = new Func<CancellationToken, Task>(ct => Task.CompletedTask);
+        var task = new Func<CancellationToken, Task>(_ => Task.CompletedTask);
         var key = "task1";
 
         _taskTracker.AddTaskToWaitQueue(task, key);
@@ -71,7 +72,7 @@ public class TaskTrackerTests
     [Test]
     public void CompleteTaskInProgress_ShouldRemoveTask()
     {
-        var task = new Func<CancellationToken, Task>(ct => Task.CompletedTask);
+        var task = new Func<CancellationToken, Task>(_ => Task.CompletedTask);
         var key = "task1";
 
         _taskTracker.AddTaskToWaitQueue(task, key);
@@ -99,7 +100,7 @@ public class TaskTrackerTests
     [Test]
     public void RemoveWaitingTask_ShouldRemoveTask()
     {
-        var task = new Func<CancellationToken, Task>(ct => Task.CompletedTask);
+        var task = new Func<CancellationToken, Task>(_ => Task.CompletedTask);
         var key = "task1";
 
         _taskTracker.AddTaskToWaitQueue(task, key);
@@ -119,7 +120,7 @@ public class TaskTrackerTests
     public void AddTaskToWaitQueue_ShouldThrow_WhenTaskAlreadyInWaitingQueue()
     {
         var key = "task1";
-        var task = new Func<CancellationToken, Task>(ct => Task.CompletedTask);
+        var task = new Func<CancellationToken, Task>(_ => Task.CompletedTask);
 
         _taskTracker.AddTaskToWaitQueue(task, key);
 
@@ -130,7 +131,7 @@ public class TaskTrackerTests
     public async Task ConcurrentAddToWaitQueue_ThrowsForDuplicateKey()
     {
         var key = "task1";
-        var task = new Func<CancellationToken, Task>(ct => Task.CompletedTask);
+        var task = new Func<CancellationToken, Task>(_ => Task.CompletedTask);
         var exceptions = new ConcurrentQueue<Exception>();
 
         var tasks = Enumerable
@@ -166,13 +167,13 @@ public class TaskTrackerTests
         {
             var key = $"task{i}";
             addedKeys.Add(key);
-            _taskTracker.AddTaskToWaitQueue(ct => Task.CompletedTask, key);
+            _taskTracker.AddTaskToWaitQueue(_ => Task.CompletedTask, key);
         }
 
         var processedKeys = new ConcurrentBag<string>();
         var dequeueTasks = Enumerable
             .Range(0, numThreads)
-            .Select(___ =>
+            .Select(_ =>
                 Task.Run(async () =>
                 {
                     foreach (var __ in Enumerable.Range(0, numTasks / numThreads))
@@ -197,7 +198,6 @@ public class TaskTrackerTests
     public void StressTest_MultipleOperationsConcurrently()
     {
         var numTasks = 1000;
-        var cts = new CancellationTokenSource();
         var options = new ParallelOptions
         {
             MaxDegreeOfParallelism = Environment.ProcessorCount * 2,
@@ -210,7 +210,7 @@ public class TaskTrackerTests
             i =>
             {
                 var key = $"task{i}";
-                _taskTracker.AddTaskToWaitQueue(ct => Task.CompletedTask, key);
+                _taskTracker.AddTaskToWaitQueue(_ => Task.CompletedTask, key);
                 _taskTracker.MoveTaskToInProgress(key);
                 _taskTracker.CompleteTaskInProgress(key);
             }
@@ -271,7 +271,7 @@ public class TaskTrackerTests
     public void ConcurrentMoveToInProgress_ThrowsForDuplicateKey()
     {
         var key = "task1";
-        _taskTracker.AddTaskToWaitQueue(ct => Task.CompletedTask, key);
+        _taskTracker.AddTaskToWaitQueue(_ => Task.CompletedTask, key);
 
         var exceptions = new ConcurrentQueue<Exception>();
 
@@ -300,7 +300,7 @@ public class TaskTrackerTests
     [Test]
     public void AddTaskToWaitQueue_ShouldAllowReuseOfKey_AfterCompletion()
     {
-        var task = new Func<CancellationToken, Task>(ct => Task.CompletedTask);
+        var task = new Func<CancellationToken, Task>(_ => Task.CompletedTask);
         var key = "task1";
 
         // Add, move to in-progress, complete.
@@ -355,11 +355,11 @@ public class TaskTrackerTests
         var keys = new[] { "first", "second", "third" };
         foreach (var key in keys)
         {
-            _taskTracker.AddTaskToWaitQueue(ct => Task.CompletedTask, key);
+            _taskTracker.AddTaskToWaitQueue(_ => Task.CompletedTask, key);
         }
 
         var dequeuedKeys = new List<string>();
-        for (int i = 0; i < keys.Length; i++)
+        for (var i = 0; i < keys.Length; i++)
         {
             var (_, key) = await _taskTracker.DequeueWaitingTask();
             dequeuedKeys.Add(key);
@@ -372,7 +372,7 @@ public class TaskTrackerTests
     public void CompleteTaskInProgress_ShouldThrow_WhenCalledTwice()
     {
         var key = "task1";
-        var task = new Func<CancellationToken, Task>(ct => Task.CompletedTask);
+        var task = new Func<CancellationToken, Task>(_ => Task.CompletedTask);
 
         _taskTracker.AddTaskToWaitQueue(task, key);
         _taskTracker.MoveTaskToInProgress(key);

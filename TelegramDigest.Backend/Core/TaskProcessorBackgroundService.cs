@@ -182,7 +182,7 @@ internal sealed class TaskProcessorBackgroundService(
                 {
                     try
                     {
-                        // Move task to in-progress and execute it
+                        // Move a task to in-progress and execute it
                         var progressControllCt = taskTracker.MoveTaskToInProgress(digestId);
                         await workItem(
                             CancellationTokenSource

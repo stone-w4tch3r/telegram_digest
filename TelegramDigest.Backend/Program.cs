@@ -1,58 +1,48 @@
-using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using TelegramDigest.Backend.Core;
 using TelegramDigest.Backend.Database;
+using TelegramDigest.Backend.DeploymentOptions;
 
 namespace TelegramDigest.Backend;
 
-[UsedImplicitly]
 public static class ServiceCollectionExtensions
 {
-    public static void AddTelegramDigest(
-        this IServiceCollection services,
-        IConfiguration configuration
-    )
+    public static void AddBackend(this IHostApplicationBuilder builder)
     {
-        ConfigureServices(services, configuration);
-    }
+        // Deployment options
+        builder.AddBackendDeploymentOptions();
 
-    public static async Task UseTelegramDigest(this IServiceProvider serviceProvider)
-    {
-        await InitializeDbAsync(serviceProvider);
-    }
-
-    private static void ConfigureServices(IServiceCollection services, IConfiguration configuration)
-    {
         // Database
-        services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseSqlite(configuration.GetConnectionString("DefaultConnection"))
+        builder.Services.AddDbContext<ApplicationDbContext>(options =>
+            options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"))
         );
 
         // Application services
-        services.AddHostedService<QueueProcessorBackgroundService>();
-        services.AddHostedService<SchedulerBackgroundService>();
-        services.AddScoped<IChannelReader, ChannelReader>();
-        services.AddScoped<IChannelsService, ChannelsService>();
-        services.AddScoped<IChannelsRepository, ChannelsRepository>();
-        services.AddScoped<IDigestService, DigestService>();
-        services.AddScoped<IDigestService, DigestService>();
-        services.AddScoped<IDigestRepository, DigestRepository>();
-        services.AddScoped<IDigestStepsService, DigestStepsService>();
-        services.AddScoped<IDigestStepsRepository, DigestStepsRepository>();
-        services.AddScoped<IAiSummarizer, AiSummarizer>();
-        services.AddSingleton<ITaskQueue, TaskQueue>();
-        services.AddScoped<IEmailSender, EmailSender>();
-        services.AddScoped<IMainService, MainService>();
-        services.AddScoped<IRssService, RssService>();
-        services.AddScoped<ISettingsManager, SettingsManager>(sp =>
+        builder.Services.AddHostedService<TaskProcessorBackgroundService>();
+        builder.Services.AddHostedService<SchedulerBackgroundService>();
+        builder.Services.AddScoped<IChannelReader, ChannelReader>();
+        builder.Services.AddScoped<IChannelsService, ChannelsService>();
+        builder.Services.AddScoped<IChannelsRepository, ChannelsRepository>();
+        builder.Services.AddScoped<IDigestService, DigestService>();
+        builder.Services.AddScoped<IDigestService, DigestService>();
+        builder.Services.AddScoped<IDigestRepository, DigestRepository>();
+        builder.Services.AddScoped<IDigestStepsService, DigestStepsService>();
+        builder.Services.AddScoped<IDigestStepsRepository, DigestStepsRepository>();
+        builder.Services.AddScoped<IAiSummarizer, AiSummarizer>();
+        builder.Services.AddSingleton<ITaskScheduler<DigestId>, TaskTracker<DigestId>>();
+        builder.Services.AddScoped<IEmailSender, EmailSender>();
+        builder.Services.AddScoped<IMainService, MainService>();
+        builder.Services.AddScoped<IRssService, RssService>();
+        builder.Services.AddScoped<ISettingsManager, SettingsManager>(sp =>
         {
             var logger = sp.GetRequiredService<ILogger<SettingsManager>>();
-            var settingsPath = configuration.GetValue<string>("SettingsPath");
+            var settingsPath = builder.Configuration.GetValue<string>("SettingsPath");
             return new(settingsPath, logger);
         });
 
         // Logging
-        services.AddLogging(logging =>
+        builder.Services.AddLogging(logging =>
         {
             logging.ClearProviders();
             logging.AddConsole();
@@ -60,9 +50,10 @@ public static class ServiceCollectionExtensions
         });
     }
 
-    private static async Task InitializeDbAsync(IServiceProvider serviceProvider)
+    public static async Task UseBackend(this IServiceProvider services)
     {
-        using var scope = serviceProvider.CreateScope();
+        // Database initial migration
+        using var scope = services.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         await context.Database.MigrateAsync();
     }

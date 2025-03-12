@@ -18,6 +18,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\TelegramDigest.Backend\TelegramDigest.Backend.csproj" />
       <ProjectReference Include="..\TelegramDigest.HostHandler\TelegramDigest.HostHandler.csproj" />
     </ItemGroup>
 

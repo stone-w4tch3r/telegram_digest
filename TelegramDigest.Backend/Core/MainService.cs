@@ -54,6 +54,28 @@ public interface IMainService
     public Task<Result<IDigestStepModel[]>> GetDigestSteps(DigestId digestId);
 
     /// <summary>
+    /// Tries to cancel a digest
+    /// </summary>
+    /// <returns>true if success, false if not found</returns>
+    public Result TryCancelDigest(DigestId digestId);
+
+    /// <summary>
+    /// Returns list of digests that are currently being processed
+    /// </summary>
+    public IReadOnlyCollection<DigestId> GetInProgressDigests();
+
+    /// <summary>
+    /// Returns list of digests that are waiting to be processed
+    /// </summary>
+    public IReadOnlyCollection<DigestId> GetWaitingDigests();
+
+    /// <summary>
+    /// Tries to remove a digest from the waiting list
+    /// </summary>
+    /// <returns>true if success, false if not found</returns>
+    public Result TryRemoveWaitingDigest(DigestId key);
+
+    /// <summary>
     /// Send digest over email
     /// </summary>
     public Task<Result> SendDigestOverEmail(DigestId digestId);
@@ -84,7 +106,7 @@ internal sealed class MainService(
     IServiceProvider serviceProvider,
     ISettingsManager settingsManager,
     IRssService rssService,
-    ITaskQueue taskQueue,
+    ITaskScheduler<DigestId> taskTracker,
     IDigestStepsService digestStepsService,
     ILogger<MainService> logger
 ) : IMainService
@@ -131,15 +153,38 @@ internal sealed class MainService(
             new SimpleStepModel { DigestId = digestId, Type = DigestStepTypeModelEnum.Queued }
         );
 
-        taskQueue.QueueTask(async ct =>
-        {
-            // use own scope and services to avoid issues with disposing of captured scope
-            using var scope = serviceProvider.CreateScope();
-            var scopedMainService = scope.ServiceProvider.GetRequiredService<IMainService>();
-            await scopedMainService.ProcessDigestForLastPeriod(digestId);
-        });
+        taskTracker.AddTaskToWaitQueue(
+            async ct => // TODO pass ct
+            {
+                // use own scope and services to avoid issues with disposing of captured scope
+                using var scope = serviceProvider.CreateScope();
+                var scopedMainService = scope.ServiceProvider.GetRequiredService<IMainService>();
+                await scopedMainService.ProcessDigestForLastPeriod(digestId);
+            },
+            digestId
+        );
 
         return Result.Ok();
+    }
+
+    public Result TryCancelDigest(DigestId digestId)
+    {
+        return Result.Try(() => taskTracker.CancelTaskInProgress(digestId));
+    }
+
+    public IReadOnlyCollection<DigestId> GetInProgressDigests()
+    {
+        return taskTracker.GetInProgressTasks();
+    }
+
+    public IReadOnlyCollection<DigestId> GetWaitingDigests()
+    {
+        return taskTracker.GetWaitingTasks();
+    }
+
+    public Result TryRemoveWaitingDigest(DigestId key)
+    {
+        return Result.Try(() => taskTracker.RemoveWaitingTask(key));
     }
 
     public async Task<Result<List<ChannelModel>>> GetChannels()

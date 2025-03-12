@@ -12,6 +12,7 @@
         <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.1"/>
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.1"/>
         <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.1"/>
+        <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="9.0.1"/>
         <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.1"/>
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.1"/>
         <PackageReference Include="System.ServiceModel.Syndication" Version="9.0.1"/>
@@ -23,5 +24,11 @@
 
     <ItemGroup>
       <ProjectReference Include="..\TelegramDigest.HostHandler\TelegramDigest.HostHandler.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+            <_Parameter1>TelegramDigest.Backend.Tests</_Parameter1>
+        </AssemblyAttribute>
     </ItemGroup>
 </Project>

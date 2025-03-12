@@ -7,12 +7,14 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Deployment options
 builder.Configuration.AddEnvironmentVariables();
-builder.AddDeploymentOptions();
+builder.AddWebDeploymentOptions();
+
+// Backend configuration
+builder.AddBackend();
 
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddControllers();
-builder.Services.AddTelegramDigest(builder.Configuration);
 builder.Services.AddScoped<BackendClient>();
 
 var app = builder.Build();
@@ -28,7 +30,7 @@ else
     app.UseDeveloperExceptionPage();
 }
 
-var deploymentOptions = app.Services.GetRequiredService<IOptions<DeploymentOptions>>().Value;
+var deploymentOptions = app.Services.GetRequiredService<IOptions<WebDeploymentOptions>>().Value;
 
 app.UsePathBase(deploymentOptions.BasePath);
 app.UseHttpsRedirection();
@@ -37,6 +39,6 @@ app.UseRouting();
 app.MapRazorPages();
 app.MapControllers();
 
-await app.Services.UseTelegramDigest();
+await app.Services.UseBackend();
 
 app.Run();

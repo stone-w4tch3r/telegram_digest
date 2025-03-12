@@ -57,23 +57,23 @@ public interface IMainService
     /// Tries to cancel a digest
     /// </summary>
     /// <returns>true if success, false if not found</returns>
-    public Result TryCancelDigest(DigestId digestId);
+    public Task<Result> CancelDigest(DigestId digestId);
 
     /// <summary>
     /// Returns list of digests that are currently being processed
     /// </summary>
-    public IReadOnlyCollection<DigestId> GetInProgressDigests();
+    public Task<DigestId[]> GetInProgressDigests();
 
     /// <summary>
     /// Returns list of digests that are waiting to be processed
     /// </summary>
-    public IReadOnlyCollection<DigestId> GetWaitingDigests();
+    public Task<DigestId[]> GetWaitingDigests();
 
     /// <summary>
     /// Tries to remove a digest from the waiting list
     /// </summary>
     /// <returns>true if success, false if not found</returns>
-    public Result TryRemoveWaitingDigest(DigestId key);
+    public Task<Result> RemoveWaitingDigest(DigestId key);
 
     /// <summary>
     /// Send digest over email
@@ -167,24 +167,24 @@ internal sealed class MainService(
         return Result.Ok();
     }
 
-    public Result TryCancelDigest(DigestId digestId)
+    public Task<Result> CancelDigest(DigestId digestId)
     {
-        return Result.Try(() => taskTracker.CancelTaskInProgress(digestId));
+        return Task.FromResult(Result.Try(() => taskTracker.CancelTaskInProgress(digestId)));
     }
 
-    public IReadOnlyCollection<DigestId> GetInProgressDigests()
+    public Task<DigestId[]> GetInProgressDigests()
     {
-        return taskTracker.GetInProgressTasks();
+        return Task.FromResult(taskTracker.GetInProgressTasks());
     }
 
-    public IReadOnlyCollection<DigestId> GetWaitingDigests()
+    public Task<DigestId[]> GetWaitingDigests()
     {
-        return taskTracker.GetWaitingTasks();
+        return Task.FromResult(taskTracker.GetWaitingTasks());
     }
 
-    public Result TryRemoveWaitingDigest(DigestId key)
+    public Task<Result> RemoveWaitingDigest(DigestId key)
     {
-        return Result.Try(() => taskTracker.RemoveWaitingTask(key));
+        return Task.FromResult(Result.Try(() => taskTracker.RemoveWaitingTask(key)));
     }
 
     public async Task<Result<List<ChannelModel>>> GetChannels()

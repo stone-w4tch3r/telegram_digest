@@ -2,6 +2,7 @@ using System.Collections.Concurrent;
 using System.Threading.Channels;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using TelegramDigest.Backend.DeploymentOptions;
 
 namespace TelegramDigest.Backend.Core;
@@ -20,10 +21,10 @@ internal interface ITaskScheduler<TKey>
     public void RemoveWaitingTask(TKey key);
 
     /// <returns>A read-only collection of keys.</returns>
-    public IReadOnlyCollection<TKey> GetWaitingTasks();
+    public TKey[] GetWaitingTasks();
 
     /// <returns>A read-only collection of keys.</returns>
-    public IReadOnlyCollection<TKey> GetInProgressTasks();
+    public TKey[] GetInProgressTasks();
 
     /// <param name="key">The key associated with the task to be canceled.</param>
     /// <exception cref="KeyNotFoundException">
@@ -58,6 +59,13 @@ internal interface ITaskProgressHandler<TKey>
     /// Thrown if the key is not found in the in-progress tasks list.
     /// </exception>
     public void CompleteTaskInProgress(TKey key);
+
+    /// <summary>
+    /// Tries to mark a task as complete and removes it from the in-progress state.
+    /// </summary>
+    /// <param name="key">The key associated with the task to be completed.</param>
+    /// <returns>True if the task was successfully completed, false otherwise</returns>
+    public bool TryCompleteTaskInProgress(TKey key);
 }
 
 internal sealed class TaskTracker<TKey> : ITaskScheduler<TKey>, ITaskProgressHandler<TKey>
@@ -117,9 +125,9 @@ internal sealed class TaskTracker<TKey> : ITaskScheduler<TKey>, ITaskProgressHan
         return cts.Token;
     }
 
-    public IReadOnlyCollection<TKey> GetInProgressTasks()
+    public TKey[] GetInProgressTasks()
     {
-        return _inProgressTasksCts.Keys.ToList();
+        return _inProgressTasksCts.Keys.ToArray();
     }
 
     public void CompleteTaskInProgress(TKey key)
@@ -132,9 +140,22 @@ internal sealed class TaskTracker<TKey> : ITaskScheduler<TKey>, ITaskProgressHan
         cts.Dispose();
     }
 
-    public IReadOnlyCollection<TKey> GetWaitingTasks()
+    public bool TryCompleteTaskInProgress(TKey key)
     {
-        return _waitingTasksList.Keys.ToList();
+        try
+        {
+            CompleteTaskInProgress(key);
+            return true;
+        }
+        catch (KeyNotFoundException)
+        {
+            return false;
+        }
+    }
+
+    public TKey[] GetWaitingTasks()
+    {
+        return _waitingTasksList.Keys.ToArray();
     }
 
     public void RemoveWaitingTask(TKey key)
@@ -163,50 +184,65 @@ internal sealed class TaskTracker<TKey> : ITaskScheduler<TKey>, ITaskProgressHan
 internal sealed class TaskProcessorBackgroundService(
     ITaskProgressHandler<DigestId> taskTracker,
     ILogger<TaskProcessorBackgroundService> logger,
-    BackendDeploymentOptions deploymentOptions
+    IOptions<BackendDeploymentOptions> deploymentOptions
 ) : BackgroundService
 {
-    private readonly SemaphoreSlim _semaphore = new(deploymentOptions.MaxConcurrentAiTasks);
+    private readonly SemaphoreSlim _semaphore = new(deploymentOptions.Value.MaxConcurrentAiTasks);
 
-    protected override async Task ExecuteAsync(CancellationToken lifecycleCt)
+    protected override async Task ExecuteAsync(CancellationToken ct)
     {
-        while (!lifecycleCt.IsCancellationRequested)
+        while (!ct.IsCancellationRequested)
         {
-            // Wait for a new task to be available and acquire a semaphore slot
-            await _semaphore.WaitAsync(lifecycleCt);
-            var (workItem, digestId) = await taskTracker.DequeueWaitingTask();
-
-            // Run the task in the background without awaiting, allowing concurrency
-            _ = Task.Run(
-                async () =>
-                {
-                    try
-                    {
-                        // Move a task to in-progress and execute it
-                        var progressControllCt = taskTracker.MoveTaskToInProgress(digestId);
-                        await workItem(
-                            CancellationTokenSource
-                                .CreateLinkedTokenSource(progressControllCt, lifecycleCt)
-                                .Token
-                        );
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.LogError(
-                            ex,
-                            "Error occurred during digest queue processing for DigestId: {DigestId}",
-                            digestId
-                        );
-                    }
-                    finally
-                    {
-                        taskTracker.CompleteTaskInProgress(digestId);
-                        _semaphore.Release();
-                    }
-                },
-                lifecycleCt
-            );
+            try
+            {
+                await ProcessSingleTask(ct);
+            }
+            catch (Exception ex)
+            {
+                logger.LogCritical(
+                    ex,
+                    $"Unhandled exception in {nameof(TaskProcessorBackgroundService)}, but crash prevented"
+                );
+            }
         }
+    }
+
+    private async Task ProcessSingleTask(CancellationToken lifecycleCt)
+    {
+        // Wait for a new task to be available and acquire a semaphore slot
+        await _semaphore.WaitAsync(lifecycleCt);
+        var (workItem, digestId) = await taskTracker.DequeueWaitingTask();
+
+        // Run the task in the background without awaiting, allowing concurrency
+        _ = Task.Run(
+            async () =>
+            {
+                try
+                {
+                    // Move a task to in-progress and execute it
+                    var progressControlCt = taskTracker.MoveTaskToInProgress(digestId);
+                    await workItem(
+                        CancellationTokenSource
+                            .CreateLinkedTokenSource(progressControlCt, lifecycleCt)
+                            .Token
+                    );
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(
+                        ex,
+                        "Error occurred during digest queue processing for DigestId: {DigestId}",
+                        digestId
+                    );
+                }
+                finally
+                {
+                    taskTracker.TryCompleteTaskInProgress(digestId);
+                    _semaphore.Release();
+                }
+            },
+            lifecycleCt
+        );
     }
 
     public override void Dispose()

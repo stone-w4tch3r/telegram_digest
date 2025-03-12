@@ -248,6 +248,36 @@ public sealed class BackendClient(IMainService mainService, ILogger<BackendClien
             ErrorMessage = steps[^1] is ErrorStepModel error ? error.FormatErrorStep() : null,
         };
     }
+
+    public async Task CancelDigest(Guid digestId)
+    {
+        var result = await mainService.CancelDigest(new(digestId));
+        if (result.IsFailed)
+        {
+            logger.LogError("Failed to cancel digest: {Errors}", result.Errors);
+            throw new("Failed to cancel digest");
+        }
+    }
+
+    public async Task<Guid[]> GetInProgressDigests()
+    {
+        return (await mainService.GetInProgressDigests()).Select(x => x.Guid).ToArray();
+    }
+
+    public async Task<Guid[]> GetWaitingDigests()
+    {
+        return (await mainService.GetWaitingDigests()).Select(x => x.Guid).ToArray();
+    }
+
+    public async Task RemoveWaitingDigest(Guid key)
+    {
+        var result = await mainService.RemoveWaitingDigest(new(key));
+        if (result.IsFailed)
+        {
+            logger.LogError("Failed to remove waiting digest: {Errors}", result.Errors);
+            throw new("Failed to remove waiting digest");
+        }
+    }
 }
 
 public static class StepsHelper

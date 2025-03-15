@@ -42,6 +42,7 @@
 | [ ]  | Bug: newlines in UI                                       | 30min |
 | [ ]  | Bug: add new chanel: backend error not shown until reload | 30min |
 | [ ]  | Replace "Back to digests" with "Back"                     | 30min |
+| [ ]  | Clean logs                                                | 30min |
 | [ ]  | Digest generation: Parametrized                           | 3h    |
 | [ ]  | Digest generation: queue monitor                          | 3h    |
 | [ ]  | Digest generation: cancellation                           | 1h    |

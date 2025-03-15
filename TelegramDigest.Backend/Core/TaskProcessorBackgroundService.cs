@@ -173,10 +173,12 @@ internal sealed class TaskTracker<TKey> : ITaskScheduler<TKey>, ITaskProgressHan
             throw new KeyNotFoundException($"The key {key} was not found in progress tasks list");
         }
 
-        if (!cts.IsCancellationRequested)
+        if (cts.IsCancellationRequested)
         {
-            cts.Cancel();
+            throw new OperationCanceledException($"Task {key} is already cancelled");
         }
+
+        cts.Cancel();
     }
 }
 

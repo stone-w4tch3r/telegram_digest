@@ -3,9 +3,9 @@ using Microsoft.Extensions.Hosting;
 
 namespace TelegramDigest.Backend.DeploymentOptions;
 
-public static class BackendDeploymentOptionsBuilderExtensions
+internal static class BackendDeploymentOptionsBuilderExtensions
 {
-    public static IHostApplicationBuilder AddBackendDeploymentOptions(
+    internal static IHostApplicationBuilder AddBackendDeploymentOptions(
         this IHostApplicationBuilder builder
     )
     {
@@ -13,10 +13,12 @@ public static class BackendDeploymentOptionsBuilderExtensions
             .Services.AddOptionsWithValidateOnStart<BackendDeploymentOptions>()
             .Configure(options =>
             {
-                options.MaxConcurrentAiTasks =
-                    builder.Configuration.GetValue<int?>(
-                        BackendDeploymentOptions.MAX_CONCURRENT_AI_TASKS_KEY
-                    ) ?? options.MaxConcurrentAiTasks;
+                options.MaxConcurrentAiTasks = builder.Configuration.GetValue<int?>(
+                    BackendDeploymentOptions.MAX_CONCURRENT_AI_TASKS_KEY
+                );
+                options.SqlLiteConnectionString = builder.Configuration.GetValue<string?>(
+                    BackendDeploymentOptions.SQL_LITE_CONNECTION_STRING_KEY
+                );
             })
             .ValidateDataAnnotations();
 

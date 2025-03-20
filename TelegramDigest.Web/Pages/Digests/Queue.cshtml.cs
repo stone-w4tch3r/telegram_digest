@@ -20,13 +20,14 @@ public class QueueModel(BackendClient backend) : BasePageModel
         try
         {
             await backend.CancelDigest(digestId);
-            return RedirectToPage();
         }
         catch (Exception ex)
         {
+            // TODO fixme
             ErrorMessage = $"Failed to cancel digest: {ex.Message}";
-            return Page();
+            ModelState.AddModelError(string.Empty, ErrorMessage);
         }
+        return RedirectToPage();
     }
 
     public async Task<IActionResult> OnPostRemoveWaitingDigestAsync(Guid digestId)
@@ -34,12 +35,13 @@ public class QueueModel(BackendClient backend) : BasePageModel
         try
         {
             await backend.RemoveWaitingDigest(digestId);
-            return RedirectToPage();
         }
         catch (Exception ex)
         {
+            // TODO fixme
             ErrorMessage = $"Failed to remove waiting digest: {ex.Message}";
-            return Page();
+            ModelState.AddModelError(string.Empty, ErrorMessage);
         }
+        return RedirectToPage();
     }
 }

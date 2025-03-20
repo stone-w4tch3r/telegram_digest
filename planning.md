@@ -34,6 +34,7 @@
 | [x]  | Digest generation: display errors in progress                               | 1h    |
 | [x]  | Digest generation: show steps in progress                                   | 1h    |
 | [x]  | Digest generation: fix progress                                             | 1h    |
+| [x]  | Clean logs                                                                  | 30min |
 
 ### High priority
 
@@ -42,7 +43,6 @@
 | [ ]  | Bug: newlines in UI                                       | 30min |
 | [ ]  | Bug: add new chanel: backend error not shown until reload | 30min |
 | [ ]  | Replace "Back to digests" with "Back"                     | 30min |
-| [ ]  | Clean logs                                                | 30min |
 | [ ]  | Digest generation: Parametrized                           | 3h    |
 | [ ]  | Digest generation: queue monitor                          | 3h    |
 | [ ]  | Digest generation: cancellation                           | 1h    |
@@ -83,3 +83,5 @@
 - simplify db schema (remove digests table)
 - auto apply runtime argument null checks via code generation on compilation
 - use attributes for entity declaration
+- use separate library for env vars handling
+- move API controller into the Web project

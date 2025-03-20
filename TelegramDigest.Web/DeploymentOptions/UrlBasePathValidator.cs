@@ -3,7 +3,7 @@ using System.Diagnostics;
 
 namespace TelegramDigest.Web.DeploymentOptions;
 
-public sealed class UrlBasePathAttribute : ValidationAttribute
+public sealed class UrlBasePathAttribute(string memberName) : ValidationAttribute
 {
     protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
     {
@@ -20,27 +20,27 @@ public sealed class UrlBasePathAttribute : ValidationAttribute
 
         if (path.Contains(' '))
         {
-            return new("Path must not contain spaces");
+            return new("Path must not contain spaces", [memberName]);
         }
         if (!path.StartsWith('/'))
         {
-            return new("Path must start with '/'");
+            return new("Path must start with '/'", [memberName]);
         }
         if (path.EndsWith('/') && path != "/")
         {
-            return new("Path must not end with '/' (except single '/')");
+            return new("Path must not end with '/' (except single '/')", [memberName]);
         }
         if (path.Contains("//"))
         {
-            return new("Path must not contain consecutive slashes");
+            return new("Path must not contain consecutive slashes", [memberName]);
         }
         if (path.Any(c => !char.IsAscii(c)))
         {
-            return new("Path can only contain ASCII characters");
+            return new("Path can only contain ASCII characters", [memberName]);
         }
         if (path.Any(c => !char.IsLetterOrDigit(c) && c != '-' && c != '_' && c != '/'))
         {
-            return new("Path can only contain letters, numbers, and /-_");
+            return new("Path can only contain letters, numbers, and /-_", [memberName]);
         }
         foreach (var segment in path.Split('/').Skip(1))
         {
@@ -50,7 +50,7 @@ public sealed class UrlBasePathAttribute : ValidationAttribute
             }
             if (!char.IsLetterOrDigit(segment[0]))
             {
-                return new("Path segment must start with a letter or digit");
+                return new("Path segment must start with a letter or digit", [memberName]);
             }
         }
 

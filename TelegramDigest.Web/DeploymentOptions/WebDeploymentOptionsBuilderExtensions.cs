@@ -10,12 +10,12 @@ public static class WebDeploymentOptionsBuilderExtensions
             .Services.AddOptionsWithValidateOnStart<WebDeploymentOptions>()
             .Configure(options =>
             {
-                options.BasePath =
-                    builder.Configuration.GetValue<string>(WebDeploymentOptions.BASEPATH_KEY)
-                    ?? options.BasePath;
-                options.HostName =
-                    builder.Configuration.GetValue<string>(WebDeploymentOptions.HOSTNAME_KEY)
-                    ?? options.HostName;
+                options.BasePath = builder.Configuration.GetValue<string>(
+                    WebDeploymentOptions.BASEPATH_KEY
+                );
+                options.HostName = builder.Configuration.GetValue<string>(
+                    WebDeploymentOptions.HOSTNAME_KEY
+                );
             })
             .ValidateDataAnnotations();
 

@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using TelegramDigest.Backend.Core;
 using TelegramDigest.Backend.Database;
 using TelegramDigest.Backend.DeploymentOptions;
@@ -12,11 +13,6 @@ public static class ServiceCollectionExtensions
     {
         // Deployment options
         builder.AddBackendDeploymentOptions();
-
-        // Database
-        builder.Services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"))
-        );
 
         // Application services
         builder.Services.AddHostedService<TaskProcessorBackgroundService>();
@@ -31,21 +27,33 @@ public static class ServiceCollectionExtensions
         builder.Services.AddScoped<IDigestStepsRepository, DigestStepsRepository>();
         builder.Services.AddScoped<IAiSummarizer, AiSummarizer>();
         builder.Services.AddSingleton<TaskTracker<DigestId>>();
+        builder.Services.AddScoped<IEmailSender, EmailSender>();
+        builder.Services.AddScoped<IMainService, MainService>();
+        builder.Services.AddScoped<IRssService, RssService>();
+
         builder.Services.AddSingleton<ITaskScheduler<DigestId>>(provider =>
             provider.GetRequiredService<TaskTracker<DigestId>>()
         );
         builder.Services.AddSingleton<ITaskProgressHandler<DigestId>>(sp =>
             sp.GetRequiredService<TaskTracker<DigestId>>()
         );
-        builder.Services.AddScoped<IEmailSender, EmailSender>();
-        builder.Services.AddScoped<IMainService, MainService>();
-        builder.Services.AddScoped<IRssService, RssService>();
         builder.Services.AddScoped<ISettingsManager, SettingsManager>(sp =>
         {
             var logger = sp.GetRequiredService<ILogger<SettingsManager>>();
             var settingsPath = builder.Configuration.GetValue<string>("SettingsPath");
             return new(settingsPath, logger);
         });
+
+        // Database
+        builder.Services.AddDbContext<ApplicationDbContext>(
+            (serviceProvider, options) =>
+            {
+                var deploymentOptions = serviceProvider
+                    .GetRequiredService<IOptions<BackendDeploymentOptions>>()
+                    .Value;
+                options.UseSqlite(deploymentOptions.SqlLiteConnectionString);
+            }
+        );
 
         // Logging
         builder.Services.AddLogging(logging =>

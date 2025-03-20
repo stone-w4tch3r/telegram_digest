@@ -189,7 +189,9 @@ internal sealed class TaskProcessorBackgroundService(
     IOptions<BackendDeploymentOptions> deploymentOptions
 ) : BackgroundService
 {
-    private readonly SemaphoreSlim _semaphore = new(deploymentOptions.Value.MaxConcurrentAiTasks);
+    private readonly SemaphoreSlim _semaphore = new(
+        deploymentOptions.Value.MaxConcurrentAiTasks.Value
+    );
 
     protected override async Task ExecuteAsync(CancellationToken ct)
     {
@@ -201,7 +203,7 @@ internal sealed class TaskProcessorBackgroundService(
             }
             catch (Exception ex)
             {
-                logger.LogCritical(
+                logger.LogError(
                     ex,
                     $"Unhandled exception in {nameof(TaskProcessorBackgroundService)}, but crash prevented"
                 );

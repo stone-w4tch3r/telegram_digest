@@ -8,7 +8,6 @@ builder.Services.AddScoped<IApplicationFacade, BackendFacade>();
 
 builder.Services.AddControllers();
 builder.Services.AddSwaggerGen();
-builder.AddBackendDeploymentOptions();
 builder.AddBackend();
 
 var app = builder.Build();

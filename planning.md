@@ -67,6 +67,7 @@
 | [ ]  | Tests: UI                                         | 2h    |
 | [ ]  | Tests: validators                                 | 2h    |
 | [ ]  | Allow empty API key                               | 1h    |
+| [ ]  | Faster docker build                               | 1h    |
 
 ### Future
 

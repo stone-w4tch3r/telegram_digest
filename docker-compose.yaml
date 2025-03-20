@@ -1,6 +1,11 @@
 ﻿services:
-  telegramdigest.web:
-    image: telegramdigest.web
+  telegramdigest:
     build:
       context: .
-      dockerfile: TelegramDigest.Web/Dockerfile
+      dockerfile: Dockerfile
+    environment:
+      - APP_UID=1000
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./runtime:/app/runtime

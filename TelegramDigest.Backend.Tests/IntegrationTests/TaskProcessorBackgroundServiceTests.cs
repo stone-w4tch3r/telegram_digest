@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Moq;
 using TelegramDigest.Backend.Core;
 using TelegramDigest.Backend.DeploymentOptions;
@@ -21,7 +22,7 @@ public class TaskProcessorBackgroundServiceTests
         var service = new TaskProcessorBackgroundService(
             tracker,
             _mockLogger.Object,
-            new() { MaxConcurrentAiTasks = 2 }
+            Mock.Of<IOptions<BackendDeploymentOptions>>(x => x.Value.MaxConcurrentAiTasks == 2)
         );
 
         var digestId = new DigestId();
@@ -55,7 +56,9 @@ public class TaskProcessorBackgroundServiceTests
     {
         // Arrange
         var tracker = new TaskTracker<DigestId>();
-        var options = new BackendDeploymentOptions { MaxConcurrentAiTasks = 2 };
+        var options = Mock.Of<IOptions<BackendDeploymentOptions>>(x =>
+            x.Value.MaxConcurrentAiTasks == 2
+        );
         var service = new TaskProcessorBackgroundService(tracker, _mockLogger.Object, options);
 
         var tcs1 = new TaskCompletionSource();
@@ -95,16 +98,16 @@ public class TaskProcessorBackgroundServiceTests
         var service = new TaskProcessorBackgroundService(
             tracker,
             _mockLogger.Object,
-            new() { MaxConcurrentAiTasks = 1 }
+            Mock.Of<IOptions<BackendDeploymentOptions>>(x => x.Value.MaxConcurrentAiTasks == 1)
         );
-        var cacnelationCalled = false;
+        var cancellationCalled = false;
 
         var digestId = new DigestId();
 
         tracker.AddTaskToWaitQueue(
             ct =>
             {
-                ct.Register(() => cacnelationCalled = true);
+                ct.Register(() => cancellationCalled = true);
                 return Task.CompletedTask;
             },
             digestId
@@ -118,7 +121,7 @@ public class TaskProcessorBackgroundServiceTests
         await Task.Delay(100); // Let the task complete
 
         // Assert
-        Assert.That(cacnelationCalled);
+        Assert.That(cancellationCalled);
 
         // Cleanup
         service.Dispose();

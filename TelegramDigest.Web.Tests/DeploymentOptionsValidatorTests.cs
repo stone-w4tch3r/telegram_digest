@@ -22,7 +22,7 @@ namespace TelegramDigest.Web.Tests
         [TestCase("/a-b_c")]
         public void TestValidPaths(string? value)
         {
-            var attribute = new UrlBasePathAttribute();
+            var attribute = new UrlBasePathAttribute("");
             var result = attribute.GetValidationResult(value, new(new()));
             Assert.That(result, Is.EqualTo(ValidationResult.Success));
         }
@@ -49,7 +49,7 @@ namespace TelegramDigest.Web.Tests
         [TestCase("/x /x", NO_SPACES)]
         public void TestInvalidPaths(string value, string message)
         {
-            var attribute = new UrlBasePathAttribute();
+            var attribute = new UrlBasePathAttribute("");
             Assert.That(
                 attribute.GetValidationResult(value, new(new()))?.ErrorMessage,
                 Is.EqualTo(message)

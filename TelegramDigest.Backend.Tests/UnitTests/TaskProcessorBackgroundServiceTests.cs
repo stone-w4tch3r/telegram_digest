@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Moq;
 using TelegramDigest.Backend.Core;
 using TelegramDigest.Backend.DeploymentOptions;
@@ -13,7 +14,7 @@ public class TaskProcessorBackgroundServiceTests
 {
     private Mock<ITaskProgressHandler<DigestId>> _mockTaskTracker;
     private Mock<ILogger<TaskProcessorBackgroundService>> _mockLogger;
-    private BackendDeploymentOptions _deploymentOptions;
+    private IOptions<BackendDeploymentOptions> _deploymentOptions;
     private TaskProcessorBackgroundService _service;
 
     [TearDown]
@@ -27,7 +28,9 @@ public class TaskProcessorBackgroundServiceTests
     {
         _mockTaskTracker = new();
         _mockLogger = new();
-        _deploymentOptions = new() { MaxConcurrentAiTasks = 1 };
+        _deploymentOptions = Mock.Of<IOptions<BackendDeploymentOptions>>(x =>
+            x.Value.MaxConcurrentAiTasks == 2
+        );
 
         _service = new(_mockTaskTracker.Object, _mockLogger.Object, _deploymentOptions);
     }
@@ -68,7 +71,7 @@ public class TaskProcessorBackgroundServiceTests
         await Task.Delay(100);
 
         // Assert
-        _mockTaskTracker.Verify(t => t.CompleteTaskInProgress(digestId), Times.Once);
+        _mockTaskTracker.Verify(t => t.TryCompleteTaskInProgress(digestId), Times.Once);
     }
 
     [Test]

@@ -333,7 +333,7 @@ public class TaskTrackerTests
     }
 
     [Test]
-    public void CancelTaskInProgress_ShouldNotThrow_WhenAlreadyCancelled()
+    public void CancelTaskInProgress_ShouldThrowCancellationException_WhenAlreadyCancelled()
     {
         var key = "task1";
         var task = new Func<CancellationToken, Task>(ct => Task.Delay(1000, ct));
@@ -346,7 +346,7 @@ public class TaskTrackerTests
         Assert.That(token.IsCancellationRequested, Is.True);
 
         // Calling cancellation again should not throw.
-        Assert.DoesNotThrow(() => _taskTracker.CancelTaskInProgress(key));
+        Assert.Throws<OperationCanceledException>(() => _taskTracker.CancelTaskInProgress(key));
     }
 
     [Test]

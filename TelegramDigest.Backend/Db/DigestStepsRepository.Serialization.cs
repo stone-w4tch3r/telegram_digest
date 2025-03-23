@@ -5,7 +5,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using FluentResults;
 
-namespace TelegramDigest.Backend.Core;
+namespace TelegramDigest.Backend.Db;
 
 internal sealed partial class DigestStepsRepository
 {

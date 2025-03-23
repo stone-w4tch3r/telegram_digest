@@ -2,7 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using TelegramDigest.Backend.Core;
-using TelegramDigest.Backend.Database;
+using TelegramDigest.Backend.Db;
 using TelegramDigest.Backend.DeploymentOptions;
 
 namespace TelegramDigest.Backend;

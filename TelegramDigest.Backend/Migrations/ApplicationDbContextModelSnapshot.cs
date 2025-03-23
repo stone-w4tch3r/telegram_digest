@@ -3,7 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using TelegramDigest.Backend.Database;
+using TelegramDigest.Backend.Db;
 
 #nullable disable
 

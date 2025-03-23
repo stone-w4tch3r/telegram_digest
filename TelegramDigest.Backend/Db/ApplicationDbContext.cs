@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace TelegramDigest.Backend.Database;
+namespace TelegramDigest.Backend.Db;
 
 internal sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
     : DbContext(options)

@@ -1,9 +1,9 @@
 using System.Diagnostics;
 using System.Text.Json;
 using FluentResults;
-using TelegramDigest.Backend.Database;
+using TelegramDigest.Backend.Core;
 
-namespace TelegramDigest.Backend.Core;
+namespace TelegramDigest.Backend.Db;
 
 internal interface IDigestStepsRepository
 {

@@ -1,4 +1,5 @@
 using FluentResults;
+using TelegramDigest.Backend.Db;
 
 namespace TelegramDigest.Backend.Core;
 

@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace TelegramDigest.Backend.Database;
+namespace TelegramDigest.Backend.Db;
 
 internal enum DigestStepTypeEntityEnum
 {

@@ -7,8 +7,8 @@ namespace TelegramDigest.Backend.Db;
 
 internal interface IDigestStepsRepository
 {
-    Task<Result<IDigestStepModel[]>> LoadStepsHistory(DigestId digestId);
-    Task<Result> SaveStepAsync(IDigestStepModel step);
+    Task<Result<IDigestStepModel[]>> LoadStepsHistory(DigestId digestId, CancellationToken ct);
+    Task<Result> SaveStepAsync(IDigestStepModel step, CancellationToken ct);
 }
 
 internal sealed partial class DigestStepsRepository(
@@ -16,14 +16,17 @@ internal sealed partial class DigestStepsRepository(
     ILogger<DigestStepsRepository> logger
 ) : IDigestStepsRepository
 {
-    public async Task<Result<IDigestStepModel[]>> LoadStepsHistory(DigestId digestId)
+    public async Task<Result<IDigestStepModel[]>> LoadStepsHistory(
+        DigestId digestId,
+        CancellationToken ct
+    )
     {
         try
         {
             var entities = await context
                 .DigestSteps.Where(s => s.DigestId == digestId.Guid)
                 .OrderBy(s => s.Timestamp)
-                .ToListAsync();
+                .ToListAsync(ct);
 
             var models = entities.Select(MapEntityToModel).ToArray();
             return Result.Ok(models);
@@ -34,13 +37,13 @@ internal sealed partial class DigestStepsRepository(
         }
     }
 
-    public async Task<Result> SaveStepAsync(IDigestStepModel step)
+    public async Task<Result> SaveStepAsync(IDigestStepModel step, CancellationToken ct)
     {
         try
         {
             var entity = MapModelToEntity(step);
             context.DigestSteps.Add(entity);
-            await context.SaveChangesAsync();
+            await context.SaveChangesAsync(ct);
             return Result.Ok();
         }
         catch (Exception ex)

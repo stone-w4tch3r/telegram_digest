@@ -6,12 +6,13 @@ namespace TelegramDigest.Backend.Core;
 
 internal interface IChannelReader
 {
-    public Task<Result<List<PostModel>>> FetchPosts(
+    Task<Result<List<PostModel>>> FetchPosts(
         ChannelTgId channelTgId,
         DateOnly from,
-        DateOnly to
+        DateOnly to,
+        CancellationToken ct
     );
-    public Task<Result<ChannelModel>> FetchChannelInfo(ChannelTgId channelTgId);
+    Task<Result<ChannelModel>> FetchChannelInfo(ChannelTgId channelTgId, CancellationToken ct);
 }
 
 internal sealed class ChannelReader(ILogger<ChannelReader> logger) : IChannelReader
@@ -21,72 +22,100 @@ internal sealed class ChannelReader(ILogger<ChannelReader> logger) : IChannelRea
     public Task<Result<List<PostModel>>> FetchPosts(
         ChannelTgId channelTgId,
         DateOnly from,
-        DateOnly to
+        DateOnly to,
+        CancellationToken ct
     ) =>
-        Task.Run(() =>
-        {
-            if (from > to)
+        Task.Run(
+            () =>
             {
-                return Result.Fail(
-                    $"Can't fetch posts, invalid period requested, from: [{from}] to [{to}]"
-                );
-            }
+                ct.ThrowIfCancellationRequested();
 
-            try
+                if (from > to)
+                {
+                    return Result.Fail(
+                        $"Can't fetch posts, invalid period requested, from: [{from}] to [{to}]"
+                    );
+                }
+
+                try
+                {
+                    ct.ThrowIfCancellationRequested();
+                    var feedUrl = $"{RSS_HUB_BASE_URL}/{channelTgId.ChannelName}";
+                    using var reader = XmlReader.Create(feedUrl);
+                    var feed = SyndicationFeed.Load(reader);
+
+                    ct.ThrowIfCancellationRequested();
+                    var posts = feed
+                        .Items.Where(x =>
+                            DateOnly.FromDateTime(x.PublishDate.DateTime) >= from
+                            && DateOnly.FromDateTime(x.PublishDate.DateTime) <= to
+                        )
+                        .Select(x => new PostModel(
+                            ChannelTgId: channelTgId,
+                            HtmlContent: new(x.Summary.Text),
+                            Url: x.Links.SingleOrDefault()?.Uri
+                                ?? throw new FormatException(
+                                    $"Telegram Channel RSS item [{x.Id}] does not have a valid URL [{LinksCollectionToString(x.Links)}]"
+                                ),
+                            PublishedAt: x.PublishDate.DateTime
+                        ))
+                        .ToList();
+
+                    return Result.Ok(posts);
+                }
+                catch (OperationCanceledException)
+                {
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(
+                        ex,
+                        "Error fetching posts for channel {ChannelId}",
+                        channelTgId
+                    );
+                    return Result.Fail(new Error("Failed to fetch posts").CausedBy(ex));
+                }
+            },
+            ct
+        );
+
+    public Task<Result<ChannelModel>> FetchChannelInfo(
+        ChannelTgId channelTgId,
+        CancellationToken ct
+    ) =>
+        Task.Run(
+            () =>
             {
-                var feedUrl = $"{RSS_HUB_BASE_URL}/{channelTgId.ChannelName}";
-                using var reader = XmlReader.Create(feedUrl);
-                var feed = SyndicationFeed.Load(reader);
+                ct.ThrowIfCancellationRequested();
+                try
+                {
+                    var feedUrl = $"{RSS_HUB_BASE_URL}/{channelTgId.ChannelName}";
+                    using var reader = XmlReader.Create(feedUrl);
+                    var feed = SyndicationFeed.Load(reader);
 
-                var posts = feed
-                    .Items.Where(x =>
-                        DateOnly.FromDateTime(x.PublishDate.DateTime) >= from
-                        && DateOnly.FromDateTime(x.PublishDate.DateTime) <= to
-                    )
-                    .Select(x => new PostModel(
-                        ChannelTgId: channelTgId,
-                        HtmlContent: new(x.Summary.Text),
-                        Url: x.Links.SingleOrDefault()?.Uri
-                            ?? throw new FormatException(
-                                $"Telegram Channel RSS item [{x.Id}] does not have a valid URL [{LinksCollectionToString(x.Links)}]"
-                            ),
-                        PublishedAt: x.PublishDate.DateTime
-                    ))
-                    .ToList();
+                    ct.ThrowIfCancellationRequested();
+                    var channelModel = new ChannelModel(
+                        TgId: channelTgId,
+                        Description: feed.Description.Text,
+                        Title: feed.Title.Text,
+                        ImageUrl: feed.ImageUrl ?? new Uri(feedUrl)
+                    );
 
-                return Result.Ok(posts);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error fetching posts for channel {ChannelId}", channelTgId);
-                return Result.Fail(new Error("Failed to fetch posts").CausedBy(ex));
-            }
-        });
-
-    public Task<Result<ChannelModel>> FetchChannelInfo(ChannelTgId channelTgId) =>
-        Task.Run(() =>
-        {
-            try
-            {
-                var feedUrl = $"{RSS_HUB_BASE_URL}/{channelTgId.ChannelName}";
-                using var reader = XmlReader.Create(feedUrl);
-                var feed = SyndicationFeed.Load(reader);
-
-                var channelModel = new ChannelModel(
-                    TgId: channelTgId,
-                    Description: feed.Description.Text,
-                    Title: feed.Title.Text,
-                    ImageUrl: feed.ImageUrl ?? new Uri(feedUrl)
-                );
-
-                return Result.Ok(channelModel);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error fetching channel info for {ChannelId}", channelTgId);
-                return Result.Fail(new Error("Failed to fetch channel info").CausedBy(ex));
-            }
-        });
+                    return Result.Ok(channelModel);
+                }
+                catch (OperationCanceledException)
+                {
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Error fetching channel info for {ChannelId}", channelTgId);
+                    return Result.Fail(new Error("Failed to fetch channel info").CausedBy(ex));
+                }
+            },
+            ct
+        );
 
     private static string LinksCollectionToString(IEnumerable<SyndicationLink> links) =>
         string.Join(", ", links.Select(link => link.Uri.ToString()));

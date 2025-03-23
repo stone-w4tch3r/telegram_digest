@@ -8,31 +8,32 @@ internal interface IDigestService
     /// <summary>
     /// Generate new digest within the specified time range
     /// </summary>
-    public Task<Result<DigestGenerationResultTypeModelEnum>> GenerateDigest(
+    Task<Result<DigestGenerationResultModelEnum>> GenerateDigest(
         DigestId digestId,
         DateOnly from,
-        DateOnly to
+        DateOnly to,
+        CancellationToken ct
     );
 
     /// <summary>
     /// Loads complete digest including all post summaries and metadata
     /// </summary>
-    public Task<Result<DigestModel?>> GetDigest(DigestId digestId);
+    Task<Result<DigestModel?>> GetDigest(DigestId digestId, CancellationToken ct);
 
     /// <summary>
     /// Loads all digest summaries (metadata for each digest) without posts
     /// </summary>
-    public Task<Result<DigestSummaryModel[]>> GetDigestSummaries();
+    Task<Result<DigestSummaryModel[]>> GetDigestSummaries(CancellationToken ct);
 
     /// <summary>
     /// Loads all digests including all post summaries and metadata
     /// </summary>
-    public Task<Result<DigestModel[]>> GetAllDigests();
+    Task<Result<DigestModel[]>> GetAllDigests(CancellationToken ct);
 
     /// <summary>
     /// Deletes a digest and all associated posts.
     /// </summary>
-    public Task<Result> DeleteDigest(DigestId digestId);
+    Task<Result> DeleteDigest(DigestId digestId, CancellationToken ct);
 }
 
 internal sealed class DigestService(
@@ -48,17 +49,19 @@ internal sealed class DigestService(
     /// Creates a new digest from posts within the specified time range
     /// </summary>
     /// <returns>Type of digest generation result or error if generation failed</returns>
-    public async Task<Result<DigestGenerationResultTypeModelEnum>> GenerateDigest(
+    public async Task<Result<DigestGenerationResultModelEnum>> GenerateDigest(
         DigestId digestId,
         DateOnly from,
-        DateOnly to
+        DateOnly to,
+        CancellationToken ct
     )
     {
-        var channelsResult = await channelsRepository.LoadChannels();
+        var channelsResult = await channelsRepository.LoadChannels(ct);
         if (channelsResult.IsFailed)
         {
             await digestStepsService.AddStep(
-                new ErrorStepModel { DigestId = digestId, Errors = channelsResult.Errors }
+                new ErrorStepModel { DigestId = digestId, Errors = channelsResult.Errors },
+                ct
             );
             return Result.Fail(channelsResult.Errors);
         }
@@ -68,13 +71,15 @@ internal sealed class DigestService(
             {
                 DigestId = digestId,
                 Channels = channelsResult.Value.Select(x => x.TgId).ToArray(),
-            }
+            },
+            ct
         );
 
         var posts = new List<PostModel>();
         foreach (var channel in channelsResult.Value)
         {
-            var postsResult = await channelReader.FetchPosts(channel.TgId, from, to);
+            ct.ThrowIfCancellationRequested();
+            var postsResult = await channelReader.FetchPosts(channel.TgId, from, to, ct);
             if (postsResult.IsSuccess)
             {
                 posts.AddRange(postsResult.Value);
@@ -89,19 +94,22 @@ internal sealed class DigestService(
                 {
                     DigestId = digestId,
                     Type = DigestStepTypeModelEnum.NoPostsFound,
-                }
+                },
+                ct
             );
-            return Result.Ok(DigestGenerationResultTypeModelEnum.NoPosts);
+            return Result.Ok(DigestGenerationResultModelEnum.NoPosts);
         }
 
         await digestStepsService.AddStep(
-            new RssReadingFinishedStepModel { DigestId = digestId, PostsCount = posts.Count }
+            new RssReadingFinishedStepModel { DigestId = digestId, PostsCount = posts.Count },
+            ct
         );
 
         var summaries = new List<PostSummaryModel>();
         foreach (var (post, i) in posts.Zip(Enumerable.Range(0, posts.Count)))
         {
-            var summaryResult = await aiSummarizer.GenerateSummary(post);
+            ct.ThrowIfCancellationRequested();
+            var summaryResult = await aiSummarizer.GenerateSummary(post, ct);
             if (summaryResult.IsSuccess)
             {
                 await digestStepsService.AddStep(
@@ -109,29 +117,35 @@ internal sealed class DigestService(
                     {
                         DigestId = digestId,
                         Percentage = i * 100 / posts.Count,
-                    }
+                    },
+                    ct
                 );
                 summaries.Add(summaryResult.Value);
             }
             else
             {
                 await digestStepsService.AddStep(
-                    new ErrorStepModel { DigestId = digestId, Errors = summaryResult.Errors }
+                    new ErrorStepModel { DigestId = digestId, Errors = summaryResult.Errors },
+                    ct
                 );
                 return Result.Fail(summaryResult.Errors);
             }
         }
 
-        var digestSummaryResult = await aiSummarizer.GeneratePostsSummary(posts);
+        ct.ThrowIfCancellationRequested();
+        var digestSummaryResult = await aiSummarizer.GeneratePostsSummary(posts, ct);
         if (digestSummaryResult.IsFailed)
         {
             await digestStepsService.AddStep(
-                new ErrorStepModel { DigestId = digestId, Errors = digestSummaryResult.Errors }
+                new ErrorStepModel { DigestId = digestId, Errors = digestSummaryResult.Errors },
+                ct
             );
             return Result.Fail(digestSummaryResult.Errors);
         }
+
         await digestStepsService.AddStep(
-            new AiProcessingStepModel { DigestId = digestId, Percentage = 100 }
+            new AiProcessingStepModel { DigestId = digestId, Percentage = 100 },
+            ct
         );
 
         var digest = new DigestModel(
@@ -140,38 +154,40 @@ internal sealed class DigestService(
             DigestSummary: digestSummaryResult.Value
         );
 
-        var saveResult = await digestRepository.SaveDigest(digest);
+        var saveResult = await digestRepository.SaveDigest(digest, ct);
         if (!saveResult.IsSuccess)
         {
             await digestStepsService.AddStep(
-                new ErrorStepModel { DigestId = digestId, Errors = saveResult.Errors }
+                new ErrorStepModel { DigestId = digestId, Errors = saveResult.Errors },
+                ct
             );
             return Result.Fail(saveResult.Errors);
         }
 
         await digestStepsService.AddStep(
-            new SimpleStepModel { DigestId = digestId, Type = DigestStepTypeModelEnum.Success }
+            new SimpleStepModel { DigestId = digestId, Type = DigestStepTypeModelEnum.Success },
+            ct
         );
-        return Result.Ok(DigestGenerationResultTypeModelEnum.Success);
+        return Result.Ok(DigestGenerationResultModelEnum.Success);
     }
 
-    public async Task<Result<DigestModel?>> GetDigest(DigestId digestId)
+    public async Task<Result<DigestModel?>> GetDigest(DigestId digestId, CancellationToken ct)
     {
-        return await digestRepository.LoadDigest(digestId);
+        return await digestRepository.LoadDigest(digestId, ct);
     }
 
-    public async Task<Result<DigestSummaryModel[]>> GetDigestSummaries()
+    public async Task<Result<DigestSummaryModel[]>> GetDigestSummaries(CancellationToken ct)
     {
-        return await digestRepository.LoadAllDigestSummaries();
+        return await digestRepository.LoadAllDigestSummaries(ct);
     }
 
-    public async Task<Result<DigestModel[]>> GetAllDigests()
+    public async Task<Result<DigestModel[]>> GetAllDigests(CancellationToken ct)
     {
-        return await digestRepository.LoadAllDigests();
+        return await digestRepository.LoadAllDigests(ct);
     }
 
-    public async Task<Result> DeleteDigest(DigestId digestId)
+    public async Task<Result> DeleteDigest(DigestId digestId, CancellationToken ct)
     {
-        return await digestRepository.DeleteDigest(digestId);
+        return await digestRepository.DeleteDigest(digestId, ct);
     }
 }

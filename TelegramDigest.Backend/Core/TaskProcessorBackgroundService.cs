@@ -7,6 +7,12 @@ using TelegramDigest.Backend.DeploymentOptions;
 
 namespace TelegramDigest.Backend.Core;
 
+internal enum TaskCancellationResult
+{
+    CancellationRequested,
+    CancellationAlreadyRequested,
+}
+
 internal interface ITaskScheduler<TKey>
     where TKey : IEquatable<TKey>
 {
@@ -30,7 +36,7 @@ internal interface ITaskScheduler<TKey>
     /// <exception cref="KeyNotFoundException">
     /// Thrown if the key is not found in the in-progress tasks list.
     /// </exception>
-    public void CancelTaskInProgress(TKey key);
+    public TaskCancellationResult CancelTaskInProgress(TKey key);
 }
 
 internal interface ITaskProgressHandler<TKey>
@@ -166,7 +172,7 @@ internal sealed class TaskTracker<TKey> : ITaskScheduler<TKey>, ITaskProgressHan
         }
     }
 
-    public void CancelTaskInProgress(TKey key)
+    public TaskCancellationResult CancelTaskInProgress(TKey key)
     {
         if (!_inProgressTasksCts.TryGetValue(key, out var cts))
         {
@@ -175,10 +181,11 @@ internal sealed class TaskTracker<TKey> : ITaskScheduler<TKey>, ITaskProgressHan
 
         if (cts.IsCancellationRequested)
         {
-            throw new OperationCanceledException($"Task {key} is already cancelled");
+            return TaskCancellationResult.CancellationAlreadyRequested;
         }
 
         cts.Cancel();
+        return TaskCancellationResult.CancellationRequested;
     }
 }
 

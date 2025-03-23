@@ -36,10 +36,16 @@ public sealed record DigestSummaryModel(
     DateTime DateTo
 );
 
-public enum DigestGenerationResultTypeModelEnum
+public enum DigestGenerationResultModelEnum
 {
     Success,
     NoPosts,
+}
+
+public enum CancellationResultModelEnum
+{
+    CancellationRequested,
+    CancellationAlreadyRequested,
 }
 
 public sealed record SettingsModel(

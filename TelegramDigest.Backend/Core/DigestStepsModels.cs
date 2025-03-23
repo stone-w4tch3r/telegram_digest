@@ -23,7 +23,7 @@ public interface IDigestStepModel
     public DateTime Timestamp { get; }
 }
 
-internal sealed record class SimpleStepModel : IDigestStepModel
+internal sealed record SimpleStepModel : IDigestStepModel
 {
     public DateTime Timestamp { get; init; } = DateTime.UtcNow;
     public required DigestId DigestId { get; init; }
@@ -31,7 +31,7 @@ internal sealed record class SimpleStepModel : IDigestStepModel
     public string? Message { get; init; }
 }
 
-public sealed record class AiProcessingStepModel : IDigestStepModel
+public sealed record AiProcessingStepModel : IDigestStepModel
 {
     public AiProcessingStepModel()
     {
@@ -48,7 +48,7 @@ public sealed record class AiProcessingStepModel : IDigestStepModel
     public string? Message { get; init; }
 }
 
-public sealed record class RssReadingStartedStepModel : IDigestStepModel
+public sealed record RssReadingStartedStepModel : IDigestStepModel
 {
     public DigestStepTypeModelEnum Type => DigestStepTypeModelEnum.RssReadingStarted;
     public DateTime Timestamp { get; init; } = DateTime.UtcNow;
@@ -57,7 +57,7 @@ public sealed record class RssReadingStartedStepModel : IDigestStepModel
     public string? Message { get; init; }
 }
 
-public sealed record class RssReadingFinishedStepModel : IDigestStepModel
+public sealed record RssReadingFinishedStepModel : IDigestStepModel
 {
     public DigestStepTypeModelEnum Type => DigestStepTypeModelEnum.RssReadingFinished;
     public DateTime Timestamp { get; init; } = DateTime.UtcNow;
@@ -66,7 +66,7 @@ public sealed record class RssReadingFinishedStepModel : IDigestStepModel
     public string? Message { get; init; }
 }
 
-public sealed record class ErrorStepModel : IDigestStepModel
+public sealed record ErrorStepModel : IDigestStepModel
 {
     public DigestStepTypeModelEnum Type => DigestStepTypeModelEnum.Error;
     public DateTime Timestamp { get; init; } = DateTime.UtcNow;

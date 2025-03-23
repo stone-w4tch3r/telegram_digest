@@ -10,14 +10,14 @@ internal interface ISettingsManager
     /// Loads application settings from the file system.
     /// </summary>
     /// <returns>A result containing the loaded settings or an error.</returns>
-    public Task<Result<SettingsModel>> LoadSettings();
+    public Task<Result<SettingsModel>> LoadSettings(CancellationToken ct);
 
     /// <summary>
     /// Saves application settings to the file system.
     /// </summary>
     /// <param name="settings">The settings to save.</param>
     /// <returns>A result indicating success or failure.</returns>
-    public Task<Result> SaveSettings(SettingsModel settings);
+    public Task<Result> SaveSettings(SettingsModel settings, CancellationToken ct);
 }
 
 internal sealed class SettingsManager : ISettingsManager
@@ -40,7 +40,7 @@ internal sealed class SettingsManager : ISettingsManager
         _logger = logger;
     }
 
-    public async Task<Result<SettingsModel>> LoadSettings()
+    public async Task<Result<SettingsModel>> LoadSettings(CancellationToken ct)
     {
         try
         {
@@ -49,11 +49,11 @@ internal sealed class SettingsManager : ISettingsManager
             {
                 _logger.LogInformation("No settings file found.");
                 var emptySettings = CreateEmptySettings();
-                await SaveSettings(emptySettings);
+                await SaveSettings(emptySettings, ct);
                 return Result.Ok(emptySettings);
             }
 
-            var jsonStr = await File.ReadAllTextAsync(_settingsFileInfo.FullName);
+            var jsonStr = await File.ReadAllTextAsync(_settingsFileInfo.FullName, ct);
             var settingsJsonResult = Result.Try(
                 () => JsonSerializer.Deserialize<SettingsJson>(jsonStr, _jsonOptions)
             );
@@ -101,7 +101,7 @@ internal sealed class SettingsManager : ISettingsManager
         }
     }
 
-    public async Task<Result> SaveSettings(SettingsModel settings)
+    public async Task<Result> SaveSettings(SettingsModel settings, CancellationToken ct)
     {
         try
         {
@@ -133,7 +133,7 @@ internal sealed class SettingsManager : ISettingsManager
             }
 
             var json = JsonSerializer.Serialize(settingsJsonResult.Value, _jsonOptions);
-            await File.WriteAllTextAsync(_settingsFileInfo.FullName, json);
+            await File.WriteAllTextAsync(_settingsFileInfo.FullName, json, ct);
             return Result.Ok();
         }
         catch (Exception ex)

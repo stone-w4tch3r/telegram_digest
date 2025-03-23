@@ -5,8 +5,11 @@ namespace TelegramDigest.Backend.Core;
 
 internal interface IAiSummarizer
 {
-    public Task<Result<PostSummaryModel>> GenerateSummary(PostModel post);
-    public Task<Result<DigestSummaryModel>> GeneratePostsSummary(List<PostModel> posts);
+    public Task<Result<PostSummaryModel>> GenerateSummary(PostModel post, CancellationToken ct);
+    public Task<Result<DigestSummaryModel>> GeneratePostsSummary(
+        List<PostModel> posts,
+        CancellationToken ct
+    );
 }
 
 internal sealed class AiSummarizer(ISettingsManager settingsManager, ILogger<AiSummarizer> logger)
@@ -15,9 +18,9 @@ internal sealed class AiSummarizer(ISettingsManager settingsManager, ILogger<AiS
     private ChatClient? _chatClient;
     private (string Model, string ApiKey, Uri Endpoint)? _lastClientSettings;
 
-    private async Task<Result<ChatClient>> GetChatClient()
+    private async Task<Result<ChatClient>> GetChatClient(CancellationToken ct)
     {
-        var settingsResult = await settingsManager.LoadSettings();
+        var settingsResult = await settingsManager.LoadSettings(ct);
         if (settingsResult.IsFailed)
         {
             return Result.Fail(settingsResult.Errors);
@@ -49,11 +52,14 @@ internal sealed class AiSummarizer(ISettingsManager settingsManager, ILogger<AiS
         return Result.Ok(_chatClient);
     }
 
-    public async Task<Result<PostSummaryModel>> GenerateSummary(PostModel post)
+    public async Task<Result<PostSummaryModel>> GenerateSummary(
+        PostModel post,
+        CancellationToken ct
+    )
     {
         try
         {
-            var settingsResult = await settingsManager.LoadSettings();
+            var settingsResult = await settingsManager.LoadSettings(ct);
             if (settingsResult.IsFailed)
             {
                 return Result.Fail(settingsResult.Errors);
@@ -61,7 +67,7 @@ internal sealed class AiSummarizer(ISettingsManager settingsManager, ILogger<AiS
 
             var prompts = settingsResult.Value.PromptSettings;
 
-            var clientResult = await GetChatClient();
+            var clientResult = await GetChatClient(ct);
             if (clientResult.IsFailed)
             {
                 return Result.Fail(clientResult.Errors);
@@ -77,9 +83,12 @@ internal sealed class AiSummarizer(ISettingsManager settingsManager, ILogger<AiS
                     ),
                 ];
 
-            var completionResult = await clientResult.Value.CompleteChatAsync(messages);
+            var completionResult = await clientResult.Value.CompleteChatAsync(
+                messages,
+                cancellationToken: ct
+            );
 
-            var importance = await EvaluatePostImportance(post);
+            var importance = await EvaluatePostImportance(post, ct);
             if (importance.IsFailed)
             {
                 return Result.Fail(importance.Errors);
@@ -104,11 +113,14 @@ internal sealed class AiSummarizer(ISettingsManager settingsManager, ILogger<AiS
         }
     }
 
-    private async Task<Result<Importance>> EvaluatePostImportance(PostModel post)
+    private async Task<Result<Importance>> EvaluatePostImportance(
+        PostModel post,
+        CancellationToken ct
+    )
     {
         try
         {
-            var settingsResult = await settingsManager.LoadSettings();
+            var settingsResult = await settingsManager.LoadSettings(ct);
             if (settingsResult.IsFailed)
             {
                 return Result.Fail(settingsResult.Errors);
@@ -116,7 +128,7 @@ internal sealed class AiSummarizer(ISettingsManager settingsManager, ILogger<AiS
 
             var prompts = settingsResult.Value.PromptSettings;
 
-            var clientResult = await GetChatClient();
+            var clientResult = await GetChatClient(ct);
             if (clientResult.IsFailed)
             {
                 return Result.Fail(clientResult.Errors);
@@ -132,7 +144,10 @@ internal sealed class AiSummarizer(ISettingsManager settingsManager, ILogger<AiS
                     ),
                 ];
 
-            var completion = await clientResult.Value.CompleteChatAsync(messages);
+            var completion = await clientResult.Value.CompleteChatAsync(
+                messages,
+                cancellationToken: ct
+            );
             var importanceValue = int.Parse(completion.Value.Content[0].Text.Trim());
 
             return Result.Ok(new Importance(importanceValue));
@@ -146,11 +161,14 @@ internal sealed class AiSummarizer(ISettingsManager settingsManager, ILogger<AiS
         }
     }
 
-    public async Task<Result<DigestSummaryModel>> GeneratePostsSummary(List<PostModel> posts)
+    public async Task<Result<DigestSummaryModel>> GeneratePostsSummary(
+        List<PostModel> posts,
+        CancellationToken ct
+    )
     {
         try
         {
-            var settingsResult = await settingsManager.LoadSettings();
+            var settingsResult = await settingsManager.LoadSettings(ct);
             if (settingsResult.IsFailed)
             {
                 return Result.Fail(settingsResult.Errors);
@@ -158,7 +176,7 @@ internal sealed class AiSummarizer(ISettingsManager settingsManager, ILogger<AiS
 
             var prompts = settingsResult.Value.PromptSettings;
 
-            var clientResult = await GetChatClient();
+            var clientResult = await GetChatClient(ct);
             if (clientResult.IsFailed)
             {
                 return Result.Fail(clientResult.Errors);
@@ -174,7 +192,10 @@ internal sealed class AiSummarizer(ISettingsManager settingsManager, ILogger<AiS
                     ),
                 ];
 
-            var completion = await clientResult.Value.CompleteChatAsync(messages);
+            var completion = await clientResult.Value.CompleteChatAsync(
+                messages,
+                cancellationToken: ct
+            );
 
             return Result.Ok(
                 new DigestSummaryModel(
@@ -183,7 +204,7 @@ internal sealed class AiSummarizer(ISettingsManager settingsManager, ILogger<AiS
                     PostsSummary: completion.Value.Content[0].Text.Trim(),
                     PostsCount: posts.Count,
                     AverageImportance: posts.Count > 0
-                        ? await CalculateAverageImportance(posts)
+                        ? await CalculateAverageImportance(posts, ct)
                         : 0,
                     CreatedAt: DateTime.UtcNow,
                     DateFrom: posts.Min(p => p.PublishedAt),
@@ -198,9 +219,14 @@ internal sealed class AiSummarizer(ISettingsManager settingsManager, ILogger<AiS
         }
     }
 
-    private async Task<double> CalculateAverageImportance(List<PostModel> posts)
+    private async Task<double> CalculateAverageImportance(
+        List<PostModel> posts,
+        CancellationToken ct
+    )
     {
-        var importanceResults = await Task.WhenAll(posts.Select(EvaluatePostImportance));
+        var importanceResults = await Task.WhenAll(
+            posts.Select(p => EvaluatePostImportance(p, ct))
+        );
 
         var successfulResults = importanceResults
             .Where(r => r.IsSuccess)

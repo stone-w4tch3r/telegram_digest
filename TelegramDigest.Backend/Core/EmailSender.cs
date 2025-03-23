@@ -9,7 +9,7 @@ internal interface IEmailSender
     /// <summary>
     /// Sends digest email with a link to the web UI, avoiding complex HTML formatting
     /// </summary>
-    public Task<Result> SendDigest(DigestSummaryModel digest);
+    public Task<Result> SendDigest(DigestSummaryModel digest, CancellationToken ct);
 }
 
 [Obsolete("Will be removed before release")]
@@ -19,9 +19,9 @@ internal sealed class EmailSender(ISettingsManager settingsManager, ILogger<Emai
     /// <summary>
     /// Sends digest email with a link to the web UI, avoiding complex HTML formatting
     /// </summary>
-    public async Task<Result> SendDigest(DigestSummaryModel digest)
+    public async Task<Result> SendDigest(DigestSummaryModel digest, CancellationToken ct)
     {
-        var settingsResult = await settingsManager.LoadSettings();
+        var settingsResult = await settingsManager.LoadSettings(ct);
         if (settingsResult.IsFailed)
         {
             return Result.Fail(settingsResult.Errors);
@@ -48,7 +48,7 @@ internal sealed class EmailSender(ISettingsManager settingsManager, ILogger<Emai
             };
             message.To.Add(emailTo);
 
-            await client.SendMailAsync(message);
+            await client.SendMailAsync(message, ct);
             return Result.Ok();
         }
         catch (Exception ex)

@@ -5,8 +5,8 @@ namespace TelegramDigest.Backend.Core;
 
 internal interface IDigestStepsService
 {
-    public Task<Result> AddStep(IDigestStepModel newStep);
-    public Task<Result<IDigestStepModel[]>> GetAllSteps(DigestId digestId);
+    Task<Result> AddStep(IDigestStepModel newStep, CancellationToken ct);
+    Task<Result<IDigestStepModel[]>> GetAllSteps(DigestId digestId, CancellationToken ct);
 }
 
 internal sealed class DigestStepsService(
@@ -14,13 +14,16 @@ internal sealed class DigestStepsService(
     ILogger<DigestStepsService> logger
 ) : IDigestStepsService
 {
-    public async Task<Result> AddStep(IDigestStepModel newStep)
+    public async Task<Result> AddStep(IDigestStepModel newStep, CancellationToken ct)
     {
-        return await repository.SaveStepAsync(newStep);
+        return await repository.SaveStepAsync(newStep, ct);
     }
 
-    public async Task<Result<IDigestStepModel[]>> GetAllSteps(DigestId digestId)
+    public async Task<Result<IDigestStepModel[]>> GetAllSteps(
+        DigestId digestId,
+        CancellationToken ct
+    )
     {
-        return await repository.LoadStepsHistory(digestId);
+        return await repository.LoadStepsHistory(digestId, ct);
     }
 }

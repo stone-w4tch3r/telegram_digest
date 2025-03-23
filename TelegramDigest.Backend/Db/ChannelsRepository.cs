@@ -8,17 +8,17 @@ internal interface IChannelsRepository
     /// <summary>
     /// Saves or updates a channel in the repository
     /// </summary>
-    public Task<Result> SaveChannel(ChannelModel channel);
+    public Task<Result> SaveChannel(ChannelModel channel, CancellationToken cancellationToken);
 
     /// <summary>
     /// Retrieves all non-deleted channels from the repository
     /// </summary>
-    public Task<Result<List<ChannelModel>>> LoadChannels();
+    public Task<Result<List<ChannelModel>>> LoadChannels(CancellationToken cancellationToken);
 
     /// <summary>
     /// Marks a channel as deleted in the repository (soft delete)
     /// </summary>
-    public Task<Result> DeleteChannel(ChannelTgId channelId);
+    public Task<Result> DeleteChannel(ChannelTgId channelId, CancellationToken cancellationToken);
 }
 
 internal sealed class ChannelsRepository(
@@ -26,7 +26,7 @@ internal sealed class ChannelsRepository(
     ILogger<ChannelsRepository> logger
 ) : IChannelsRepository
 {
-    public async Task<Result> SaveChannel(ChannelModel channel)
+    public async Task<Result> SaveChannel(ChannelModel channel, CancellationToken cancellationToken)
     {
         try
         {
@@ -39,17 +39,17 @@ internal sealed class ChannelsRepository(
                 IsDeleted = false,
             };
 
-            var existing = await dbContext.Channels.FindAsync(entity.TgId);
+            var existing = await dbContext.Channels.FindAsync([entity.TgId], cancellationToken);
             if (existing != null)
             {
                 dbContext.Entry(existing).CurrentValues.SetValues(entity);
             }
             else
             {
-                await dbContext.Channels.AddAsync(entity);
+                await dbContext.Channels.AddAsync(entity, cancellationToken);
             }
 
-            await dbContext.SaveChangesAsync();
+            await dbContext.SaveChangesAsync(cancellationToken);
             return Result.Ok();
         }
         catch (Exception ex)
@@ -59,11 +59,13 @@ internal sealed class ChannelsRepository(
         }
     }
 
-    public async Task<Result<List<ChannelModel>>> LoadChannels()
+    public async Task<Result<List<ChannelModel>>> LoadChannels(CancellationToken cancellationToken)
     {
         try
         {
-            var entities = await dbContext.Channels.Where(e => !e.IsDeleted).ToListAsync();
+            var entities = await dbContext
+                .Channels.Where(e => !e.IsDeleted)
+                .ToListAsync(cancellationToken);
             var channels = entities
                 .Select(e => new ChannelModel(
                     TgId: new(e.TgId),
@@ -82,18 +84,24 @@ internal sealed class ChannelsRepository(
         }
     }
 
-    public async Task<Result> DeleteChannel(ChannelTgId channelId)
+    public async Task<Result> DeleteChannel(
+        ChannelTgId channelId,
+        CancellationToken cancellationToken
+    )
     {
         try
         {
-            var entity = await dbContext.Channels.FindAsync(channelId.ChannelName);
+            var entity = await dbContext.Channels.FindAsync(
+                [channelId.ChannelName],
+                cancellationToken
+            );
             if (entity == null)
             {
                 return Result.Ok(); // Already deleted
             }
 
             entity.IsDeleted = true;
-            await dbContext.SaveChangesAsync();
+            await dbContext.SaveChangesAsync(cancellationToken);
             return Result.Ok();
         }
         catch (Exception ex)

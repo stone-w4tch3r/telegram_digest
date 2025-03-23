@@ -8,27 +8,27 @@ internal interface IDigestRepository
     /// <summary>
     /// Loads complete digest including all post summaries and metadata
     /// </summary>
-    public Task<Result<DigestModel?>> LoadDigest(DigestId digestId);
+    public Task<Result<DigestModel?>> LoadDigest(DigestId digestId, CancellationToken ct);
 
     /// <summary>
     /// Saves a digest to the database
     /// </summary>
-    public Task<Result> SaveDigest(DigestModel digest);
+    public Task<Result> SaveDigest(DigestModel digest, CancellationToken ct);
 
     /// <summary>
     /// Loads all digest summaries from the database (without posts)
     /// </summary>
-    public Task<Result<DigestSummaryModel[]>> LoadAllDigestSummaries();
+    public Task<Result<DigestSummaryModel[]>> LoadAllDigestSummaries(CancellationToken ct);
 
     /// <summary>
     /// Loads all digests including all post summaries and metadata
     /// </summary>
-    public Task<Result<DigestModel[]>> LoadAllDigests();
+    public Task<Result<DigestModel[]>> LoadAllDigests(CancellationToken ct);
 
     /// <summary>
     /// Deletes a digest and all associated posts.
     /// </summary>
-    public Task<Result> DeleteDigest(DigestId digestId);
+    public Task<Result> DeleteDigest(DigestId digestId, CancellationToken ct);
 }
 
 internal sealed class DigestRepository(
@@ -36,7 +36,7 @@ internal sealed class DigestRepository(
     ILogger<DigestRepository> logger
 ) : IDigestRepository
 {
-    public async Task<Result<DigestModel?>> LoadDigest(DigestId digestId)
+    public async Task<Result<DigestModel?>> LoadDigest(DigestId digestId, CancellationToken ct)
     {
         try
         {
@@ -45,7 +45,7 @@ internal sealed class DigestRepository(
                 .Digests.Include(d => d.PostsNav)!
                 .ThenInclude(p => p.ChannelNav)
                 .Include(d => d.SummaryNav)
-                .FirstOrDefaultAsync(d => d.Id == digestId.Guid);
+                .FirstOrDefaultAsync(d => d.Id == digestId.Guid, ct);
 
             if (digest is null)
             {
@@ -65,13 +65,13 @@ internal sealed class DigestRepository(
         }
     }
 
-    public async Task<Result> SaveDigest(DigestModel digest)
+    public async Task<Result> SaveDigest(DigestModel digest, CancellationToken ct)
     {
         try
         {
             var entity = MapToEntity(digest);
-            await dbContext.Digests.AddAsync(entity);
-            await dbContext.SaveChangesAsync();
+            await dbContext.Digests.AddAsync(entity, ct);
+            await dbContext.SaveChangesAsync(ct);
             return Result.Ok();
         }
         catch (Exception ex)
@@ -81,13 +81,13 @@ internal sealed class DigestRepository(
         }
     }
 
-    public async Task<Result<DigestSummaryModel[]>> LoadAllDigestSummaries()
+    public async Task<Result<DigestSummaryModel[]>> LoadAllDigestSummaries(CancellationToken ct)
     {
         try
         {
             var summaries = await dbContext
                 .DigestSummaries.OrderByDescending(s => s.CreatedAt)
-                .ToListAsync();
+                .ToListAsync(ct);
 
             return Result.Ok(summaries.Select(MapToSummaryModel).ToArray());
         }
@@ -98,7 +98,7 @@ internal sealed class DigestRepository(
         }
     }
 
-    public async Task<Result<DigestModel[]>> LoadAllDigests()
+    public async Task<Result<DigestModel[]>> LoadAllDigests(CancellationToken ct)
     {
         try
         {
@@ -106,7 +106,7 @@ internal sealed class DigestRepository(
                 .Digests.Include(d => d.PostsNav)!
                 .ThenInclude(p => p.ChannelNav)
                 .Include(d => d.SummaryNav)
-                .ToListAsync();
+                .ToListAsync(ct);
 
             if (digests.Any(d => d.SummaryNav == null || d.PostsNav == null))
             {
@@ -122,14 +122,14 @@ internal sealed class DigestRepository(
         }
     }
 
-    public async Task<Result> DeleteDigest(DigestId digestId)
+    public async Task<Result> DeleteDigest(DigestId digestId, CancellationToken ct)
     {
         try
         {
             var digest = await dbContext
                 .Digests.Include(d => d.PostsNav) // Load the related posts
                 .Include(d => d.SummaryNav) // Load the related summary
-                .FirstOrDefaultAsync(d => d.Id == digestId.Guid);
+                .FirstOrDefaultAsync(d => d.Id == digestId.Guid, ct);
 
             if (digest == null)
             {
@@ -152,7 +152,7 @@ internal sealed class DigestRepository(
             dbContext.DigestSummaries.Remove(digest.SummaryNav);
             dbContext.PostSummaries.RemoveRange(digest.PostsNav);
 
-            await dbContext.SaveChangesAsync();
+            await dbContext.SaveChangesAsync(ct);
             return Result.Ok();
         }
         catch (Exception ex)
@@ -171,15 +171,16 @@ internal sealed class DigestRepository(
 
         return new(
             DigestId: new(entity.Id),
-            PostsSummaries: entity
-                .PostsNav.Select(p => new PostSummaryModel(
+            PostsSummaries:
+            [
+                .. entity.PostsNav.Select(p => new PostSummaryModel(
                     ChannelTgId: new(p.ChannelTgId),
                     Summary: p.Summary,
                     Url: new(p.Url),
                     PublishedAt: p.PublishedAt,
                     Importance: new(p.Importance)
-                ))
-                .ToList(),
+                )),
+            ],
             DigestSummary: MapToSummaryModel(entity.SummaryNav)
         );
     }
@@ -201,8 +202,9 @@ internal sealed class DigestRepository(
                 DateTo = model.DigestSummary.DateTo,
                 DigestNav = null, // Will be set by EF Core
             },
-            PostsNav = model
-                .PostsSummaries.Select(p => new PostSummaryEntity
+            PostsNav =
+            [
+                .. model.PostsSummaries.Select(p => new PostSummaryEntity
                 {
                     Id = Guid.NewGuid(),
                     ChannelTgId = p.ChannelTgId.ChannelName,
@@ -213,8 +215,8 @@ internal sealed class DigestRepository(
                     DigestId = model.DigestId.Guid,
                     DigestNav = null, // Will be set by EF Core
                     ChannelNav = null, // Will be set by EF Core
-                })
-                .ToList(),
+                }),
+            ],
         };
 
         return digestEntity;

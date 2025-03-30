@@ -42,12 +42,6 @@ public enum DigestGenerationResultModelEnum
     NoPosts,
 }
 
-public enum CancellationResultModelEnum
-{
-    CancellationRequested,
-    CancellationAlreadyRequested,
-}
-
 public sealed record SettingsModel(
     string EmailRecipient,
     TimeUtc DigestTime,

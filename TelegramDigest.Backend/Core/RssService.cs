@@ -10,32 +10,22 @@ internal interface IRssService
     /// Generates RSS feed containing recent digests
     /// </summary>
     /// <returns>RSS feed as string in XML format</returns>
-    Task<Result<SyndicationFeed>> GenerateRssFeed();
+    Task<Result<SyndicationFeed>> GenerateRssFeed(CancellationToken ct);
 }
 
-internal sealed class RssService : IRssService
+internal sealed class RssService(
+    IDigestService digestService,
+    ISettingsManager settingsManager,
+    ILogger<RssService> logger
+) : IRssService
 {
-    private readonly IDigestService _digestService;
-    private readonly ISettingsManager _settingsManager;
-    private readonly ILogger<RssService> _logger;
     private const string FEED_BASE_URL = "https://your-app-url"; // TODO: Move to settings
 
-    public RssService(
-        IDigestService digestService,
-        ISettingsManager settingsManager,
-        ILogger<RssService> logger
-    )
-    {
-        _digestService = digestService;
-        _settingsManager = settingsManager;
-        _logger = logger;
-    }
-
-    public async Task<Result<SyndicationFeed>> GenerateRssFeed()
+    public async Task<Result<SyndicationFeed>> GenerateRssFeed(CancellationToken ct)
     {
         try
         {
-            var digestsResult = await _digestService.GetAllDigests();
+            var digestsResult = await digestService.GetAllDigests(ct);
             if (digestsResult.IsFailed)
             {
                 return Result.Fail(digestsResult.Errors);
@@ -67,7 +57,7 @@ internal sealed class RssService : IRssService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to generate RSS feed");
+            logger.LogError(ex, "Failed to generate RSS feed");
             return Result.Fail(new Error("RSS feed generation failed").CausedBy(ex));
         }
     }

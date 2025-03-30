@@ -16,27 +16,31 @@ internal sealed class SchedulerBackgroundService(
     private Timer? _timer;
     private TimeUtc _lastScheduledTimeUtc = new(TimeOnly.MinValue);
 
-    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    protected override async Task ExecuteAsync(CancellationToken ct)
     {
-        while (!stoppingToken.IsCancellationRequested)
+        while (!ct.IsCancellationRequested)
         {
             // Check settings every minute for schedule changes
             using var scope = scopeFactory.CreateScope();
             var settingsManager = scope.ServiceProvider.GetRequiredService<ISettingsManager>();
             var mainService = scope.ServiceProvider.GetRequiredService<IMainService>();
-            await UpdateSchedule(settingsManager, mainService);
-            await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
+            await UpdateSchedule(settingsManager, mainService, ct);
+            await Task.Delay(TimeSpan.FromMinutes(1), ct);
         }
     }
 
     /// <summary>
     /// Updates the schedule based on settings and creates/updates timer if needed
     /// </summary>
-    private async Task UpdateSchedule(ISettingsManager settingsManager, IMainService mainService)
+    private async Task UpdateSchedule(
+        ISettingsManager settingsManager,
+        IMainService mainService,
+        CancellationToken ct
+    )
     {
         try
         {
-            var settingsResult = await settingsManager.LoadSettings();
+            var settingsResult = await settingsManager.LoadSettings(ct);
             if (settingsResult.IsFailed)
             {
                 logger.LogError(
@@ -48,7 +52,7 @@ internal sealed class SchedulerBackgroundService(
 
             var scheduledTimeUtc = settingsResult.Value.DigestTime;
 
-            // If schedule hasn't changed, no need to update
+            // If the schedule hasn't changed, no need to update
             if (scheduledTimeUtc.Time == _lastScheduledTimeUtc.Time)
             {
                 return;
@@ -75,17 +79,20 @@ internal sealed class SchedulerBackgroundService(
             // Create new timer
             _timer = new(
                 _ =>
-                    Task.Run(async () =>
-                    {
-                        try
+                    Task.Run(
+                        async () =>
                         {
-                            await ExecuteDigestGeneration(mainService);
-                        }
-                        catch (Exception ex)
-                        {
-                            logger.LogError(ex, "Unhandled exception in timer callback");
-                        }
-                    }),
+                            try
+                            {
+                                await ExecuteDigestGeneration(mainService, ct);
+                            }
+                            catch (Exception ex)
+                            {
+                                logger.LogError(ex, "Unhandled exception in timer callback");
+                            }
+                        },
+                        ct
+                    ),
                 null,
                 delay,
                 TimeSpan.FromDays(1) // Repeat daily
@@ -114,14 +121,14 @@ internal sealed class SchedulerBackgroundService(
     /// <summary>
     /// Executes digest generation and handles any errors
     /// </summary>
-    private async Task ExecuteDigestGeneration(IMainService mainService)
+    private async Task ExecuteDigestGeneration(IMainService mainService, CancellationToken ct)
     {
         try
         {
             var digestId = new DigestId();
             logger.LogInformation("Starting scheduled digest generation, id {id}", digestId);
 
-            var queueResult = await mainService.QueueDigestForLastPeriod(digestId);
+            var queueResult = await mainService.QueueDigestForLastPeriod(digestId, ct);
             if (queueResult.IsFailed)
             {
                 logger.LogError(

@@ -9,7 +9,7 @@ public sealed class BackendClient(IMainService mainService, ILogger<BackendClien
 {
     public async Task<List<DigestSummaryViewModel>> GetDigestSummaries()
     {
-        var result = await mainService.GetDigestSummaries();
+        var result = await mainService.GetDigestSummaries(CancellationToken.None);
         if (result.IsFailed)
         {
             logger.LogError("Failed to get digests: {Errors}", result.Errors);
@@ -35,7 +35,7 @@ public sealed class BackendClient(IMainService mainService, ILogger<BackendClien
         Guid id
     )
     {
-        var result = await mainService.GetDigest(new(id));
+        var result = await mainService.GetDigest(new(id), CancellationToken.None);
         if (result.IsFailed)
         {
             logger.LogError("Failed to get digest {DigestId}: {Errors}", id, result.Errors);
@@ -74,7 +74,7 @@ public sealed class BackendClient(IMainService mainService, ILogger<BackendClien
 
     public async Task DeleteDigest(Guid id)
     {
-        var result = await mainService.DeleteDigest(new(id));
+        var result = await mainService.DeleteDigest(new(id), CancellationToken.None);
         if (result.IsFailed)
         {
             logger.LogError("Failed to delete digest {DigestId}: {Errors}", id, result.Errors);
@@ -85,7 +85,10 @@ public sealed class BackendClient(IMainService mainService, ILogger<BackendClien
     public async Task<Guid> QueueDigest()
     {
         var digestId = Guid.NewGuid();
-        var digestResult = await mainService.QueueDigestForLastPeriod(new(digestId));
+        var digestResult = await mainService.QueueDigestForLastPeriod(
+            new(digestId),
+            CancellationToken.None
+        );
         if (digestResult.IsFailed)
         {
             logger.LogError("Failed to generate digest: {Errors}", digestResult.Errors);
@@ -97,7 +100,7 @@ public sealed class BackendClient(IMainService mainService, ILogger<BackendClien
 
     public async Task<List<ChannelViewModel>> GetChannels()
     {
-        var result = await mainService.GetChannels();
+        var result = await mainService.GetChannels(CancellationToken.None);
         if (result.IsFailed)
         {
             logger.LogError("Failed to get channels: {Errors}", result.Errors);
@@ -111,7 +114,10 @@ public sealed class BackendClient(IMainService mainService, ILogger<BackendClien
 
     public async Task AddOrUpdateChannel(AddChannelViewModel channel)
     {
-        var result = await mainService.AddOrUpdateChannel(new(channel.TgId));
+        var result = await mainService.AddOrUpdateChannel(
+            new(channel.TgId),
+            CancellationToken.None
+        );
         if (result.IsFailed)
         {
             logger.LogError("Failed to add channel: {Errors}", result.Errors);
@@ -121,7 +127,7 @@ public sealed class BackendClient(IMainService mainService, ILogger<BackendClien
 
     public async Task DeleteChannelAsync(string tgId)
     {
-        var result = await mainService.RemoveChannel(new(tgId));
+        var result = await mainService.RemoveChannel(new(tgId), CancellationToken.None);
         if (result.IsFailed)
         {
             logger.LogError("Failed to delete channel {ChannelId}: {Errors}", tgId, result.Errors);
@@ -131,7 +137,7 @@ public sealed class BackendClient(IMainService mainService, ILogger<BackendClien
 
     public async Task<SettingsViewModel> GetSettings()
     {
-        var result = await mainService.GetSettings();
+        var result = await mainService.GetSettings(CancellationToken.None);
         if (result.IsFailed)
         {
             logger.LogError("Failed to get settings: {Errors}", result.Errors);
@@ -189,7 +195,7 @@ public sealed class BackendClient(IMainService mainService, ILogger<BackendClien
             )
         );
 
-        var result = await mainService.UpdateSettings(settingsModel);
+        var result = await mainService.UpdateSettings(settingsModel, CancellationToken.None);
         if (result.IsFailed)
         {
             logger.LogError("Failed to update settings: {Errors}", result.Errors);
@@ -199,7 +205,7 @@ public sealed class BackendClient(IMainService mainService, ILogger<BackendClien
 
     public async Task<SyndicationFeed> GetRssFeed()
     {
-        var result = await mainService.GetRssFeed();
+        var result = await mainService.GetRssFeed(CancellationToken.None);
         if (result.IsFailed)
         {
             logger.LogError("Failed to get RSS feed: {Errors}", result.Errors);
@@ -211,7 +217,7 @@ public sealed class BackendClient(IMainService mainService, ILogger<BackendClien
 
     public async Task<DigestProgressViewModel> GetDigestProgress(Guid id)
     {
-        var result = await mainService.GetDigestSteps(new(id));
+        var result = await mainService.GetDigestSteps(new(id), CancellationToken.None);
         if (result.IsFailed || result.Value.Length == 0)
         {
             logger.LogError("Failed to get digest statuses: {Errors}", result.Errors);
@@ -267,6 +273,11 @@ public sealed class BackendClient(IMainService mainService, ILogger<BackendClien
     public async Task<Guid[]> GetWaitingDigests()
     {
         return (await mainService.GetWaitingDigests()).Select(x => x.Guid).ToArray();
+    }
+
+    public async Task<Guid[]> GetCancellationRequestedDigests()
+    {
+        return (await mainService.GetCancellationRequestedDigests()).Select(x => x.Guid).ToArray();
     }
 
     public async Task RemoveWaitingDigest(Guid key)

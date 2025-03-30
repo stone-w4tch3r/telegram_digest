@@ -59,7 +59,7 @@ public interface IMainService
     /// Tries to cancel a digest
     /// </summary>
     /// <returns>true if success, false if not found</returns>
-    Task<Result<CancellationResultModelEnum>> CancelDigest(DigestId digestId);
+    Task<Result> CancelDigest(DigestId digestId);
 
     /// <summary>
     /// Returns list of digests that are currently being processed
@@ -70,6 +70,11 @@ public interface IMainService
     /// Returns list of digests that are waiting to be processed
     /// </summary>
     Task<DigestId[]> GetWaitingDigests();
+
+    /// <summary>
+    /// Returns list of digests that were requested to cancel, but not canceled yet
+    /// </summary>
+    Task<DigestId[]> GetCancellationRequestedDigests();
 
     /// <summary>
     /// Tries to remove a digest from the waiting list
@@ -95,7 +100,7 @@ public interface IMainService
     /// <summary>
     /// Returns list of digests as RSS feed
     /// </summary>
-    Task<Result<SyndicationFeed>> GetRssFeed();
+    Task<Result<SyndicationFeed>> GetRssFeed(CancellationToken ct);
 }
 
 /// <summary>
@@ -151,26 +156,53 @@ internal sealed class MainService(
         return Result.Ok(generationResult.Value);
     }
 
-    public async Task<Result> QueueDigestForLastPeriod(
-        DigestId digestId,
-        CancellationToken globalCt
-    )
+    public async Task<Result> QueueDigestForLastPeriod(DigestId digestId, CancellationToken ct)
     {
         await digestStepsService.AddStep(
             new SimpleStepModel { DigestId = digestId, Type = DigestStepTypeModelEnum.Queued },
-            globalCt
+            ct
         );
 
         taskTracker.AddTaskToWaitQueue(
-            async ct =>
+            async localCt =>
             {
                 // use own scope and services to avoid issues with disposing of captured scope
                 using var scope = serviceProvider.CreateScope();
                 var scopedMainService = scope.ServiceProvider.GetRequiredService<IMainService>();
-                await scopedMainService.ProcessDigestForLastPeriod(
-                    digestId,
-                    CancellationTokenSource.CreateLinkedTokenSource(globalCt, ct).Token
-                );
+                var mergedCt = CancellationTokenSource.CreateLinkedTokenSource(ct, localCt).Token;
+                await scopedMainService.ProcessDigestForLastPeriod(digestId, mergedCt);
+            },
+            async ex =>
+            {
+                if (ex is OperationCanceledException)
+                {
+                    logger.LogInformation("Digest {DigestId} processing was canceled", digestId);
+                    await digestStepsService.AddStep(
+                        new SimpleStepModel
+                        {
+                            DigestId = digestId,
+                            Type = DigestStepTypeModelEnum.Queued,
+                        },
+                        ct
+                    );
+                }
+                else
+                {
+                    logger.LogError(
+                        ex,
+                        "Unhandled exception while trying to process digest {DigestId}",
+                        digestId
+                    );
+                    await digestStepsService.AddStep(
+                        new ErrorStepModel
+                        {
+                            DigestId = digestId,
+                            Exception = ex,
+                            Message = "Unhandled exception while trying to process digest",
+                        },
+                        ct
+                    );
+                }
             },
             digestId
         );
@@ -178,26 +210,19 @@ internal sealed class MainService(
         return Result.Ok();
     }
 
-    public Task<Result<CancellationResultModelEnum>> CancelDigest(DigestId digestId)
+    public Task<Result> CancelDigest(DigestId digestId)
     {
-        return Task.FromResult(
-            Result.Try(
-                () =>
-                    taskTracker.CancelTaskInProgress(digestId) switch
-                    {
-                        TaskCancellationResult.CancellationRequested =>
-                            CancellationResultModelEnum.CancellationRequested,
-                        TaskCancellationResult.CancellationAlreadyRequested =>
-                            CancellationResultModelEnum.CancellationAlreadyRequested,
-                        var value => throw new UnreachableException($"Invalid enum member {value}"),
-                    }
-            )
-        );
+        return Task.FromResult(Result.Try(() => taskTracker.CancelTaskInProgress(digestId)));
     }
 
     public Task<DigestId[]> GetInProgressDigests()
     {
         return Task.FromResult(taskTracker.GetInProgressTasks());
+    }
+
+    public Task<DigestId[]> GetCancellationRequestedDigests()
+    {
+        return Task.FromResult(taskTracker.GetCancellationRequestedTasks());
     }
 
     public Task<DigestId[]> GetWaitingDigests()
@@ -245,9 +270,9 @@ internal sealed class MainService(
         return await settingsManager.SaveSettings(settings, ct);
     }
 
-    public async Task<Result<SyndicationFeed>> GetRssFeed()
+    public async Task<Result<SyndicationFeed>> GetRssFeed(CancellationToken ct)
     {
-        return await rssService.GenerateRssFeed();
+        return await rssService.GenerateRssFeed(ct);
     }
 
     public async Task<Result> DeleteDigest(DigestId digestId, CancellationToken ct)
@@ -268,6 +293,7 @@ internal sealed class MainService(
         {
             return Result.Fail(digestResult.Errors);
         }
+
         if (digestResult.Value is null)
         {
             return Result.Fail(new Error($"Failed to load digest {digestId} for email"));

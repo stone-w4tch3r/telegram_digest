@@ -8,11 +8,13 @@ public class QueueModel(BackendClient backend) : BasePageModel
 {
     public Guid[] InProgressDigests { get; private set; } = [];
     public Guid[] WaitingDigests { get; private set; } = [];
+    public Guid[] CancellationRequestedDigests { get; private set; } = [];
 
     public async Task OnGetAsync()
     {
         InProgressDigests = await backend.GetInProgressDigests();
         WaitingDigests = await backend.GetWaitingDigests();
+        CancellationRequestedDigests = await backend.GetCancellationRequestedDigests();
     }
 
     public async Task<IActionResult> OnPostCancelDigestAsync(Guid digestId)

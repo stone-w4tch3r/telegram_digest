@@ -32,13 +32,22 @@
                                            asp-route-id="@digestId"
                                            class="text-decoration-none">@digestId</a>
                                     </div>
-                                    <form method="post" asp-page-handler="CancelDigest"
-                                          asp-route-digestId="@digestId"
-                                          onsubmit="return confirm('Are you sure you want to cancel this digest?');">
-                                        <button type="submit" class="btn btn-sm btn-danger">
-                                            <i class="bi bi-x-circle me-1"></i>Cancel
+                                    @if (!Model.CancellationRequestedDigests.Contains(digestId))
+                                    {
+                                        <form method="post" asp-page-handler="CancelDigest"
+                                              asp-route-digestId="@digestId"
+                                              onsubmit="return confirm('Are you sure you want to cancel this digest?');">
+                                            <button type="submit" class="btn btn-sm btn-danger">
+                                                <i class="bi bi-x-circle me-1"></i>Cancel
+                                            </button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <button disabled class="btn btn-sm btn-warning">
+                                            <i class="bi bi-pause-circle me-1"></i>Cancellation Requested
                                         </button>
-                                    </form>
+                                    }
                                 </div>
                             }
                         </div>

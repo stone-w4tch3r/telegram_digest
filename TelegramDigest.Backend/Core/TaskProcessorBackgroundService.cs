@@ -7,36 +7,37 @@ using TelegramDigest.Backend.DeploymentOptions;
 
 namespace TelegramDigest.Backend.Core;
 
-internal enum TaskCancellationResult
-{
-    CancellationRequested,
-    CancellationAlreadyRequested,
-}
-
 internal interface ITaskScheduler<TKey>
     where TKey : IEquatable<TKey>
 {
     /// <exception cref="InvalidOperationException">
     /// Thrown if the task is already in progress or in the waiting queue.
     /// </exception>
-    public void AddTaskToWaitQueue(Func<CancellationToken, Task> task, TKey key);
+    void AddTaskToWaitQueue(
+        Func<CancellationToken, Task> task,
+        Func<Exception, Task> exceptionHandler,
+        TKey key
+    );
 
     /// <exception cref="KeyNotFoundException">
     /// Thrown if the key is not found in the waiting tasks list.
     /// </exception>
-    public void RemoveWaitingTask(TKey key);
+    void RemoveWaitingTask(TKey key);
 
-    /// <returns>A read-only collection of keys.</returns>
-    public TKey[] GetWaitingTasks();
+    /// <returns>A collection of keys.</returns>
+    TKey[] GetWaitingTasks();
 
-    /// <returns>A read-only collection of keys.</returns>
-    public TKey[] GetInProgressTasks();
+    /// <returns>A collection of keys.</returns>
+    TKey[] GetInProgressTasks();
+
+    /// <returns>A collection of keys.</returns>
+    TKey[] GetCancellationRequestedTasks();
 
     /// <param name="key">The key associated with the task to be canceled.</param>
     /// <exception cref="KeyNotFoundException">
     /// Thrown if the key is not found in the in-progress tasks list.
     /// </exception>
-    public TaskCancellationResult CancelTaskInProgress(TKey key);
+    void CancelTaskInProgress(TKey key);
 }
 
 internal interface ITaskProgressHandler<TKey>
@@ -46,7 +47,11 @@ internal interface ITaskProgressHandler<TKey>
     /// Waits for a task to be available in the queue and returns it.
     /// </summary>
     /// <returns>A task representing the asynchronous operation, containing the task and its key.</returns>
-    public Task<(Func<CancellationToken, Task> task, TKey key)> DequeueWaitingTask();
+    public Task<(
+        Func<CancellationToken, Task> taskFactory,
+        Func<Exception, Task> exceptionHandler,
+        TKey key
+    )> DequeueWaitingTask();
 
     /// <summary>
     /// Moves a task from the waiting queue to in-progress state.
@@ -79,9 +84,11 @@ internal sealed class TaskTracker<TKey> : ITaskScheduler<TKey>, ITaskProgressHan
 {
     private readonly Channel<(
         Func<CancellationToken, Task> taskFactory,
+        Func<Exception, Task> exceptionHandler,
         TKey key
     )> _waitingTasksQueue = Channel.CreateUnbounded<(
         Func<CancellationToken, Task> taskFactory,
+        Func<Exception, Task> exceptionHandler,
         TKey key
     )>();
     private readonly ConcurrentDictionary<TKey, Func<CancellationToken, Task>> _waitingTasksList =
@@ -89,7 +96,11 @@ internal sealed class TaskTracker<TKey> : ITaskScheduler<TKey>, ITaskProgressHan
     private readonly ConcurrentDictionary<TKey, CancellationTokenSource> _inProgressTasksCts =
         new();
 
-    public void AddTaskToWaitQueue(Func<CancellationToken, Task> task, TKey key)
+    public void AddTaskToWaitQueue(
+        Func<CancellationToken, Task> task,
+        Func<Exception, Task> exceptionHandler,
+        TKey key
+    )
     {
         if (_inProgressTasksCts.ContainsKey(key))
         {
@@ -101,17 +112,21 @@ internal sealed class TaskTracker<TKey> : ITaskScheduler<TKey>, ITaskProgressHan
             throw new InvalidOperationException($"Task {key} is already in waiting queue");
         }
 
-        if (!_waitingTasksQueue.Writer.TryWrite((task, key)))
+        if (!_waitingTasksQueue.Writer.TryWrite((task, exceptionHandler, key)))
         {
             _waitingTasksList.TryRemove(key, out _);
             throw new InvalidOperationException("Failed to write to the background task queue.");
         }
     }
 
-    public async Task<(Func<CancellationToken, Task> task, TKey key)> DequeueWaitingTask()
+    public async Task<(
+        Func<CancellationToken, Task> taskFactory,
+        Func<Exception, Task> exceptionHandler,
+        TKey key
+    )> DequeueWaitingTask()
     {
         var item = await _waitingTasksQueue.Reader.ReadAsync();
-        return (item.taskFactory, item.key);
+        return item;
     }
 
     public CancellationToken MoveTaskToInProgress(TKey key)
@@ -134,6 +149,14 @@ internal sealed class TaskTracker<TKey> : ITaskScheduler<TKey>, ITaskProgressHan
     public TKey[] GetInProgressTasks()
     {
         return _inProgressTasksCts.Keys.ToArray();
+    }
+
+    public TKey[] GetCancellationRequestedTasks()
+    {
+        return _inProgressTasksCts
+            .Where(x => x.Value.IsCancellationRequested)
+            .Select(x => x.Key)
+            .ToArray();
     }
 
     public void CompleteTaskInProgress(TKey key)
@@ -172,20 +195,14 @@ internal sealed class TaskTracker<TKey> : ITaskScheduler<TKey>, ITaskProgressHan
         }
     }
 
-    public TaskCancellationResult CancelTaskInProgress(TKey key)
+    public void CancelTaskInProgress(TKey key)
     {
         if (!_inProgressTasksCts.TryGetValue(key, out var cts))
         {
             throw new KeyNotFoundException($"The key {key} was not found in progress tasks list");
         }
 
-        if (cts.IsCancellationRequested)
-        {
-            return TaskCancellationResult.CancellationAlreadyRequested;
-        }
-
         cts.Cancel();
-        return TaskCancellationResult.CancellationRequested;
     }
 }
 
@@ -222,7 +239,7 @@ internal sealed class TaskProcessorBackgroundService(
     {
         // Wait for a new task to be available and acquire a semaphore slot
         await _semaphore.WaitAsync(lifecycleCt);
-        var (workItem, digestId) = await taskTracker.DequeueWaitingTask();
+        var (workItem, exceptionHandler, digestId) = await taskTracker.DequeueWaitingTask();
 
         // Run the task in the background without awaiting, allowing concurrency
         _ = Task.Run(
@@ -245,6 +262,7 @@ internal sealed class TaskProcessorBackgroundService(
                         "Error occurred during digest queue processing for DigestId: {DigestId}",
                         digestId
                     );
+                    await exceptionHandler(ex);
                 }
                 finally
                 {

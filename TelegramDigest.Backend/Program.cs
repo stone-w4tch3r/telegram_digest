@@ -15,7 +15,7 @@ public static class ServiceCollectionExtensions
         builder.AddBackendDeploymentOptions();
 
         // Application services
-        builder.Services.AddHostedService<TaskProcessorBackgroundService>();
+        builder.Services.AddHostedService<TaskProcessor>();
         builder.Services.AddHostedService<SchedulerBackgroundService>();
         builder.Services.AddScoped<IChannelReader, ChannelReader>();
         builder.Services.AddScoped<IChannelsService, ChannelsService>();
@@ -26,16 +26,16 @@ public static class ServiceCollectionExtensions
         builder.Services.AddScoped<IDigestStepsService, DigestStepsBackgroundService>();
         builder.Services.AddScoped<IDigestStepsRepository, DigestStepsRepository>();
         builder.Services.AddScoped<IAiSummarizer, AiSummarizer>();
-        builder.Services.AddSingleton<TaskTracker<DigestId>>();
+        builder.Services.AddSingleton<TaskManager<DigestId>>();
         builder.Services.AddScoped<IEmailSender, EmailSender>();
         builder.Services.AddScoped<IMainService, MainService>();
         builder.Services.AddScoped<IRssService, RssService>();
 
         builder.Services.AddSingleton<ITaskScheduler<DigestId>>(provider =>
-            provider.GetRequiredService<TaskTracker<DigestId>>()
+            provider.GetRequiredService<TaskManager<DigestId>>()
         );
-        builder.Services.AddSingleton<ITaskProgressHandler<DigestId>>(sp =>
-            sp.GetRequiredService<TaskTracker<DigestId>>()
+        builder.Services.AddSingleton<ITaskTracker<DigestId>>(sp =>
+            sp.GetRequiredService<TaskManager<DigestId>>()
         );
         builder.Services.AddScoped<ISettingsManager, SettingsManager>(sp =>
         {

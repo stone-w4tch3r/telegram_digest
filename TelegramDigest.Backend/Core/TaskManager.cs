@@ -1,13 +1,9 @@
 using System.Collections.Concurrent;
 using System.Threading.Channels;
-using JetBrains.Annotations;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
-using TelegramDigest.Backend.DeploymentOptions;
 
 namespace TelegramDigest.Backend.Core;
 
-internal interface ITaskScheduler<TKey>
+internal interface ITaskScheduler<TKey> : IDisposable
     where TKey : IEquatable<TKey>
 {
     /// <exception cref="InvalidOperationException">
@@ -40,7 +36,7 @@ internal interface ITaskScheduler<TKey>
     void CancelTaskInProgress(TKey key);
 }
 
-internal interface ITaskProgressHandler<TKey>
+internal interface ITaskTracker<TKey> : IDisposable
     where TKey : IEquatable<TKey>
 {
     /// <summary>
@@ -77,9 +73,14 @@ internal interface ITaskProgressHandler<TKey>
     /// <param name="key">The key associated with the task to be completed.</param>
     /// <returns>True if the task was successfully completed, false otherwise</returns>
     public bool TryCompleteTaskInProgress(TKey key);
+
+    /// <summary>
+    /// Cancels all tasks in progress.
+    /// </summary>
+    public void CancelAllTasksInProgress();
 }
 
-internal sealed class TaskTracker<TKey> : ITaskScheduler<TKey>, ITaskProgressHandler<TKey>
+internal sealed class TaskManager<TKey> : ITaskScheduler<TKey>, ITaskTracker<TKey>
     where TKey : IEquatable<TKey>
 {
     private readonly Channel<(
@@ -204,83 +205,23 @@ internal sealed class TaskTracker<TKey> : ITaskScheduler<TKey>, ITaskProgressHan
 
         cts.Cancel();
     }
-}
 
-[UsedImplicitly]
-internal sealed class TaskProcessorBackgroundService(
-    ITaskProgressHandler<DigestId> taskTracker,
-    ILogger<TaskProcessorBackgroundService> logger,
-    IOptions<BackendDeploymentOptions> deploymentOptions
-) : BackgroundService
-{
-    private readonly SemaphoreSlim _semaphore = new(
-        deploymentOptions.Value.MaxConcurrentAiTasks.Value
-    );
-
-    protected override async Task ExecuteAsync(CancellationToken ct)
+    public void CancelAllTasksInProgress()
     {
-        while (!ct.IsCancellationRequested)
+        foreach (var cts in _inProgressTasksCts.Values)
         {
-            try
-            {
-                await ProcessSingleTask(ct);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(
-                    ex,
-                    $"Unhandled exception in {nameof(TaskProcessorBackgroundService)}, but crash prevented"
-                );
-            }
+            cts.Cancel();
         }
     }
 
-    private async Task ProcessSingleTask(CancellationToken lifecycleCt)
+    public void Dispose()
     {
-        // Wait for a new task to be available and acquire a semaphore slot
-        await _semaphore.WaitAsync(lifecycleCt);
-        var (workItem, exceptionHandler, digestId) = await taskTracker.DequeueWaitingTask();
+        foreach (var cts in _inProgressTasksCts.Values)
+        {
+            cts.Dispose();
+        }
 
-        // Run the task in the background without awaiting, allowing concurrency
-        _ = Task.Run(
-            async () =>
-            {
-                try
-                {
-                    // Move a task to in-progress and execute it
-                    var progressControlCt = taskTracker.MoveTaskToInProgress(digestId);
-                    await workItem(
-                        CancellationTokenSource
-                            .CreateLinkedTokenSource(progressControlCt, lifecycleCt)
-                            .Token
-                    );
-                }
-                catch (Exception ex)
-                {
-                    logger.LogError(
-                        ex,
-                        "Error occurred during digest queue processing for DigestId: {DigestId}",
-                        digestId
-                    );
-                    if (exceptionHandler != null)
-                    {
-                        await exceptionHandler(ex);
-                    }
-                }
-                finally
-                {
-                    taskTracker.TryCompleteTaskInProgress(digestId);
-                    _semaphore.Release();
-                }
-            },
-            lifecycleCt
-        );
-    }
-
-    public override void Dispose()
-    {
-        base.Dispose();
-
-        _semaphore.Dispose();
+        _waitingTasksQueue.Writer.Complete();
+        _waitingTasksQueue.Reader.Completion.Wait();
     }
 }

@@ -23,7 +23,7 @@ public static class ServiceCollectionExtensions
         builder.Services.AddScoped<IDigestService, DigestService>();
         builder.Services.AddScoped<IDigestService, DigestService>();
         builder.Services.AddScoped<IDigestRepository, DigestRepository>();
-        builder.Services.AddScoped<IDigestStepsService, DigestStepsService>();
+        builder.Services.AddScoped<IDigestStepsService, DigestStepsBackgroundService>();
         builder.Services.AddScoped<IDigestStepsRepository, DigestStepsRepository>();
         builder.Services.AddScoped<IAiSummarizer, AiSummarizer>();
         builder.Services.AddSingleton<TaskTracker<DigestId>>();

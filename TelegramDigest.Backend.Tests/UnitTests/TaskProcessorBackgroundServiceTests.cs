@@ -50,10 +50,10 @@ public class TaskProcessorBackgroundServiceTests
                 if (invocationCount == 0)
                 {
                     invocationCount++;
-                    return (async _ => await taskCompletionSource.Task, digestId);
+                    return (async _ => await taskCompletionSource.Task, null, digestId);
                 }
 
-                return (async _ => await Task.Delay(Timeout.Infinite), digestId);
+                return (async _ => await Task.Delay(Timeout.Infinite), null, digestId);
             });
 
         _mockTaskTracker
@@ -88,10 +88,10 @@ public class TaskProcessorBackgroundServiceTests
                 if (invocationCount == 0)
                 {
                     invocationCount++;
-                    return (_ => tcs.Task, digestId);
+                    return (_ => tcs.Task, null, digestId);
                 }
 
-                return (async _ => await Task.Delay(Timeout.Infinite), digestId);
+                return (async _ => await Task.Delay(Timeout.Infinite), null, digestId);
             });
         _mockTaskTracker
             .Setup(t => t.MoveTaskToInProgress(digestId))
@@ -116,7 +116,7 @@ public class TaskProcessorBackgroundServiceTests
         var exception = new InvalidOperationException("Test error");
         _mockTaskTracker
             .Setup(t => t.DequeueWaitingTask())
-            .ReturnsAsync((_ => throw exception, digestId));
+            .ReturnsAsync((_ => throw exception, null, digestId));
 
         // Act
         var cts = new CancellationTokenSource();

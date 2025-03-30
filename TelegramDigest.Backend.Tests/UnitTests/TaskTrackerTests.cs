@@ -34,10 +34,12 @@ public class TaskTrackerTests
         var task = new Func<CancellationToken, Task>(_ => Task.CompletedTask);
         var key = "task1";
 
-        _taskTracker.AddTaskToWaitQueue(task, key);
+        _taskTracker.AddTaskToWaitQueue(task, key, _ => Task.CompletedTask); // TODO
         _taskTracker.MoveTaskToInProgress(key);
 
-        Assert.Throws<InvalidOperationException>(() => _taskTracker.AddTaskToWaitQueue(task, key));
+        Assert.Throws<InvalidOperationException>(
+            () => _taskTracker.AddTaskToWaitQueue(task, key, _ => Task.CompletedTask)
+        );
     }
 
     [Test]
@@ -48,7 +50,7 @@ public class TaskTrackerTests
 
         _taskTracker.AddTaskToWaitQueue(task, key);
 
-        var (dequeuedTask, dequeuedKey) = await _taskTracker.DequeueWaitingTask();
+        var (dequeuedTask, _, dequeuedKey) = await _taskTracker.DequeueWaitingTask();
 
         Assert.That(task, Is.EqualTo(dequeuedTask));
         Assert.That(key, Is.EqualTo(dequeuedKey));
@@ -178,7 +180,7 @@ public class TaskTrackerTests
                 {
                     foreach (var __ in Enumerable.Range(0, numTasks / numThreads))
                     {
-                        var (_, key) = await _taskTracker.DequeueWaitingTask();
+                        var (_, _, key) = await _taskTracker.DequeueWaitingTask();
                         _taskTracker.MoveTaskToInProgress(key);
                         _taskTracker.CompleteTaskInProgress(key);
                         processedKeys.Add(key);
@@ -245,7 +247,7 @@ public class TaskTrackerTests
         });
 
         _taskTracker.AddTaskToWaitQueue(task, key);
-        var (taskToRun, _) = await _taskTracker.DequeueWaitingTask();
+        var (taskToRun, _, _) = await _taskTracker.DequeueWaitingTask();
         var ct = _taskTracker.MoveTaskToInProgress(key);
         _ = taskToRun(ct);
         _taskTracker.CancelTaskInProgress(key);
@@ -333,7 +335,7 @@ public class TaskTrackerTests
     }
 
     [Test]
-    public void CancelTaskInProgress_ShouldThrowCancellationException_WhenAlreadyCancelled()
+    public void CancelTaskInProgress_ShouldNotThrow_WhenAlreadyCancelled()
     {
         var key = "task1";
         var task = new Func<CancellationToken, Task>(ct => Task.Delay(1000, ct));
@@ -346,7 +348,7 @@ public class TaskTrackerTests
         Assert.That(token.IsCancellationRequested, Is.True);
 
         // Calling cancellation again should not throw.
-        Assert.Throws<OperationCanceledException>(() => _taskTracker.CancelTaskInProgress(key));
+        Assert.DoesNotThrow(() => _taskTracker.CancelTaskInProgress(key));
     }
 
     [Test]
@@ -361,7 +363,7 @@ public class TaskTrackerTests
         var dequeuedKeys = new List<string>();
         for (var i = 0; i < keys.Length; i++)
         {
-            var (_, key) = await _taskTracker.DequeueWaitingTask();
+            var (_, _, key) = await _taskTracker.DequeueWaitingTask();
             dequeuedKeys.Add(key);
         }
 

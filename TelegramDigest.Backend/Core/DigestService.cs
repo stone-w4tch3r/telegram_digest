@@ -59,20 +59,18 @@ internal sealed class DigestService(
         var channelsResult = await channelsRepository.LoadChannels(ct);
         if (channelsResult.IsFailed)
         {
-            await digestStepsService.AddStep(
-                new ErrorStepModel { DigestId = digestId, Errors = channelsResult.Errors },
-                ct
+            digestStepsService.AddStep(
+                new ErrorStepModel { DigestId = digestId, Errors = channelsResult.Errors }
             );
             return Result.Fail(channelsResult.Errors);
         }
 
-        await digestStepsService.AddStep(
+        digestStepsService.AddStep(
             new RssReadingStartedStepModel
             {
                 DigestId = digestId,
                 Channels = channelsResult.Value.Select(x => x.TgId).ToArray(),
-            },
-            ct
+            }
         );
 
         var posts = new List<PostModel>();
@@ -89,20 +87,18 @@ internal sealed class DigestService(
         if (posts.Count == 0)
         {
             logger.LogWarning("No posts found from [{from}] to [{to}] in any channel", from, to);
-            await digestStepsService.AddStep(
-                new SimpleStepModel()
+            digestStepsService.AddStep(
+                new SimpleStepModel
                 {
                     DigestId = digestId,
                     Type = DigestStepTypeModelEnum.NoPostsFound,
-                },
-                ct
+                }
             );
             return Result.Ok(DigestGenerationResultModelEnum.NoPosts);
         }
 
-        await digestStepsService.AddStep(
-            new RssReadingFinishedStepModel { DigestId = digestId, PostsCount = posts.Count },
-            ct
+        digestStepsService.AddStep(
+            new RssReadingFinishedStepModel { DigestId = digestId, PostsCount = posts.Count }
         );
 
         var summaries = new List<PostSummaryModel>();
@@ -112,21 +108,19 @@ internal sealed class DigestService(
             var summaryResult = await aiSummarizer.GenerateSummary(post, ct);
             if (summaryResult.IsSuccess)
             {
-                await digestStepsService.AddStep(
+                digestStepsService.AddStep(
                     new AiProcessingStepModel
                     {
                         DigestId = digestId,
                         Percentage = i * 100 / posts.Count,
-                    },
-                    ct
+                    }
                 );
                 summaries.Add(summaryResult.Value);
             }
             else
             {
-                await digestStepsService.AddStep(
-                    new ErrorStepModel { DigestId = digestId, Errors = summaryResult.Errors },
-                    ct
+                digestStepsService.AddStep(
+                    new ErrorStepModel { DigestId = digestId, Errors = summaryResult.Errors }
                 );
                 return Result.Fail(summaryResult.Errors);
             }
@@ -136,16 +130,14 @@ internal sealed class DigestService(
         var digestSummaryResult = await aiSummarizer.GeneratePostsSummary(posts, ct);
         if (digestSummaryResult.IsFailed)
         {
-            await digestStepsService.AddStep(
-                new ErrorStepModel { DigestId = digestId, Errors = digestSummaryResult.Errors },
-                ct
+            digestStepsService.AddStep(
+                new ErrorStepModel { DigestId = digestId, Errors = digestSummaryResult.Errors }
             );
             return Result.Fail(digestSummaryResult.Errors);
         }
 
-        await digestStepsService.AddStep(
-            new AiProcessingStepModel { DigestId = digestId, Percentage = 100 },
-            ct
+        digestStepsService.AddStep(
+            new AiProcessingStepModel { DigestId = digestId, Percentage = 100 }
         );
 
         var digest = new DigestModel(
@@ -157,16 +149,14 @@ internal sealed class DigestService(
         var saveResult = await digestRepository.SaveDigest(digest, ct);
         if (!saveResult.IsSuccess)
         {
-            await digestStepsService.AddStep(
-                new ErrorStepModel { DigestId = digestId, Errors = saveResult.Errors },
-                ct
+            digestStepsService.AddStep(
+                new ErrorStepModel { DigestId = digestId, Errors = saveResult.Errors }
             );
             return Result.Fail(saveResult.Errors);
         }
 
-        await digestStepsService.AddStep(
-            new SimpleStepModel { DigestId = digestId, Type = DigestStepTypeModelEnum.Success },
-            ct
+        digestStepsService.AddStep(
+            new SimpleStepModel { DigestId = digestId, Type = DigestStepTypeModelEnum.Success }
         );
         return Result.Ok(DigestGenerationResultModelEnum.Success);
     }

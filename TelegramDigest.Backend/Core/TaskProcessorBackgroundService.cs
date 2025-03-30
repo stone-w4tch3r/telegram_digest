@@ -15,8 +15,8 @@ internal interface ITaskScheduler<TKey>
     /// </exception>
     void AddTaskToWaitQueue(
         Func<CancellationToken, Task> task,
-        Func<Exception, Task> exceptionHandler,
-        TKey key
+        TKey key,
+        Func<Exception, Task>? exceptionHandler = null
     );
 
     /// <exception cref="KeyNotFoundException">
@@ -49,7 +49,7 @@ internal interface ITaskProgressHandler<TKey>
     /// <returns>A task representing the asynchronous operation, containing the task and its key.</returns>
     public Task<(
         Func<CancellationToken, Task> taskFactory,
-        Func<Exception, Task> exceptionHandler,
+        Func<Exception, Task>? exceptionHandler,
         TKey key
     )> DequeueWaitingTask();
 
@@ -84,11 +84,11 @@ internal sealed class TaskTracker<TKey> : ITaskScheduler<TKey>, ITaskProgressHan
 {
     private readonly Channel<(
         Func<CancellationToken, Task> taskFactory,
-        Func<Exception, Task> exceptionHandler,
+        Func<Exception, Task>? exceptionHandler,
         TKey key
     )> _waitingTasksQueue = Channel.CreateUnbounded<(
         Func<CancellationToken, Task> taskFactory,
-        Func<Exception, Task> exceptionHandler,
+        Func<Exception, Task>? exceptionHandler,
         TKey key
     )>();
     private readonly ConcurrentDictionary<TKey, Func<CancellationToken, Task>> _waitingTasksList =
@@ -98,8 +98,8 @@ internal sealed class TaskTracker<TKey> : ITaskScheduler<TKey>, ITaskProgressHan
 
     public void AddTaskToWaitQueue(
         Func<CancellationToken, Task> task,
-        Func<Exception, Task> exceptionHandler,
-        TKey key
+        TKey key,
+        Func<Exception, Task>? exceptionHandler = null
     )
     {
         if (_inProgressTasksCts.ContainsKey(key))
@@ -121,7 +121,7 @@ internal sealed class TaskTracker<TKey> : ITaskScheduler<TKey>, ITaskProgressHan
 
     public async Task<(
         Func<CancellationToken, Task> taskFactory,
-        Func<Exception, Task> exceptionHandler,
+        Func<Exception, Task>? exceptionHandler,
         TKey key
     )> DequeueWaitingTask()
     {
@@ -262,7 +262,10 @@ internal sealed class TaskProcessorBackgroundService(
                         "Error occurred during digest queue processing for DigestId: {DigestId}",
                         digestId
                     );
-                    await exceptionHandler(ex);
+                    if (exceptionHandler != null)
+                    {
+                        await exceptionHandler(ex);
+                    }
                 }
                 finally
                 {

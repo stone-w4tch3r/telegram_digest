@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.ServiceModel.Syndication;
 using FluentResults;
 using Microsoft.Extensions.DependencyInjection;
@@ -123,13 +122,12 @@ internal sealed class MainService(
         CancellationToken ct
     )
     {
-        await digestStepsService.AddStep(
+        digestStepsService.AddStep(
             new SimpleStepModel
             {
                 DigestId = digestId,
                 Type = DigestStepTypeModelEnum.ProcessingStarted,
-            },
-            ct
+            }
         );
 
         var settings = await settingsManager.LoadSettings(ct);
@@ -156,11 +154,10 @@ internal sealed class MainService(
         return Result.Ok(generationResult.Value);
     }
 
-    public async Task<Result> QueueDigestForLastPeriod(DigestId digestId, CancellationToken ct)
+    public Task<Result> QueueDigestForLastPeriod(DigestId digestId, CancellationToken ct)
     {
-        await digestStepsService.AddStep(
-            new SimpleStepModel { DigestId = digestId, Type = DigestStepTypeModelEnum.Queued },
-            ct
+        digestStepsService.AddStep(
+            new SimpleStepModel { DigestId = digestId, Type = DigestStepTypeModelEnum.Queued }
         );
 
         taskTracker.AddTaskToWaitQueue(
@@ -172,18 +169,18 @@ internal sealed class MainService(
                 var mergedCt = CancellationTokenSource.CreateLinkedTokenSource(ct, localCt).Token;
                 await scopedMainService.ProcessDigestForLastPeriod(digestId, mergedCt);
             },
-            async ex =>
+            digestId,
+            ex =>
             {
                 if (ex is OperationCanceledException)
                 {
                     logger.LogInformation("Digest {DigestId} processing was canceled", digestId);
-                    await digestStepsService.AddStep(
+                    digestStepsService.AddStep(
                         new SimpleStepModel
                         {
                             DigestId = digestId,
                             Type = DigestStepTypeModelEnum.Queued,
-                        },
-                        ct
+                        }
                     );
                 }
                 else
@@ -193,21 +190,21 @@ internal sealed class MainService(
                         "Unhandled exception while trying to process digest {DigestId}",
                         digestId
                     );
-                    await digestStepsService.AddStep(
+                    digestStepsService.AddStep(
                         new ErrorStepModel
                         {
                             DigestId = digestId,
                             Exception = ex,
                             Message = "Unhandled exception while trying to process digest",
-                        },
-                        ct
+                        }
                     );
                 }
-            },
-            digestId
+
+                return Task.CompletedTask;
+            }
         );
 
-        return Result.Ok();
+        return Task.FromResult(Result.Ok());
     }
 
     public Task<Result> CancelDigest(DigestId digestId)

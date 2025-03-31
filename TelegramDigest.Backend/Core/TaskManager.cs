@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Threading.Channels;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace TelegramDigest.Backend.Core;
 
@@ -10,7 +11,7 @@ internal interface ITaskScheduler<TKey> : IDisposable
     /// Thrown if the task is already in progress or in the waiting queue.
     /// </exception>
     void AddTaskToWaitQueue(
-        Func<CancellationToken, Task> task,
+        Func<CancellationToken, IServiceScope, Task> task,
         TKey key,
         Func<Exception, Task>? exceptionHandler = null
     );
@@ -44,7 +45,7 @@ internal interface ITaskTracker<TKey> : IDisposable
     /// </summary>
     /// <returns>A task representing the asynchronous operation, containing the task and its key.</returns>
     public Task<(
-        Func<CancellationToken, Task> taskFactory,
+        Func<CancellationToken, IServiceScope, Task> taskFactory,
         Func<Exception, Task>? exceptionHandler,
         TKey key
     )> DequeueWaitingTask();
@@ -84,21 +85,23 @@ internal sealed class TaskManager<TKey> : ITaskScheduler<TKey>, ITaskTracker<TKe
     where TKey : IEquatable<TKey>
 {
     private readonly Channel<(
-        Func<CancellationToken, Task> taskFactory,
+        Func<CancellationToken, IServiceScope, Task> taskFactory,
         Func<Exception, Task>? exceptionHandler,
         TKey key
     )> _waitingTasksQueue = Channel.CreateUnbounded<(
-        Func<CancellationToken, Task> taskFactory,
+        Func<CancellationToken, IServiceScope, Task> taskFactory,
         Func<Exception, Task>? exceptionHandler,
         TKey key
     )>();
-    private readonly ConcurrentDictionary<TKey, Func<CancellationToken, Task>> _waitingTasksList =
-        new();
+    private readonly ConcurrentDictionary<
+        TKey,
+        Func<CancellationToken, IServiceScope, Task>
+    > _waitingTasksList = new();
     private readonly ConcurrentDictionary<TKey, CancellationTokenSource> _inProgressTasksCts =
         new();
 
     public void AddTaskToWaitQueue(
-        Func<CancellationToken, Task> task,
+        Func<CancellationToken, IServiceScope, Task> task,
         TKey key,
         Func<Exception, Task>? exceptionHandler = null
     )
@@ -121,7 +124,7 @@ internal sealed class TaskManager<TKey> : ITaskScheduler<TKey>, ITaskTracker<TKe
     }
 
     public async Task<(
-        Func<CancellationToken, Task> taskFactory,
+        Func<CancellationToken, IServiceScope, Task> taskFactory,
         Func<Exception, Task>? exceptionHandler,
         TKey key
     )> DequeueWaitingTask()

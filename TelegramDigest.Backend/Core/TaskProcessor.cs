@@ -1,4 +1,5 @@
 using JetBrains.Annotations;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using TelegramDigest.Backend.DeploymentOptions;
@@ -8,6 +9,7 @@ namespace TelegramDigest.Backend.Core;
 [UsedImplicitly]
 internal sealed class TaskProcessor(
     ITaskTracker<DigestId> taskTracker,
+    IServiceProvider serviceProvider,
     ILogger<TaskProcessor> logger,
     IOptions<BackendDeploymentOptions> deploymentOptions
 ) : BackgroundService
@@ -47,11 +49,13 @@ internal sealed class TaskProcessor(
                 try
                 {
                     // Move a task to in-progress and execute it
+                    using var scope = serviceProvider.CreateScope();
                     var progressControlCt = taskTracker.MoveTaskToInProgress(digestId);
                     await workItem(
                         CancellationTokenSource
                             .CreateLinkedTokenSource(progressControlCt, lifecycleCt)
-                            .Token
+                            .Token,
+                        scope
                     );
                 }
                 catch (Exception ex)

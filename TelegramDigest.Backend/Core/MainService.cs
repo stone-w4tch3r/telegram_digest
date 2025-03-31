@@ -1,6 +1,5 @@
 using System.ServiceModel.Syndication;
 using FluentResults;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace TelegramDigest.Backend.Core;
 
@@ -109,12 +108,11 @@ internal sealed class MainService(
     IDigestService digestService,
     IChannelsService channelsService,
     IEmailSender emailSender,
-    IServiceProvider serviceProvider,
+    IDigestProcessingOrchestrator digestProcessingOrchestrator,
     ISettingsManager settingsManager,
     IRssService rssService,
-    ITaskScheduler<DigestId> taskTracker,
-    IDigestStepsService digestStepsService,
-    ILogger<MainService> logger
+    ITaskScheduler<DigestId> taskScheduler,
+    IDigestStepsService digestStepsService
 ) : IMainService
 {
     public async Task<Result<DigestGenerationResultModelEnum>> ProcessDigestForLastPeriod(
@@ -122,114 +120,39 @@ internal sealed class MainService(
         CancellationToken ct
     )
     {
-        digestStepsService.AddStep(
-            new SimpleStepModel
-            {
-                DigestId = digestId,
-                Type = DigestStepTypeModelEnum.ProcessingStarted,
-            }
-        );
-
-        var settings = await settingsManager.LoadSettings(ct);
-        if (settings.IsFailed)
-        {
-            return Result.Fail(settings.Errors);
-        }
-
-        //TODO handle 00:00
-        var dateFrom = DateOnly.FromDateTime(DateTime.UtcNow.Date.AddDays(-1));
-        var dateTo = DateOnly.FromDateTime(DateTime.UtcNow.Date);
-
-        var generationResult = await digestService.GenerateDigest(digestId, dateFrom, dateTo, ct);
-        if (generationResult.IsFailed)
-        {
-            logger.LogError(
-                "Failed to generate digest: {Errors}",
-                string.Join(", ", generationResult.Errors)
-            );
-            return Result.Fail(generationResult.Errors);
-        }
-
-        logger.LogInformation("Digest generation completed successfully");
-        return Result.Ok(generationResult.Value);
+        return await digestProcessingOrchestrator.ProcessDigestForLastPeriod(digestId, ct);
     }
 
     public Task<Result> QueueDigestForLastPeriod(DigestId digestId, CancellationToken ct)
     {
-        digestStepsService.AddStep(
-            new SimpleStepModel { DigestId = digestId, Type = DigestStepTypeModelEnum.Queued }
+        return Task.FromResult(
+            Result.Try(() => digestProcessingOrchestrator.QueueDigestForLastPeriod(digestId, ct))
         );
-
-        taskTracker.AddTaskToWaitQueue(
-            async localCt =>
-            {
-                // use own scope and services to avoid issues with disposing of captured scope
-                using var scope = serviceProvider.CreateScope();
-                var scopedMainService = scope.ServiceProvider.GetRequiredService<IMainService>();
-                var mergedCt = CancellationTokenSource.CreateLinkedTokenSource(ct, localCt).Token;
-                await scopedMainService.ProcessDigestForLastPeriod(digestId, mergedCt);
-            },
-            digestId,
-            ex =>
-            {
-                if (ex is OperationCanceledException)
-                {
-                    logger.LogInformation("Digest {DigestId} processing was canceled", digestId);
-                    digestStepsService.AddStep(
-                        new SimpleStepModel
-                        {
-                            DigestId = digestId,
-                            Type = DigestStepTypeModelEnum.Queued,
-                        }
-                    );
-                }
-                else
-                {
-                    logger.LogError(
-                        ex,
-                        "Unhandled exception while trying to process digest {DigestId}",
-                        digestId
-                    );
-                    digestStepsService.AddStep(
-                        new ErrorStepModel
-                        {
-                            DigestId = digestId,
-                            Exception = ex,
-                            Message = "Unhandled exception while trying to process digest",
-                        }
-                    );
-                }
-
-                return Task.CompletedTask;
-            }
-        );
-
-        return Task.FromResult(Result.Ok());
     }
 
     public Task<Result> CancelDigest(DigestId digestId)
     {
-        return Task.FromResult(Result.Try(() => taskTracker.CancelTaskInProgress(digestId)));
+        return Task.FromResult(Result.Try(() => taskScheduler.CancelTaskInProgress(digestId)));
     }
 
     public Task<DigestId[]> GetInProgressDigests()
     {
-        return Task.FromResult(taskTracker.GetInProgressTasks());
+        return Task.FromResult(taskScheduler.GetInProgressTasks());
     }
 
     public Task<DigestId[]> GetCancellationRequestedDigests()
     {
-        return Task.FromResult(taskTracker.GetCancellationRequestedTasks());
+        return Task.FromResult(taskScheduler.GetCancellationRequestedTasks());
     }
 
     public Task<DigestId[]> GetWaitingDigests()
     {
-        return Task.FromResult(taskTracker.GetWaitingTasks());
+        return Task.FromResult(taskScheduler.GetWaitingTasks());
     }
 
     public Task<Result> RemoveWaitingDigest(DigestId key)
     {
-        return Task.FromResult(Result.Try(() => taskTracker.RemoveWaitingTask(key)));
+        return Task.FromResult(Result.Try(() => taskScheduler.RemoveWaitingTask(key)));
     }
 
     public async Task<Result<List<ChannelModel>>> GetChannels(CancellationToken ct)

@@ -17,6 +17,8 @@ public static class ServiceCollectionExtensions
         // Application services
         builder.Services.AddHostedService<DigestTaskProcessor>();
         builder.Services.AddHostedService<SchedulerBackgroundService>();
+        builder.Services.AddHostedService<DigestStepsBackgroundService>();
+
         builder.Services.AddScoped<IChannelReader, ChannelReader>();
         builder.Services.AddScoped<IChannelsService, ChannelsService>();
         builder.Services.AddScoped<IChannelsRepository, ChannelsRepository>();
@@ -38,12 +40,6 @@ public static class ServiceCollectionExtensions
         builder.Services.AddSingleton<ITaskTracker<DigestId>>(sp =>
             sp.GetRequiredService<TaskManager<DigestId>>()
         );
-        builder.Services.AddScoped<ISettingsManager, SettingsManager>(sp =>
-        {
-            var logger = sp.GetRequiredService<ILogger<SettingsManager>>();
-            var settingsPath = builder.Configuration.GetValue<string>("SettingsPath");
-            return new(settingsPath, logger);
-        });
 
         // Database
         builder.Services.AddDbContext<ApplicationDbContext>(

@@ -22,6 +22,9 @@ internal static class BackendDeploymentOptionsBuilderExtensions
                 options.TelegramRssBaseUrl = builder.Configuration.GetValue<Uri?>(
                     BackendDeploymentOptions.TELEGRAM_RSS_BASE_URL_KEY
                 );
+                options.SettingsFilePath = builder.Configuration.GetValue<Uri?>(
+                    BackendDeploymentOptions.SETTINGS_FILE_PATH_KEY
+                );
             })
             .ValidateDataAnnotations();
 

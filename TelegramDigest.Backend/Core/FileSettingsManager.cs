@@ -1,6 +1,8 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using FluentResults;
+using Microsoft.Extensions.Options;
+using TelegramDigest.Backend.DeploymentOptions;
 
 namespace TelegramDigest.Backend.Core;
 
@@ -15,30 +17,24 @@ internal interface ISettingsManager
     /// <summary>
     /// Saves application settings to the file system.
     /// </summary>
-    /// <param name="settings">The settings to save.</param>
     /// <returns>A result indicating success or failure.</returns>
     public Task<Result> SaveSettings(SettingsModel settings, CancellationToken ct);
 }
 
-internal sealed class SettingsManager : ISettingsManager
+/// <summary>
+/// Manages application settings with file-based persistence
+/// </summary>
+internal sealed class FileSettingsManager(
+    IOptions<BackendDeploymentOptions> options,
+    ILogger<FileSettingsManager> logger
+) : ISettingsManager
 {
-    private const string SETTINGS_PATH = "runtime/settings.json";
-    private readonly FileInfo _settingsFileInfo;
-    private readonly ILogger<SettingsManager> _logger;
+    private readonly FileInfo _settingsFileInfo = new(options.Value.SettingsFilePath.ToString());
     private readonly JsonSerializerOptions _jsonOptions = new()
     {
         WriteIndented = true,
         IncludeFields = true,
     };
-
-    /// <summary>
-    /// Manages application settings with file-based persistence
-    /// </summary>
-    internal SettingsManager(string? settingsPath, ILogger<SettingsManager> logger)
-    {
-        _settingsFileInfo = new(settingsPath ?? SETTINGS_PATH);
-        _logger = logger;
-    }
 
     public async Task<Result<SettingsModel>> LoadSettings(CancellationToken ct)
     {
@@ -47,7 +43,7 @@ internal sealed class SettingsManager : ISettingsManager
             _settingsFileInfo.Refresh();
             if (!_settingsFileInfo.Exists)
             {
-                _logger.LogInformation("No settings file found.");
+                logger.LogInformation("No settings file found.");
                 var emptySettings = CreateEmptySettings();
                 await SaveSettings(emptySettings, ct);
                 return Result.Ok(emptySettings);
@@ -59,7 +55,7 @@ internal sealed class SettingsManager : ISettingsManager
             );
             if (!settingsJsonResult.IsSuccess)
             {
-                _logger.LogError(
+                logger.LogError(
                     "Failed to deserialize settings JSON: {Error}",
                     settingsJsonResult.Errors
                 );
@@ -69,7 +65,7 @@ internal sealed class SettingsManager : ISettingsManager
             }
             if (settingsJsonResult.Value is null)
             {
-                _logger.LogError("Failed to deserialize settings JSON, deserializer returned null");
+                logger.LogError("Failed to deserialize settings JSON, deserializer returned null");
                 return Result.Fail(
                     "Failed to deserialize settings JSON, deserializer returned null"
                 );
@@ -78,7 +74,7 @@ internal sealed class SettingsManager : ISettingsManager
             var settingsModelResult = Result.Try(() => MapFromJson(settingsJsonResult.Value));
             if (!settingsModelResult.IsSuccess)
             {
-                _logger.LogError(
+                logger.LogError(
                     "Looks like settings in json are invalid: {Error}",
                     settingsModelResult.Errors
                 );
@@ -94,7 +90,7 @@ internal sealed class SettingsManager : ISettingsManager
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to load settings from {Path}", _settingsFileInfo);
+            logger.LogError(ex, "Failed to load settings from {Path}", _settingsFileInfo);
             return Result.Fail(
                 new Error($"Failed to load settings from {_settingsFileInfo}").CausedBy(ex)
             );
@@ -108,7 +104,7 @@ internal sealed class SettingsManager : ISettingsManager
             var directory = Path.GetDirectoryName(_settingsFileInfo.FullName);
             if (directory is null)
             {
-                _logger.LogError(
+                logger.LogError(
                     "Invalid path to settings file [{Path}]",
                     _settingsFileInfo.FullName
                 );
@@ -123,10 +119,7 @@ internal sealed class SettingsManager : ISettingsManager
             var settingsJsonResult = Result.Try(() => MapToJson(settings));
             if (!settingsJsonResult.IsSuccess)
             {
-                _logger.LogError(
-                    "Failed to serialize settings: {Error}",
-                    settingsJsonResult.Errors
-                );
+                logger.LogError("Failed to serialize settings: {Error}", settingsJsonResult.Errors);
                 return Result.Fail(
                     [new Error("Failed to serialize settings"), .. settingsJsonResult.Errors]
                 );
@@ -138,7 +131,7 @@ internal sealed class SettingsManager : ISettingsManager
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to save settings to {Path}", _settingsFileInfo);
+            logger.LogError(ex, "Failed to save settings to {Path}", _settingsFileInfo);
             return Result.Fail(
                 new Error($"Failed to save settings to {_settingsFileInfo}").CausedBy(ex)
             );

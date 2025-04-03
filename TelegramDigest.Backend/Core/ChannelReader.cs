@@ -1,6 +1,8 @@
 using System.ServiceModel.Syndication;
 using System.Xml;
 using FluentResults;
+using Microsoft.Extensions.Options;
+using TelegramDigest.Backend.DeploymentOptions;
 
 namespace TelegramDigest.Backend.Core;
 
@@ -15,9 +17,12 @@ internal interface IChannelReader
     Task<Result<ChannelModel>> FetchChannelInfo(ChannelTgId channelTgId, CancellationToken ct);
 }
 
-internal sealed class ChannelReader(ILogger<ChannelReader> logger) : IChannelReader
+internal sealed class ChannelReader(
+    ILogger<ChannelReader> logger,
+    IOptions<BackendDeploymentOptions> options
+) : IChannelReader
 {
-    private const string RSS_HUB_BASE_URL = "https://rsshub.app/telegram/channel";
+    private readonly string _telegramRssBaseUrl = options.Value.TelegramRssBaseUrl;
 
     public Task<Result<List<PostModel>>> FetchPosts(
         ChannelTgId channelTgId,
@@ -40,7 +45,7 @@ internal sealed class ChannelReader(ILogger<ChannelReader> logger) : IChannelRea
                 try
                 {
                     ct.ThrowIfCancellationRequested();
-                    var feedUrl = $"{RSS_HUB_BASE_URL}/{channelTgId.ChannelName}";
+                    var feedUrl = $"{_telegramRssBaseUrl}/{channelTgId.ChannelName}";
                     using var reader = XmlReader.Create(feedUrl);
                     var feed = SyndicationFeed.Load(reader);
 
@@ -90,7 +95,7 @@ internal sealed class ChannelReader(ILogger<ChannelReader> logger) : IChannelRea
                 ct.ThrowIfCancellationRequested();
                 try
                 {
-                    var feedUrl = $"{RSS_HUB_BASE_URL}/{channelTgId.ChannelName}";
+                    var feedUrl = $"{_telegramRssBaseUrl}/{channelTgId.ChannelName}";
                     using var reader = XmlReader.Create(feedUrl);
                     var feed = SyndicationFeed.Load(reader);
 

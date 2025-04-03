@@ -19,7 +19,7 @@ internal static class BackendDeploymentOptionsBuilderExtensions
                 options.SqlLiteConnectionString = builder.Configuration.GetValue<string?>(
                     BackendDeploymentOptions.SQL_LITE_CONNECTION_STRING_KEY
                 );
-                options.TelegramRssBaseUrl = builder.Configuration.GetValue<string?>(
+                options.TelegramRssBaseUrl = builder.Configuration.GetValue<Uri?>(
                     BackendDeploymentOptions.TELEGRAM_RSS_BASE_URL_KEY
                 );
             })

@@ -20,7 +20,7 @@ internal record BackendDeploymentOptions
 
     /// <example>"https://rsshub.app/telegram/channel"</example>
     [Required(ErrorMessage = $"{TELEGRAM_RSS_BASE_URL_KEY} configuration option was not set")]
-    [Url(ErrorMessage = $"{TELEGRAM_RSS_BASE_URL_KEY} must be a valid URL")]
+    // [Url(ErrorMessage = $"{TELEGRAM_RSS_BASE_URL_KEY} must be a valid URL")] // TODO use valid http/file/? uri
     [NotNull]
-    public string? TelegramRssBaseUrl { get; set; }
+    public Uri? TelegramRssBaseUrl { get; set; }
 }

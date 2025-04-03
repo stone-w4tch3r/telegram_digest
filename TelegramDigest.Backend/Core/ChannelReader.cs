@@ -22,7 +22,7 @@ internal sealed class ChannelReader(
     IOptions<BackendDeploymentOptions> options
 ) : IChannelReader
 {
-    private readonly string _telegramRssBaseUrl = options.Value.TelegramRssBaseUrl;
+    private readonly Uri _telegramRssBaseUrl = options.Value.TelegramRssBaseUrl;
 
     public Task<Result<List<PostModel>>> FetchPosts(
         ChannelTgId channelTgId,

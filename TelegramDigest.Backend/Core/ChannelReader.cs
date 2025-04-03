@@ -79,7 +79,9 @@ internal sealed class ChannelReader(
                         "Error fetching posts for channel {ChannelId}",
                         channelTgId
                     );
-                    return Result.Fail(new Error("Failed to fetch posts").CausedBy(ex));
+                    return Result.Fail(
+                        new Error($"Error fetching posts for channel {channelTgId}").CausedBy(ex)
+                    );
                 }
             },
             ct

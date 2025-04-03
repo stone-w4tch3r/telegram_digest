@@ -74,6 +74,8 @@ internal sealed class DigestService(
         );
 
         var posts = new List<PostModel>();
+        var errorsByChannel = new Dictionary<ChannelTgId, List<IError>>();
+
         foreach (var channel in channelsResult.Value)
         {
             ct.ThrowIfCancellationRequested();
@@ -82,6 +84,27 @@ internal sealed class DigestService(
             {
                 posts.AddRange(postsResult.Value);
             }
+            else
+            {
+                errorsByChannel[channel.TgId] = postsResult.Errors;
+            }
+        }
+
+        if (errorsByChannel.Count == channelsResult.Value.Count)
+        {
+            const string Message = "Failed to read all channels";
+            var errors =
+                (List<IError>)[new Error(Message), .. errorsByChannel.Values.SelectMany(x => x)];
+            logger.LogError(Message);
+            digestStepsService.AddStep(
+                new ErrorStepModel
+                {
+                    DigestId = digestId,
+                    Errors = errors,
+                    Message = Message,
+                }
+            );
+            return Result.Fail(errors);
         }
 
         if (posts.Count == 0)

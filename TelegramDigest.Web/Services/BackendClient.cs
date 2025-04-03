@@ -224,41 +224,46 @@ public sealed class BackendClient(IMainService mainService, ILogger<BackendClien
             throw new("Failed to get digest statuses");
         }
 
-        if (result.Value.Length == 0)
-        {
-            logger.LogError("Status history is empty");
-            throw new("Status history is empty");
-        }
-
         var steps = result.Value.OrderBy(x => x.Timestamp).ToArray();
-        return new()
-        {
-            Id = id,
-            StartedAt = steps[0].Timestamp,
-            CompletedAt = steps[^1].Type.MapToVm().IsFinished() ? steps[^1].Timestamp : null,
-            CurrentStep = steps.Last().Type.MapToVm(),
-            PercentComplete =
-                steps[^1].Type.MapToVm().IsFinished() ? 100
-                : steps.LastOrDefault(x => x is AiProcessingStepModel) is AiProcessingStepModel s
-                    ? s.Percentage
-                : 1,
-            Steps = steps
-                .Select(x => new DigestStepViewModel
-                {
-                    Type = x.Type.MapToVm(),
-                    Message = x.Message,
-                    Timestamp = x.Timestamp,
-                    Channels = x is RssReadingStartedStepModel readingStartedStep
-                        ? readingStartedStep.Channels.Select(c => c.ChannelName).ToArray()
-                        : null,
-                    PostsCount = x is RssReadingFinishedStepModel readingFinishedStep
-                        ? readingFinishedStep.PostsCount
-                        : null,
-                    PercentComplete = x is AiProcessingStepModel aiStep ? aiStep.Percentage : null,
-                })
-                .ToArray(),
-            ErrorMessage = steps[^1] is ErrorStepModel error ? error.FormatErrorStep() : null,
-        };
+        return steps.Length == 0
+            ? new()
+            {
+                Id = id,
+                StartedAt = null,
+                CompletedAt = null,
+                CurrentStep = null,
+                PercentComplete = 0,
+                Steps = [],
+                ErrorMessage = null,
+            }
+            : new()
+            {
+                Id = id,
+                StartedAt = steps[0].Timestamp,
+                CompletedAt = steps[^1].Type.MapToVm().IsFinished() ? steps[^1].Timestamp : null,
+                CurrentStep = steps.Length == 0 ? null : steps.Last().Type.MapToVm(),
+                PercentComplete = steps[^1].Type.MapToVm().IsFinished()
+                    ? 100
+                    : steps.GetLastAiStepOrDefault()?.Percentage ?? 1,
+                Steps = steps
+                    .Select(x => new DigestStepViewModel
+                    {
+                        Type = x.Type.MapToVm(),
+                        Message = x.Message,
+                        Timestamp = x.Timestamp,
+                        Channels = x is RssReadingStartedStepModel readingStartedStep
+                            ? readingStartedStep.Channels.Select(c => c.ChannelName).ToArray()
+                            : null,
+                        PostsCount = x is RssReadingFinishedStepModel readingFinishedStep
+                            ? readingFinishedStep.PostsCount
+                            : null,
+                        PercentComplete = x is AiProcessingStepModel aiStep
+                            ? aiStep.Percentage
+                            : null,
+                    })
+                    .ToArray(),
+                ErrorMessage = steps[^1] is ErrorStepModel error ? error.FormatErrorStep() : null,
+            };
     }
 
     public async Task CancelDigest(Guid digestId)
@@ -327,5 +332,10 @@ public static class StepsHelper
                 or DigestStepViewModelEnum.Error
                 or DigestStepViewModelEnum.Cancelled
                 or DigestStepViewModelEnum.NoPostsFound;
+    }
+
+    public static AiProcessingStepModel? GetLastAiStepOrDefault(this IDigestStepModel[] steps)
+    {
+        return steps.LastOrDefault(x => x is AiProcessingStepModel) as AiProcessingStepModel;
     }
 }

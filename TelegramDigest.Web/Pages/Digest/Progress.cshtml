@@ -42,7 +42,10 @@
             <div class="d-flex gap-3 text-muted small mb-3">
                 <div>
                     <i class="bi bi-clock"></i>
-                    Started: @Model.Progress.StartedAt.ToString("MMM dd, yyyy HH:mm:ss")
+                    @(Model.Progress.StartedAt.HasValue
+                        ? "Started: " + Model.Progress.StartedAt?.ToString("MMM dd, yyyy HH:mm:ss")
+                        : "Not started yet"
+                    )
                 </div>
                 @if (Model.Progress.CompletedAt.HasValue)
                 {
@@ -151,7 +154,7 @@
 </div>
 
 @section Scripts {
-    @if (!Model.Progress.CurrentStep.IsFinished())
+    @if (!Model.Progress.CurrentStep.HasValue || !Model.Progress.CurrentStep.Value.IsFinished())
     {
         <script>
             // Refresh the page every 10 seconds to update progress

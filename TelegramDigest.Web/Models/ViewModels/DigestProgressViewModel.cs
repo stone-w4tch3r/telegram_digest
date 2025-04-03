@@ -17,20 +17,16 @@ public enum DigestStepViewModelEnum
 
 public sealed record class DigestProgressViewModel
 {
-    [Required]
     public required Guid Id { get; init; }
 
-    [Required]
     [Range(0, 100, ErrorMessage = "PercentComplete must be between 0 and 100.")]
     public required int PercentComplete { get; init; }
 
-    [Required]
-    public required DigestStepViewModelEnum CurrentStep { get; init; }
+    public required DigestStepViewModelEnum? CurrentStep { get; init; }
 
     public required string? ErrorMessage { get; init; }
 
-    [Required]
-    public required DateTime StartedAt { get; init; }
+    public required DateTime? StartedAt { get; init; }
 
     public required DateTime? CompletedAt { get; init; }
 
@@ -38,7 +34,7 @@ public sealed record class DigestProgressViewModel
     public required DigestStepViewModel[] Steps { get; init; }
 }
 
-public sealed record class DigestStepViewModel
+public sealed record DigestStepViewModel
 {
     public DigestStepViewModel()
     {
@@ -60,10 +56,8 @@ public sealed record class DigestStepViewModel
         }
     }
 
-    [Required]
     public required DigestStepViewModelEnum Type { get; init; }
 
-    [Required]
     public required DateTime Timestamp { get; init; }
 
     public required string? Message { get; init; }

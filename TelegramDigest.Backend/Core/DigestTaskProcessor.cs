@@ -7,10 +7,10 @@ using TelegramDigest.Backend.DeploymentOptions;
 namespace TelegramDigest.Backend.Core;
 
 [UsedImplicitly]
-internal sealed class TaskProcessor(
+internal sealed class DigestTaskProcessor(
     ITaskTracker<DigestId> taskTracker,
     IServiceProvider serviceProvider,
-    ILogger<TaskProcessor> logger,
+    ILogger<DigestTaskProcessor> logger,
     IOptions<BackendDeploymentOptions> deploymentOptions
 ) : BackgroundService
 {
@@ -30,7 +30,7 @@ internal sealed class TaskProcessor(
             {
                 logger.LogError(
                     ex,
-                    $"Unhandled exception in {nameof(TaskProcessor)}, continuing to process tasks"
+                    $"Unhandled exception in {nameof(DigestTaskProcessor)}, continuing to process tasks"
                 );
             }
         }

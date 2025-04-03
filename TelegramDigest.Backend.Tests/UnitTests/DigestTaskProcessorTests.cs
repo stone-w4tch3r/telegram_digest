@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
@@ -10,12 +11,13 @@ namespace TelegramDigest.Application.Tests.UnitTests;
 [TestFixture]
 [SuppressMessage("ReSharper", "MethodSupportsCancellation")]
 [SuppressMessage("Reliability", "CA2016:Forward the \'CancellationToken\' parameter to methods")]
-public class TaskProcessorTests
+public class DigestTaskProcessorTests
 {
     private Mock<ITaskTracker<DigestId>> _mockTaskTracker;
-    private Mock<ILogger<TaskProcessor>> _mockLogger;
+    private Mock<ILogger<DigestTaskProcessor>> _mockLogger;
     private IOptions<BackendDeploymentOptions> _deploymentOptions;
-    private TaskProcessor _service;
+    private DigestTaskProcessor _service;
+    private readonly Mock<IServiceProvider> _mockServiceProvider = new();
 
     [TearDown]
     public void TearDown()
@@ -31,8 +33,18 @@ public class TaskProcessorTests
         _deploymentOptions = Mock.Of<IOptions<BackendDeploymentOptions>>(x =>
             x.Value.MaxConcurrentAiTasks == 2
         );
+        var mockScopeFactory = new Mock<IServiceScopeFactory>();
+        mockScopeFactory.Setup(x => x.CreateScope()).Returns(Mock.Of<IServiceScope>());
+        _mockServiceProvider
+            .Setup(x => x.GetService(typeof(IServiceScopeFactory)))
+            .Returns(mockScopeFactory.Object);
 
-        _service = new(_mockTaskTracker.Object, _mockLogger.Object, _deploymentOptions);
+        _service = new(
+            _mockTaskTracker.Object,
+            _mockServiceProvider.Object,
+            _mockLogger.Object,
+            _deploymentOptions
+        );
     }
 
     [Test]
@@ -50,10 +62,10 @@ public class TaskProcessorTests
                 if (invocationCount == 0)
                 {
                     invocationCount++;
-                    return (async _ => await taskCompletionSource.Task, null, digestId);
+                    return (async (_, _) => await taskCompletionSource.Task, null, digestId);
                 }
 
-                return (async _ => await Task.Delay(Timeout.Infinite), null, digestId);
+                return (async (_, _) => await Task.Delay(Timeout.Infinite), null, digestId);
             });
 
         _mockTaskTracker
@@ -88,10 +100,10 @@ public class TaskProcessorTests
                 if (invocationCount == 0)
                 {
                     invocationCount++;
-                    return (_ => tcs.Task, null, digestId);
+                    return ((_, _) => tcs.Task, null, digestId);
                 }
 
-                return (async _ => await Task.Delay(Timeout.Infinite), null, digestId);
+                return (async (_, _) => await Task.Delay(Timeout.Infinite), null, digestId);
             });
         _mockTaskTracker
             .Setup(t => t.MoveTaskToInProgress(digestId))
@@ -116,7 +128,7 @@ public class TaskProcessorTests
         var exception = new InvalidOperationException("Test error");
         _mockTaskTracker
             .Setup(t => t.DequeueWaitingTask())
-            .ReturnsAsync((_ => throw exception, null, digestId));
+            .ReturnsAsync(((_, _) => throw exception, null, digestId));
 
         // Act
         var cts = new CancellationTokenSource();
@@ -154,9 +166,9 @@ public class TaskProcessorTests
                 if (!taskExecuted)
                 {
                     taskExecuted = true;
-                    return (_ => throw exception, null, digestId);
+                    return ((_, _) => throw exception, null, digestId);
                 }
-                return (async _ => await Task.Delay(100), null, new());
+                return (async (_, _) => await Task.Delay(100), null, new());
             });
 
         // Act
@@ -186,7 +198,7 @@ public class TaskProcessorTests
             .ReturnsAsync(
                 () =>
                     (
-                        async ct =>
+                        async (ct, _) =>
                         {
                             taskStarted.SetResult();
                             try
@@ -238,7 +250,7 @@ public class TaskProcessorTests
             .ReturnsAsync(
                 () =>
                     (
-                        async ct =>
+                        async (ct, _) =>
                         {
                             taskStarted.SetResult();
                             try
@@ -284,7 +296,7 @@ public class TaskProcessorTests
             .ReturnsAsync(
                 () =>
                     (
-                        _ => throw exception,
+                        (_, _) => throw exception,
                         (Exception ex) =>
                         {
                             exceptionHandled.SetResult(ex);

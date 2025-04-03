@@ -12,19 +12,22 @@ namespace TelegramDigest.Backend.Migrations
         {
             migrationBuilder.DropForeignKey(
                 name: "FK_PostSummaries_Channels_ChannelTgId",
-                table: "PostSummaries");
+                table: "PostSummaries"
+            );
 
             migrationBuilder.AddColumn<bool>(
                 name: "IsDeleted",
                 table: "Channels",
                 type: "INTEGER",
                 nullable: false,
-                defaultValue: false);
+                defaultValue: false
+            );
 
             migrationBuilder.CreateIndex(
                 name: "IX_Channels_IsDeleted",
                 table: "Channels",
-                column: "IsDeleted");
+                column: "IsDeleted"
+            );
 
             migrationBuilder.AddForeignKey(
                 name: "FK_PostSummaries_Channels_ChannelTgId",
@@ -32,7 +35,8 @@ namespace TelegramDigest.Backend.Migrations
                 column: "ChannelTgId",
                 principalTable: "Channels",
                 principalColumn: "TgId",
-                onDelete: ReferentialAction.Restrict);
+                onDelete: ReferentialAction.Restrict
+            );
         }
 
         /// <inheritdoc />
@@ -40,15 +44,12 @@ namespace TelegramDigest.Backend.Migrations
         {
             migrationBuilder.DropForeignKey(
                 name: "FK_PostSummaries_Channels_ChannelTgId",
-                table: "PostSummaries");
+                table: "PostSummaries"
+            );
 
-            migrationBuilder.DropIndex(
-                name: "IX_Channels_IsDeleted",
-                table: "Channels");
+            migrationBuilder.DropIndex(name: "IX_Channels_IsDeleted", table: "Channels");
 
-            migrationBuilder.DropColumn(
-                name: "IsDeleted",
-                table: "Channels");
+            migrationBuilder.DropColumn(name: "IsDeleted", table: "Channels");
 
             migrationBuilder.AddForeignKey(
                 name: "FK_PostSummaries_Channels_ChannelTgId",
@@ -56,7 +57,8 @@ namespace TelegramDigest.Backend.Migrations
                 column: "ChannelTgId",
                 principalTable: "Channels",
                 principalColumn: "TgId",
-                onDelete: ReferentialAction.Cascade);
+                onDelete: ReferentialAction.Cascade
+            );
         }
     }
 }

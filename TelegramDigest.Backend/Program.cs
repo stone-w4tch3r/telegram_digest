@@ -15,7 +15,7 @@ public static class ServiceCollectionExtensions
         builder.AddBackendDeploymentOptions();
 
         // Application services
-        builder.Services.AddHostedService<TaskProcessor>();
+        builder.Services.AddHostedService<DigestTaskProcessor>();
         builder.Services.AddHostedService<SchedulerBackgroundService>();
         builder.Services.AddScoped<IChannelReader, ChannelReader>();
         builder.Services.AddScoped<IChannelsService, ChannelsService>();

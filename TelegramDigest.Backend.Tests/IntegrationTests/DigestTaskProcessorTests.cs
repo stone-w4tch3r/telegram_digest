@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
@@ -10,17 +11,29 @@ namespace TelegramDigest.Application.Tests.IntegrationTests;
 [TestFixture]
 [SuppressMessage("ReSharper", "MethodSupportsCancellation")]
 [SuppressMessage("Reliability", "CA2016:Forward the \'CancellationToken\' parameter to methods")]
-public class TaskProcessorTests
+public class DigestTaskProcessorTests
 {
-    private readonly Mock<ILogger<TaskProcessor>> _mockLogger = new();
+    private readonly Mock<ILogger<DigestTaskProcessor>> _mockLogger = new();
+    private readonly Mock<IServiceProvider> _mockServiceProvider = new();
+
+    [SetUp]
+    public void Setup()
+    {
+        var mockScopeFactory = new Mock<IServiceScopeFactory>();
+        mockScopeFactory.Setup(x => x.CreateScope()).Returns(Mock.Of<IServiceScope>());
+        _mockServiceProvider
+            .Setup(x => x.GetService(typeof(IServiceScopeFactory)))
+            .Returns(mockScopeFactory.Object);
+    }
 
     [Test]
     public async Task RealTracker_ProcessesTask_ThroughFullLifecycle()
     {
         // Arrange
         var tracker = new TaskManager<DigestId>();
-        var service = new TaskProcessor(
+        var service = new DigestTaskProcessor(
             tracker,
+            _mockServiceProvider.Object,
             _mockLogger.Object,
             Mock.Of<IOptions<BackendDeploymentOptions>>(x => x.Value.MaxConcurrentAiTasks == 2)
         );
@@ -29,7 +42,7 @@ public class TaskProcessorTests
         var tcs = new TaskCompletionSource();
 
         // Add a task to queue
-        tracker.AddTaskToWaitQueue(_ => tcs.Task, digestId);
+        tracker.AddTaskToWaitQueue((_, _) => tcs.Task, digestId);
 
         // Act
         var cts = new CancellationTokenSource();
@@ -59,7 +72,12 @@ public class TaskProcessorTests
         var options = Mock.Of<IOptions<BackendDeploymentOptions>>(x =>
             x.Value.MaxConcurrentAiTasks == 2
         );
-        var service = new TaskProcessor(tracker, _mockLogger.Object, options);
+        var service = new DigestTaskProcessor(
+            tracker,
+            _mockServiceProvider.Object,
+            _mockLogger.Object,
+            options
+        );
 
         var tcs1 = new TaskCompletionSource();
         var tcs2 = new TaskCompletionSource();
@@ -69,9 +87,9 @@ public class TaskProcessorTests
         var digestId3 = new DigestId();
 
         // Add tasks
-        tracker.AddTaskToWaitQueue(_ => tcs1.Task, digestId1);
-        tracker.AddTaskToWaitQueue(_ => tcs2.Task, digestId2);
-        tracker.AddTaskToWaitQueue(_ => tcs3.Task, digestId3);
+        tracker.AddTaskToWaitQueue((_, _) => tcs1.Task, digestId1);
+        tracker.AddTaskToWaitQueue((_, _) => tcs2.Task, digestId2);
+        tracker.AddTaskToWaitQueue((_, _) => tcs3.Task, digestId3);
 
         // Act
         var cts = new CancellationTokenSource();
@@ -95,8 +113,9 @@ public class TaskProcessorTests
     {
         // Arrange
         var tracker = new TaskManager<DigestId>();
-        var service = new TaskProcessor(
+        var service = new DigestTaskProcessor(
             tracker,
+            _mockServiceProvider.Object,
             _mockLogger.Object,
             Mock.Of<IOptions<BackendDeploymentOptions>>(x => x.Value.MaxConcurrentAiTasks == 1)
         );
@@ -105,7 +124,7 @@ public class TaskProcessorTests
         var digestId = new DigestId();
 
         tracker.AddTaskToWaitQueue(
-            ct =>
+            (ct, _) =>
             {
                 ct.Register(() => cancellationCalled = true);
                 return Task.CompletedTask;
@@ -132,8 +151,9 @@ public class TaskProcessorTests
     {
         // Arrange
         var tracker = new TaskManager<DigestId>();
-        var service = new TaskProcessor(
+        var service = new DigestTaskProcessor(
             tracker,
+            _mockServiceProvider.Object,
             _mockLogger.Object,
             Mock.Of<IOptions<BackendDeploymentOptions>>(x => x.Value.MaxConcurrentAiTasks == 1)
         );
@@ -143,7 +163,7 @@ public class TaskProcessorTests
         var handlerExecuted = false;
 
         tracker.AddTaskToWaitQueue(
-            _ =>
+            (_, _) =>
             {
                 workItemExecuted = true;
                 throw new("Work item exception");
@@ -191,8 +211,9 @@ public class TaskProcessorTests
     {
         // Arrange
         var tracker = new TaskManager<DigestId>();
-        var service = new TaskProcessor(
+        var service = new DigestTaskProcessor(
             tracker,
+            _mockServiceProvider.Object,
             _mockLogger.Object,
             Mock.Of<IOptions<BackendDeploymentOptions>>(x => x.Value.MaxConcurrentAiTasks == 2)
         );
@@ -202,7 +223,7 @@ public class TaskProcessorTests
         var taskCancelled = false;
 
         tracker.AddTaskToWaitQueue(
-            ct =>
+            (ct, _) =>
             {
                 ct.Register(() => taskCancelled = true);
                 return tcs.Task;
@@ -240,8 +261,9 @@ public class TaskProcessorTests
     {
         // Arrange
         var tracker = new TaskManager<DigestId>();
-        var service = new TaskProcessor(
+        var service = new DigestTaskProcessor(
             tracker,
+            _mockServiceProvider.Object,
             _mockLogger.Object,
             Mock.Of<IOptions<BackendDeploymentOptions>>(x => x.Value.MaxConcurrentAiTasks == 1)
         );
@@ -251,7 +273,7 @@ public class TaskProcessorTests
         var taskCancelled = false;
 
         tracker.AddTaskToWaitQueue(
-            async ct =>
+            async (ct, _) =>
             {
                 ct.Register(() => taskCancelled = true);
                 taskStarted.SetResult();

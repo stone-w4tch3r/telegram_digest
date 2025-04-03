@@ -1,5 +1,7 @@
 using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.DependencyInjection;
+using Moq;
 using TelegramDigest.Backend.Core;
 
 namespace TelegramDigest.Application.Tests.UnitTests;
@@ -19,7 +21,7 @@ public class TaskManagerTests
     [Test]
     public void AddTaskToWaitQueue_ShouldAddTask()
     {
-        var task = new Func<CancellationToken, Task>(_ => Task.CompletedTask);
+        var task = new Func<CancellationToken, IServiceScope, Task>((_, _) => Task.CompletedTask);
         var key = "task1";
 
         _taskManager.AddTaskToWaitQueue(task, key);
@@ -31,7 +33,7 @@ public class TaskManagerTests
     [Test]
     public void AddTaskToWaitQueue_ShouldThrowException_WhenTaskAlreadyInProgress()
     {
-        var task = new Func<CancellationToken, Task>(_ => Task.CompletedTask);
+        var task = new Func<CancellationToken, IServiceScope, Task>((_, _) => Task.CompletedTask);
         var key = "task1";
 
         _taskManager.AddTaskToWaitQueue(task, key);
@@ -43,7 +45,7 @@ public class TaskManagerTests
     [Test]
     public async Task DequeueWaitingTask_ShouldReturnTask()
     {
-        var task = new Func<CancellationToken, Task>(_ => Task.CompletedTask);
+        var task = new Func<CancellationToken, IServiceScope, Task>((_, _) => Task.CompletedTask);
         var key = "task1";
 
         _taskManager.AddTaskToWaitQueue(task, key);
@@ -57,7 +59,7 @@ public class TaskManagerTests
     [Test]
     public void MoveTaskToInProgress_ShouldMoveTask()
     {
-        var task = new Func<CancellationToken, Task>(_ => Task.CompletedTask);
+        var task = new Func<CancellationToken, IServiceScope, Task>((_, _) => Task.CompletedTask);
         var key = "task1";
 
         _taskManager.AddTaskToWaitQueue(task, key);
@@ -72,7 +74,7 @@ public class TaskManagerTests
     [Test]
     public void CompleteTaskInProgress_ShouldRemoveTask()
     {
-        var task = new Func<CancellationToken, Task>(_ => Task.CompletedTask);
+        var task = new Func<CancellationToken, IServiceScope, Task>((_, _) => Task.CompletedTask);
         var key = "task1";
 
         _taskManager.AddTaskToWaitQueue(task, key);
@@ -86,7 +88,9 @@ public class TaskManagerTests
     [Test]
     public void CancelTaskInProgress_ShouldCancelTask()
     {
-        var task = new Func<CancellationToken, Task>(ct => Task.Delay(1000, ct));
+        var task = new Func<CancellationToken, IServiceScope, Task>(
+            (ct, _) => Task.Delay(1000, ct)
+        );
         var key = "task1";
 
         _taskManager.AddTaskToWaitQueue(task, key);
@@ -100,7 +104,7 @@ public class TaskManagerTests
     [Test]
     public void RemoveWaitingTask_ShouldRemoveTask()
     {
-        var task = new Func<CancellationToken, Task>(_ => Task.CompletedTask);
+        var task = new Func<CancellationToken, IServiceScope, Task>((_, _) => Task.CompletedTask);
         var key = "task1";
 
         _taskManager.AddTaskToWaitQueue(task, key);
@@ -120,7 +124,7 @@ public class TaskManagerTests
     public void AddTaskToWaitQueue_ShouldThrow_WhenTaskAlreadyInWaitingQueue()
     {
         var key = "task1";
-        var task = new Func<CancellationToken, Task>(_ => Task.CompletedTask);
+        var task = new Func<CancellationToken, IServiceScope, Task>((_, _) => Task.CompletedTask);
 
         _taskManager.AddTaskToWaitQueue(task, key);
 
@@ -131,23 +135,24 @@ public class TaskManagerTests
     public async Task ConcurrentAddToWaitQueue_ThrowsForDuplicateKey()
     {
         var key = "task1";
-        var task = new Func<CancellationToken, Task>(_ => Task.CompletedTask);
+        var task = new Func<CancellationToken, IServiceScope, Task>((_, _) => Task.CompletedTask);
         var exceptions = new ConcurrentQueue<Exception>();
 
         var tasks = Enumerable
             .Range(0, 4)
-            .Select(_ =>
-                Task.Run(() =>
-                {
-                    try
+            .Select(
+                (_, _) =>
+                    Task.Run(() =>
                     {
-                        _taskManager.AddTaskToWaitQueue(task, key);
-                    }
-                    catch (InvalidOperationException ex)
-                    {
-                        exceptions.Enqueue(ex);
-                    }
-                })
+                        try
+                        {
+                            _taskManager.AddTaskToWaitQueue(task, key);
+                        }
+                        catch (InvalidOperationException ex)
+                        {
+                            exceptions.Enqueue(ex);
+                        }
+                    })
             );
 
         await Task.WhenAll(tasks);
@@ -167,23 +172,24 @@ public class TaskManagerTests
         {
             var key = $"task{i}";
             addedKeys.Add(key);
-            _taskManager.AddTaskToWaitQueue(_ => Task.CompletedTask, key);
+            _taskManager.AddTaskToWaitQueue((_, _) => Task.CompletedTask, key);
         }
 
         var processedKeys = new ConcurrentBag<string>();
         var dequeueTasks = Enumerable
             .Range(0, numThreads)
-            .Select(_ =>
-                Task.Run(async () =>
-                {
-                    foreach (var __ in Enumerable.Range(0, numTasks / numThreads))
+            .Select(
+                (_, _) =>
+                    Task.Run(async () =>
                     {
-                        var (_, _, key) = await _taskManager.DequeueWaitingTask();
-                        _taskManager.MoveTaskToInProgress(key);
-                        _taskManager.CompleteTaskInProgress(key);
-                        processedKeys.Add(key);
-                    }
-                })
+                        foreach (var __ in Enumerable.Range(0, numTasks / numThreads))
+                        {
+                            var (_, _, key) = await _taskManager.DequeueWaitingTask();
+                            _taskManager.MoveTaskToInProgress(key);
+                            _taskManager.CompleteTaskInProgress(key);
+                            processedKeys.Add(key);
+                        }
+                    })
             )
             .ToList();
 
@@ -210,7 +216,7 @@ public class TaskManagerTests
             i =>
             {
                 var key = $"task{i}";
-                _taskManager.AddTaskToWaitQueue(_ => Task.CompletedTask, key);
+                _taskManager.AddTaskToWaitQueue((_, _) => Task.CompletedTask, key);
                 _taskManager.MoveTaskToInProgress(key);
                 _taskManager.CompleteTaskInProgress(key);
             }
@@ -227,27 +233,29 @@ public class TaskManagerTests
         var taskCompleted = false;
         var cancellationConfirmed = false;
 
-        var task = new Func<CancellationToken, Task>(async ct =>
-        {
-            try
+        var task = new Func<CancellationToken, IServiceScope, Task>(
+            async (ct, _) =>
             {
-                await Task.Delay(Timeout.Infinite, ct);
+                try
+                {
+                    await Task.Delay(Timeout.Infinite, ct);
+                }
+                catch (OperationCanceledException)
+                {
+                    cancellationConfirmed = true;
+                    throw;
+                }
+                finally
+                {
+                    taskCompleted = true;
+                }
             }
-            catch (OperationCanceledException)
-            {
-                cancellationConfirmed = true;
-                throw;
-            }
-            finally
-            {
-                taskCompleted = true;
-            }
-        });
+        );
 
         _taskManager.AddTaskToWaitQueue(task, key);
         var (taskToRun, _, _) = await _taskManager.DequeueWaitingTask();
         var ct = _taskManager.MoveTaskToInProgress(key);
-        _ = taskToRun(ct);
+        _ = taskToRun(ct, Mock.Of<IServiceScope>());
         _taskManager.CancelTaskInProgress(key);
 
         await Task.Delay(200); // Allow cancellation to propagate
@@ -271,24 +279,25 @@ public class TaskManagerTests
     public void ConcurrentMoveToInProgress_ThrowsForDuplicateKey()
     {
         var key = "task1";
-        _taskManager.AddTaskToWaitQueue(_ => Task.CompletedTask, key);
+        _taskManager.AddTaskToWaitQueue((_, _) => Task.CompletedTask, key);
 
         var exceptions = new ConcurrentQueue<Exception>();
 
         var tasks = Enumerable
             .Range(0, 4)
-            .Select(_ =>
-                Task.Run(() =>
-                {
-                    try
+            .Select(
+                (_, _) =>
+                    Task.Run(() =>
                     {
-                        _taskManager.MoveTaskToInProgress(key);
-                    }
-                    catch (InvalidOperationException ex)
-                    {
-                        exceptions.Enqueue(ex);
-                    }
-                })
+                        try
+                        {
+                            _taskManager.MoveTaskToInProgress(key);
+                        }
+                        catch (InvalidOperationException ex)
+                        {
+                            exceptions.Enqueue(ex);
+                        }
+                    })
             );
 
         Task.WaitAll(tasks.ToArray());
@@ -300,7 +309,7 @@ public class TaskManagerTests
     [Test]
     public void AddTaskToWaitQueue_ShouldAllowReuseOfKey_AfterCompletion()
     {
-        var task = new Func<CancellationToken, Task>(_ => Task.CompletedTask);
+        var task = new Func<CancellationToken, IServiceScope, Task>((_, _) => Task.CompletedTask);
         var key = "task1";
 
         // Add, move to in-progress, complete.
@@ -336,7 +345,9 @@ public class TaskManagerTests
     public void CancelTaskInProgress_ShouldNotThrow_WhenAlreadyCancelled()
     {
         var key = "task1";
-        var task = new Func<CancellationToken, Task>(ct => Task.Delay(1000, ct));
+        var task = new Func<CancellationToken, IServiceScope, Task>(
+            (ct, _) => Task.Delay(1000, ct)
+        );
 
         _taskManager.AddTaskToWaitQueue(task, key);
         var token = _taskManager.MoveTaskToInProgress(key);
@@ -355,7 +366,7 @@ public class TaskManagerTests
         var keys = new[] { "first", "second", "third" };
         foreach (var key in keys)
         {
-            _taskManager.AddTaskToWaitQueue(_ => Task.CompletedTask, key);
+            _taskManager.AddTaskToWaitQueue((_, _) => Task.CompletedTask, key);
         }
 
         var dequeuedKeys = new List<string>();
@@ -372,7 +383,7 @@ public class TaskManagerTests
     public void CompleteTaskInProgress_ShouldThrow_WhenCalledTwice()
     {
         var key = "task1";
-        var task = new Func<CancellationToken, Task>(_ => Task.CompletedTask);
+        var task = new Func<CancellationToken, IServiceScope, Task>((_, _) => Task.CompletedTask);
 
         _taskManager.AddTaskToWaitQueue(task, key);
         _taskManager.MoveTaskToInProgress(key);
@@ -390,8 +401,8 @@ public class TaskManagerTests
         // Arrange
         var runningKey = "running";
         var cancelledKey = "cancelled";
-        var longRunningTask = new Func<CancellationToken, Task>(ct =>
-            Task.Delay(TimeSpan.FromSeconds(10), ct)
+        var longRunningTask = new Func<CancellationToken, IServiceScope, Task>(
+            (ct, _) => Task.Delay(TimeSpan.FromSeconds(10), ct)
         );
 
         _taskManager.AddTaskToWaitQueue(longRunningTask, runningKey);
@@ -419,7 +430,7 @@ public class TaskManagerTests
         // Arrange
         var key1 = "task1";
         var key2 = "task2";
-        var task = new Func<CancellationToken, Task>(_ => Task.CompletedTask);
+        var task = new Func<CancellationToken, IServiceScope, Task>((_, _) => Task.CompletedTask);
 
         _taskManager.AddTaskToWaitQueue(task, key1);
         _taskManager.AddTaskToWaitQueue(task, key2);
@@ -442,18 +453,20 @@ public class TaskManagerTests
         var cleanupExecuted = false;
         var taskStarted = false;
 
-        var task = new Func<CancellationToken, Task>(async ct =>
-        {
-            try
+        var task = new Func<CancellationToken, IServiceScope, Task>(
+            async (ct, _) =>
             {
-                taskStarted = true;
-                await Task.Delay(Timeout.Infinite, ct);
+                try
+                {
+                    taskStarted = true;
+                    await Task.Delay(Timeout.Infinite, ct);
+                }
+                finally
+                {
+                    cleanupExecuted = true;
+                }
             }
-            finally
-            {
-                cleanupExecuted = true;
-            }
-        });
+        );
 
         // Act
         _taskManager.AddTaskToWaitQueue(task, key);
@@ -461,7 +474,7 @@ public class TaskManagerTests
         var ct = _taskManager.MoveTaskToInProgress(key);
 
         // Start task without awaiting
-        _ = dequeued(ct);
+        _ = dequeued(ct, Mock.Of<IServiceScope>());
 
         // Wait for a task to start
         await Task.Delay(100);
@@ -483,39 +496,41 @@ public class TaskManagerTests
         var innerTaskCancelled = false;
         var outerTaskCancelled = false;
 
-        var task = new Func<CancellationToken, Task>(async outerCt =>
-        {
-            try
+        var task = new Func<CancellationToken, IServiceScope, Task>(
+            async (outerCt, _) =>
             {
-                await Task.Run(
-                    async () =>
-                    {
-                        try
+                try
+                {
+                    await Task.Run(
+                        async () =>
                         {
-                            await Task.Delay(Timeout.Infinite, outerCt);
-                        }
-                        catch (OperationCanceledException)
-                        {
-                            innerTaskCancelled = true;
-                            throw;
-                        }
-                    },
-                    outerCt
-                );
+                            try
+                            {
+                                await Task.Delay(Timeout.Infinite, outerCt);
+                            }
+                            catch (OperationCanceledException)
+                            {
+                                innerTaskCancelled = true;
+                                throw;
+                            }
+                        },
+                        outerCt
+                    );
+                }
+                catch (OperationCanceledException)
+                {
+                    outerTaskCancelled = true;
+                    throw;
+                }
             }
-            catch (OperationCanceledException)
-            {
-                outerTaskCancelled = true;
-                throw;
-            }
-        });
+        );
 
         // Act
         _taskManager.AddTaskToWaitQueue(task, key);
         var (dequeued, _, _) = await _taskManager.DequeueWaitingTask();
         var ct = _taskManager.MoveTaskToInProgress(key);
 
-        _ = dequeued(ct);
+        _ = dequeued(ct, Mock.Of<IServiceScope>());
         await Task.Delay(100); // Give time for task to start
 
         _taskManager.CancelTaskInProgress(key);
@@ -534,17 +549,19 @@ public class TaskManagerTests
     {
         // Arrange
         var key = "task1";
-        var task = new Func<CancellationToken, Task>(async ct =>
-        {
-            await Task.Delay(Timeout.Infinite, ct);
-        });
+        var task = new Func<CancellationToken, IServiceScope, Task>(
+            async (ct, _) =>
+            {
+                await Task.Delay(Timeout.Infinite, ct);
+            }
+        );
 
         // Act - First use and cancellation
         _taskManager.AddTaskToWaitQueue(task, key);
         var (dequeued, _, _) = await _taskManager.DequeueWaitingTask();
         var ct = _taskManager.MoveTaskToInProgress(key);
 
-        var runningTask = dequeued(ct);
+        var runningTask = dequeued(ct, Mock.Of<IServiceScope>());
         _taskManager.CancelTaskInProgress(key);
 
         try
@@ -556,7 +573,9 @@ public class TaskManagerTests
         _taskManager.CompleteTaskInProgress(key);
 
         // Act - Reuse key
-        var newTask = new Func<CancellationToken, Task>(_ => Task.CompletedTask);
+        var newTask = new Func<CancellationToken, IServiceScope, Task>(
+            (_, _) => Task.CompletedTask
+        );
 
         // Assert
         Assert.DoesNotThrowAsync(async () =>
@@ -576,25 +595,27 @@ public class TaskManagerTests
         var key = "task1";
         var cancellationReceived = false;
 
-        var task = new Func<CancellationToken, Task>(async ct =>
-        {
-            try
+        var task = new Func<CancellationToken, IServiceScope, Task>(
+            async (ct, _) =>
             {
-                await Task.Delay(Timeout.Infinite, ct);
+                try
+                {
+                    await Task.Delay(Timeout.Infinite, ct);
+                }
+                catch (OperationCanceledException)
+                {
+                    cancellationReceived = true;
+                    throw;
+                }
             }
-            catch (OperationCanceledException)
-            {
-                cancellationReceived = true;
-                throw;
-            }
-        });
+        );
 
         // Act
         _taskManager.AddTaskToWaitQueue(task, key);
         var (dequeued, _, _) = await _taskManager.DequeueWaitingTask();
         var ct = _taskManager.MoveTaskToInProgress(key);
 
-        var runningTask = dequeued(ct);
+        var runningTask = dequeued(ct, Mock.Of<IServiceScope>());
         await Task.Delay(100); // Give task time to start
 
         _taskManager.CancelTaskInProgress(key);
@@ -616,18 +637,20 @@ public class TaskManagerTests
         var taskCount = 3;
         var cancelledTasks = 0;
 
-        var task = new Func<CancellationToken, Task>(async ct =>
-        {
-            try
+        var task = new Func<CancellationToken, IServiceScope, Task>(
+            async (ct, _) =>
             {
-                await Task.Delay(Timeout.Infinite, ct);
+                try
+                {
+                    await Task.Delay(Timeout.Infinite, ct);
+                }
+                catch (OperationCanceledException)
+                {
+                    Interlocked.Increment(ref cancelledTasks);
+                    throw;
+                }
             }
-            catch (OperationCanceledException)
-            {
-                Interlocked.Increment(ref cancelledTasks);
-                throw;
-            }
-        });
+        );
 
         // Add multiple tasks
         for (var i = 0; i < taskCount; i++)
@@ -636,7 +659,7 @@ public class TaskManagerTests
             _taskManager.AddTaskToWaitQueue(task, key);
             var (dequeued, _, _) = await _taskManager.DequeueWaitingTask();
             var ct = _taskManager.MoveTaskToInProgress(key);
-            _ = dequeued(ct);
+            _ = dequeued(ct, Mock.Of<IServiceScope>());
         }
 
         await Task.Delay(100); // Allow tasks to start
@@ -655,17 +678,19 @@ public class TaskManagerTests
     {
         // Arrange
         var key = "task1";
-        var task = new Func<CancellationToken, Task>(async ct =>
-        {
-            await Task.Delay(Timeout.Infinite, ct);
-        });
+        var task = new Func<CancellationToken, IServiceScope, Task>(
+            async (ct, _) =>
+            {
+                await Task.Delay(Timeout.Infinite, ct);
+            }
+        );
 
         // Act
         _taskManager.AddTaskToWaitQueue(task, key);
         var (dequeued, _, _) = await _taskManager.DequeueWaitingTask();
         var ct = _taskManager.MoveTaskToInProgress(key);
 
-        var runningTask = dequeued(ct);
+        var runningTask = dequeued(ct, Mock.Of<IServiceScope>());
         await Task.Delay(100); // Give task time to start
 
         _taskManager.CancelTaskInProgress(key);

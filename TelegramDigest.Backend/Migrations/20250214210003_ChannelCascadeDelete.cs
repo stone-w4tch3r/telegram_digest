@@ -12,7 +12,8 @@ namespace TelegramDigest.Backend.Migrations
         {
             migrationBuilder.DropForeignKey(
                 name: "FK_PostSummaries_Channels_ChannelTgId",
-                table: "PostSummaries");
+                table: "PostSummaries"
+            );
 
             migrationBuilder.AddForeignKey(
                 name: "FK_PostSummaries_Channels_ChannelTgId",
@@ -20,7 +21,8 @@ namespace TelegramDigest.Backend.Migrations
                 column: "ChannelTgId",
                 principalTable: "Channels",
                 principalColumn: "TgId",
-                onDelete: ReferentialAction.Cascade);
+                onDelete: ReferentialAction.Cascade
+            );
         }
 
         /// <inheritdoc />
@@ -28,7 +30,8 @@ namespace TelegramDigest.Backend.Migrations
         {
             migrationBuilder.DropForeignKey(
                 name: "FK_PostSummaries_Channels_ChannelTgId",
-                table: "PostSummaries");
+                table: "PostSummaries"
+            );
 
             migrationBuilder.AddForeignKey(
                 name: "FK_PostSummaries_Channels_ChannelTgId",
@@ -36,7 +39,8 @@ namespace TelegramDigest.Backend.Migrations
                 column: "ChannelTgId",
                 principalTable: "Channels",
                 principalColumn: "TgId",
-                onDelete: ReferentialAction.Restrict);
+                onDelete: ReferentialAction.Restrict
+            );
         }
     }
 }

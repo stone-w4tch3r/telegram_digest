@@ -25,29 +25,31 @@ namespace TelegramDigest.Backend.Migrations
                     ExceptionJsonSerialized = table.Column<string>(type: "TEXT", nullable: true),
                     ErrorsJsonSerialized = table.Column<string>(type: "TEXT", nullable: true),
                     PostsFound = table.Column<int>(type: "INTEGER", nullable: true),
-                    ChannelsJson = table.Column<string>(type: "TEXT", nullable: true)
+                    ChannelsJson = table.Column<string>(type: "TEXT", nullable: true),
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_DigestStatuses", x => x.Id);
-                });
+                }
+            );
 
             migrationBuilder.CreateIndex(
                 name: "IX_DigestStatuses_DigestId",
                 table: "DigestStatuses",
-                column: "DigestId");
+                column: "DigestId"
+            );
 
             migrationBuilder.CreateIndex(
                 name: "IX_DigestStatuses_Type",
                 table: "DigestStatuses",
-                column: "Type");
+                column: "Type"
+            );
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "DigestStatuses");
+            migrationBuilder.DropTable(name: "DigestStatuses");
         }
     }
 }

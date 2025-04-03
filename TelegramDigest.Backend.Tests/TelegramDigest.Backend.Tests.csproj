@@ -20,7 +20,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\TelegramDigest.Backend\TelegramDigest.Backend.csproj" />
-      <ProjectReference Include="..\TelegramDigest.HostHandler\TelegramDigest.HostHandler.csproj" />
+      <ProjectReference Include="..\TelegramDigest.Types.Host\TelegramDigest.Types.Host.csproj" />
     </ItemGroup>
 
 </Project>

@@ -14,7 +14,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		docker-compose.yaml = docker-compose.yaml
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TelegramDigest.HostHandler", "TelegramDigest.HostHandler\TelegramDigest.HostHandler.csproj", "{AF0AF399-AE1E-4000-BFFB-D5F6077E333C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TelegramDigest.Types.Host", "TelegramDigest.Types.Host\TelegramDigest.Types.Host.csproj", "{AF0AF399-AE1E-4000-BFFB-D5F6077E333C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TelegramDigest.Web.Tests", "TelegramDigest.Web.Tests\TelegramDigest.Web.Tests.csproj", "{CE92B18E-5344-4267-A686-BA0DAEFFCD8E}"
 EndProject

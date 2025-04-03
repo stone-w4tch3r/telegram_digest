@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using TelegramDigest.Backend.Core;
-using Host = TelegramDigest.HostHandler.Host;
+using Host = TelegramDigest.Types.Host.Host;
 
 namespace TelegramDigest.Web.Models;
 

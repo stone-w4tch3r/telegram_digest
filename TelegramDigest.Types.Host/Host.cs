@@ -4,7 +4,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text.Json.Serialization;
 
-namespace TelegramDigest.HostHandler;
+namespace TelegramDigest.Types.Host;
 
 public readonly record struct Host
 {

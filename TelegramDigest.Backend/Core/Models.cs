@@ -1,4 +1,4 @@
-using TelegramDigest.HostHandler;
+using TelegramDigest.Types.Host;
 
 namespace TelegramDigest.Backend.Core;
 

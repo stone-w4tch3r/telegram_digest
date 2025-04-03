@@ -11,9 +11,9 @@ namespace TelegramDigest.Application.Tests.IntegrationTests;
 [TestFixture]
 [SuppressMessage("ReSharper", "MethodSupportsCancellation")]
 [SuppressMessage("Reliability", "CA2016:Forward the \'CancellationToken\' parameter to methods")]
-public class DigestTaskProcessorTests
+public class DigestProcessorTests
 {
-    private readonly Mock<ILogger<DigestTaskProcessor>> _mockLogger = new();
+    private readonly Mock<ILogger<DigestProcessor>> _mockLogger = new();
     private readonly Mock<IServiceProvider> _mockServiceProvider = new();
 
     [SetUp]
@@ -31,7 +31,7 @@ public class DigestTaskProcessorTests
     {
         // Arrange
         var tracker = new TaskManager<DigestId>();
-        var service = new DigestTaskProcessor(
+        var service = new DigestProcessor(
             tracker,
             _mockServiceProvider.Object,
             _mockLogger.Object,
@@ -72,7 +72,7 @@ public class DigestTaskProcessorTests
         var options = Mock.Of<IOptions<BackendDeploymentOptions>>(x =>
             x.Value.MaxConcurrentAiTasks == 2
         );
-        var service = new DigestTaskProcessor(
+        var service = new DigestProcessor(
             tracker,
             _mockServiceProvider.Object,
             _mockLogger.Object,
@@ -113,7 +113,7 @@ public class DigestTaskProcessorTests
     {
         // Arrange
         var tracker = new TaskManager<DigestId>();
-        var service = new DigestTaskProcessor(
+        var service = new DigestProcessor(
             tracker,
             _mockServiceProvider.Object,
             _mockLogger.Object,
@@ -151,7 +151,7 @@ public class DigestTaskProcessorTests
     {
         // Arrange
         var tracker = new TaskManager<DigestId>();
-        var service = new DigestTaskProcessor(
+        var service = new DigestProcessor(
             tracker,
             _mockServiceProvider.Object,
             _mockLogger.Object,
@@ -211,7 +211,7 @@ public class DigestTaskProcessorTests
     {
         // Arrange
         var tracker = new TaskManager<DigestId>();
-        var service = new DigestTaskProcessor(
+        var service = new DigestProcessor(
             tracker,
             _mockServiceProvider.Object,
             _mockLogger.Object,
@@ -261,7 +261,7 @@ public class DigestTaskProcessorTests
     {
         // Arrange
         var tracker = new TaskManager<DigestId>();
-        var service = new DigestTaskProcessor(
+        var service = new DigestProcessor(
             tracker,
             _mockServiceProvider.Object,
             _mockLogger.Object,

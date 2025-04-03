@@ -15,25 +15,29 @@ public static class ServiceCollectionExtensions
         builder.AddBackendDeploymentOptions();
 
         // Application services
-        builder.Services.AddHostedService<DigestTaskProcessor>();
+        builder.Services.AddHostedService<DigestProcessor>();
         builder.Services.AddHostedService<SchedulerBackgroundService>();
-        builder.Services.AddHostedService<DigestStepsBackgroundService>();
+        builder.Services.AddHostedService<DigestStepsProcessor>();
 
+        // Scoped
         builder.Services.AddScoped<IChannelReader, ChannelReader>();
         builder.Services.AddScoped<IChannelsService, ChannelsService>();
         builder.Services.AddScoped<IChannelsRepository, ChannelsRepository>();
         builder.Services.AddScoped<IDigestService, DigestService>();
         builder.Services.AddScoped<IDigestService, DigestService>();
         builder.Services.AddScoped<IDigestRepository, DigestRepository>();
-        builder.Services.AddScoped<IDigestStepsService, DigestStepsBackgroundService>();
+        builder.Services.AddScoped<IDigestStepsService, DigestStepsService>();
         builder.Services.AddScoped<IDigestStepsRepository, DigestStepsRepository>();
         builder.Services.AddScoped<IAiSummarizer, AiSummarizer>();
-        builder.Services.AddSingleton<TaskManager<DigestId>>();
         builder.Services.AddScoped<IEmailSender, EmailSender>();
+        builder.Services.AddScoped<ISettingsManager, FileSettingsManager>();
         builder.Services.AddScoped<IMainService, MainService>();
         builder.Services.AddScoped<IRssService, RssService>();
         builder.Services.AddScoped<IDigestProcessingOrchestrator, DigestProcessingOrchestrator>();
 
+        // Singletons
+        builder.Services.AddSingleton<IDigestStepsChannel, DigestStepsChannel>();
+        builder.Services.AddSingleton<TaskManager<DigestId>>();
         builder.Services.AddSingleton<ITaskScheduler<DigestId>>(provider =>
             provider.GetRequiredService<TaskManager<DigestId>>()
         );

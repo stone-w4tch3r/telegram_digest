@@ -11,12 +11,12 @@ namespace TelegramDigest.Application.Tests.UnitTests;
 [TestFixture]
 [SuppressMessage("ReSharper", "MethodSupportsCancellation")]
 [SuppressMessage("Reliability", "CA2016:Forward the \'CancellationToken\' parameter to methods")]
-public class DigestTaskProcessorTests
+public class DigestProcessorTests
 {
     private Mock<ITaskTracker<DigestId>> _mockTaskTracker;
-    private Mock<ILogger<DigestTaskProcessor>> _mockLogger;
+    private Mock<ILogger<DigestProcessor>> _mockLogger;
     private IOptions<BackendDeploymentOptions> _deploymentOptions;
-    private DigestTaskProcessor _service;
+    private DigestProcessor _service;
     private readonly Mock<IServiceProvider> _mockServiceProvider = new();
 
     [TearDown]

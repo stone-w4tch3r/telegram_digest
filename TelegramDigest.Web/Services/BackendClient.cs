@@ -218,10 +218,16 @@ public sealed class BackendClient(IMainService mainService, ILogger<BackendClien
     public async Task<DigestProgressViewModel> GetDigestProgress(Guid id)
     {
         var result = await mainService.GetDigestSteps(new(id), CancellationToken.None);
-        if (result.IsFailed || result.Value.Length == 0)
+        if (result.IsFailed)
         {
             logger.LogError("Failed to get digest statuses: {Errors}", result.Errors);
             throw new("Failed to get digest statuses");
+        }
+
+        if (result.Value.Length == 0)
+        {
+            logger.LogError("Status history is empty");
+            throw new("Status history is empty");
         }
 
         var steps = result.Value.OrderBy(x => x.Timestamp).ToArray();

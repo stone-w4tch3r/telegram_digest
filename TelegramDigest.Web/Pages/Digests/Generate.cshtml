@@ -46,7 +46,15 @@
 
                 <!-- Channel Selection -->
                 <div class="mb-4">
-                    <label class="form-label d-block">Channels</label>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <label class="form-label mb-0">Channels</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="selectAllChannels">
+                            <label class="form-check-label" for="selectAllChannels">
+                                Select All
+                            </label>
+                        </div>
+                    </div>
                     <div class="row">
                         @foreach (var channel in Model.Channels)
                         {
@@ -73,3 +81,23 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        const $selectAllCheckbox = $('#selectAllChannels');
+        const $channelCheckboxes = $('.channel-checkbox');
+
+        $selectAllCheckbox.on('change', function () {
+            $channelCheckboxes.prop('checked', this.checked);
+        });
+
+        $channelCheckboxes.on('change', function () {
+            const allChecked = $channelCheckboxes.length === $channelCheckboxes.filter(':checked').length;
+            $selectAllCheckbox.prop('checked', allChecked);
+        });
+
+        // Set initial state
+        const allChecked = $channelCheckboxes.length === $channelCheckboxes.filter(':checked').length;
+        $selectAllCheckbox.prop('checked', allChecked);
+    </script>
+}

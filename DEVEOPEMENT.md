@@ -23,7 +23,7 @@
 - Immutable data structures (record types)
 - Code formatting (CSharpier)
 - Unit and integration testing (NUnit)
-- XML documentation
+- XML documentation for interfaces
 - Result pattern for error handling
 - Exceptions only for unreachable code (cases that should never happen)
 - Strong type safety (avoiding primitive obsession)

@@ -35,6 +35,7 @@
 | [x]  | Digest generation: show steps in progress                                   | 1h    |
 | [x]  | Digest generation: fix progress                                             | 1h    |
 | [x]  | Clean logs                                                                  | 30min |
+| [x]  | Digest generation: Parametrized                                             | 3h    |
 
 ### High priority
 
@@ -43,7 +44,6 @@
 | [ ]  | Bug: newlines in UI                                       | 30min |
 | [ ]  | Bug: add new chanel: backend error not shown until reload | 30min |
 | [ ]  | Replace "Back to digests" with "Back"                     | 30min |
-| [ ]  | Digest generation: Parametrized                           | 3h    |
 | [ ]  | Digest generation: queue monitor                          | 3h    |
 | [ ]  | Digest generation: cancellation                           | 1h    |
 | [ ]  | Reimplement and test email sending?                       | 2h    |

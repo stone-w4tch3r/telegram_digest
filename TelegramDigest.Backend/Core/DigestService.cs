@@ -75,6 +75,21 @@ internal sealed class DigestService(
                 Channels = channels.Select(x => x.TgId).ToArray(),
             }
         );
+        
+        if (channels.Count == 0)
+        {
+            const string Message = "No channels selected";
+            logger.LogError(Message);
+            digestStepsService.AddStep(
+                new ErrorStepModel
+                {
+                    DigestId = digestId,
+                    Errors = [new Error(Message)],
+                    Message = Message,
+                }
+            );
+            return Result.Fail(new Error(Message));
+        }
 
         var posts = new List<PostModel>();
         var errorsByChannel = new Dictionary<ChannelTgId, List<IError>>();

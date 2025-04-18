@@ -88,9 +88,7 @@ public sealed class BackendClient(IMainService mainService, ILogger<BackendClien
         var filter = new DigestFilterModel(
             DateFrom: DateOnly.FromDateTime(model.DateFrom),
             DateTo: DateOnly.FromDateTime(model.DateTo),
-            SelectedChannels: model.SelectedChannels.Length > 0
-                ? model.SelectedChannels.Select(c => new ChannelTgId(c)).ToHashSet()
-                : null
+            SelectedChannels: model.SelectedChannels.Select(c => new ChannelTgId(c)).ToHashSet()
         );
 
         var digestResult = await mainService.QueueDigest(
@@ -98,6 +96,7 @@ public sealed class BackendClient(IMainService mainService, ILogger<BackendClien
             filter,
             CancellationToken.None
         );
+
         if (digestResult.IsFailed)
         {
             logger.LogError("Failed to generate digest: {Errors}", digestResult.Errors);

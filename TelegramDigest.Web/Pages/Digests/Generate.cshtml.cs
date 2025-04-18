@@ -49,7 +49,8 @@ public sealed class GenerateModel(BackendClient backend) : BasePageModel
         try
         {
             var digestId = await backend.QueueDigest(Form);
-            return RedirectToPage("Progress", new { id = digestId });
+            SuccessMessage = "Digest generation queued successfully";
+            return RedirectToPage("/Digest/Progress", new { id = digestId });
         }
         catch (Exception ex)
         {

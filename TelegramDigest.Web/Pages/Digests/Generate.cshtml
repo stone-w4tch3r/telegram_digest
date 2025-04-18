@@ -47,12 +47,6 @@
                 <!-- Channel Selection -->
                 <div class="mb-4">
                     <label class="form-label d-block">Channels</label>
-                    <div class="form-check form-switch mb-3">
-                        <input class="form-check-input" type="checkbox" id="toggleAllChannels" />
-                        <label class="form-check-label" for="toggleAllChannels">
-                            Select All Channels
-                        </label>
-                    </div>
                     <div class="row">
                         @foreach (var channel in Model.Channels)
                         {
@@ -60,7 +54,7 @@
                                 <div class="form-check">
                                     <input class="form-check-input channel-checkbox" type="checkbox"
                                         name="Form.SelectedChannels" value="@channel.TgId" id="channel_@channel.TgId"
-                                        checked />
+                                        checked="@Model.Form.SelectedChannels.Contains(channel.TgId)" />
                                     <label class="form-check-label" for="channel_@channel.TgId">
                                         @channel.Title
                                     </label>

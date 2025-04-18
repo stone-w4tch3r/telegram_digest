@@ -12,75 +12,116 @@
     return;
 }
 
-<div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Generate Digest</h1>
-        <a asp-page="Index" class="btn btn-outline-secondary">
-            <i class="bi bi-arrow-left"></i> Back
-        </a>
-    </div>
+<div class="container-fluid mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3">
+                    <i class="bi bi-newspaper text-primary"></i> Generate Digest
+                </h1>
+                <a asp-page="Index" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Back
+                </a>
+            </div>
 
-    <div class="card">
-        <div class="card-body">
-            <form method="post" id="generateForm">
-
-                <!-- Date Range -->
-                <div class="row mb-4">
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label asp-for="@Model.Form.DateFrom" class="form-label"></label>
-                            <input asp-for="@Model.Form.DateFrom" type="datetime-local" class="form-control" />
-                            <span asp-validation-for="@Model.Form.DateFrom" class="text-danger"></span>
-                            <small class="form-text text-muted">UTC time</small>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label asp-for="@Model.Form.DateTo" class="form-label"></label>
-                            <input asp-for="@Model.Form.DateTo" type="datetime-local" class="form-control" />
-                            <span asp-validation-for="@Model.Form.DateTo" class="text-danger"></span>
-                            <small class="form-text text-muted">UTC time</small>
-                        </div>
-                    </div>
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <i class="bi bi-gear-fill me-2"></i> Digest Parameters
                 </div>
-
-                <!-- Channel Selection -->
-                <div class="mb-4">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <label class="form-label mb-0">Channels</label>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="selectAllChannels">
-                            <label class="form-check-label" for="selectAllChannels">
-                                Select All
-                            </label>
-                        </div>
-                    </div>
-                    <div class="row">
-                        @foreach (var channel in Model.Channels)
-                        {
-                            <div class="col-md-4 mb-2">
-                                <div class="form-check">
-                                    <input class="form-check-input channel-checkbox" type="checkbox"
-                                        name="Form.SelectedChannels" value="@channel.TgId" id="channel_@channel.TgId"
-                                        checked="@Model.Form.SelectedChannels.Contains(channel.TgId)" />
-                                    <label class="form-check-label" for="channel_@channel.TgId">
-                                        @channel.Title
-                                    </label>
+                <div class="card-body">
+                    <form method="post" id="generateForm">
+                        <!-- Date Range Section -->
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <h6 class="card-subtitle mb-3 text-muted d-flex justify-content-between">
+                                            <span><i class="bi bi-calendar-range me-2"></i>Start Date</span>
+                                            <small class="text-muted">UTC time</small>
+                                        </h6>
+                                        <div class="mb-2">
+                                            <input asp-for="@Model.Form.DateFrom" type="datetime-local"
+                                                class="form-control" />
+                                            <span asp-validation-for="@Model.Form.DateFrom" class="text-danger"></span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        }
-                    </div>
-                </div>
+                            <div class="col-md-6">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <h6 class="card-subtitle mb-3 text-muted d-flex justify-content-between">
+                                            <span><i class="bi bi-calendar-range me-2"></i>End Date</span> 
+                                            <small class="text-muted">UTC time</small>
+                                        </h6>
+                                        <div class="mb-2">
+                                            <input asp-for="@Model.Form.DateTo" type="datetime-local"
+                                                class="form-control" />
+                                            <span asp-validation-for="@Model.Form.DateTo" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-                <div class="d-flex justify-content-end">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-play-circle"></i> Generate Digest
-                    </button>
+                        <!-- Channel Selection -->
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="card-subtitle text-muted mb-0">
+                                        <i class="bi bi-broadcast me-2"></i>Select Channels
+                                    </h6>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="selectAllChannels">
+                                        <label class="form-check-label" for="selectAllChannels">
+                                            Select All
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="row row-cols-1 g-2">
+                                    @foreach (var channel in Model.Channels)
+                                    {
+                                        <div class="col card channel-card">
+                                            <div class="card-body p-2">
+                                                <div class="form-check mb-0">
+                                                    <input class="form-check-input channel-checkbox" type="checkbox"
+                                                           name="Form.SelectedChannels" value="@channel.TgId"
+                                                           id="channel_@channel.TgId"
+                                                           checked="@Model.Form.SelectedChannels.Contains(channel.TgId)" />
+                                                    <label class="form-check-label" for="channel_@channel.TgId">
+                                                        <i class="bi bi-telegram text-primary me-2"></i>@channel.Title
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-play-circle me-2"></i> Generate Digest
+                            </button>
+                        </div>
+                    </form>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
 </div>
+
+<style>
+    .channel-card {
+        transition: all 0.2s ease-in-out;
+        border: 1px solid rgba(0, 0, 0, .125);
+    }
+
+    .channel-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 .125rem .25rem rgba(0, 0, 0, .075);
+    }
+</style>
 
 @section Scripts {
     <script>
@@ -101,3 +142,6 @@
         $selectAllCheckbox.prop('checked', allChecked);
     </script>
 }
+
+              
+   

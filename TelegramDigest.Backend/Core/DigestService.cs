@@ -6,12 +6,11 @@ namespace TelegramDigest.Backend.Core;
 internal interface IDigestService
 {
     /// <summary>
-    /// Generate new digest within the specified time range
+    /// Generate new digest based on filter parameters
     /// </summary>
     Task<Result<DigestGenerationResultModelEnum>> GenerateDigest(
         DigestId digestId,
-        DateOnly from,
-        DateOnly to,
+        DigestFilterModel filter,
         CancellationToken ct
     );
 
@@ -51,8 +50,7 @@ internal sealed class DigestService(
     /// <returns>Type of digest generation result or error if generation failed</returns>
     public async Task<Result<DigestGenerationResultModelEnum>> GenerateDigest(
         DigestId digestId,
-        DateOnly from,
-        DateOnly to,
+        DigestFilterModel filter,
         CancellationToken ct
     )
     {
@@ -65,21 +63,31 @@ internal sealed class DigestService(
             return Result.Fail(channelsResult.Errors);
         }
 
+        var channels =
+            filter.SelectedChannels != null
+                ? [.. channelsResult.Value.Where(c => filter.SelectedChannels.Contains(c.TgId))]
+                : channelsResult.Value;
+
         digestStepsService.AddStep(
             new RssReadingStartedStepModel
             {
                 DigestId = digestId,
-                Channels = channelsResult.Value.Select(x => x.TgId).ToArray(),
+                Channels = channels.Select(x => x.TgId).ToArray(),
             }
         );
 
         var posts = new List<PostModel>();
         var errorsByChannel = new Dictionary<ChannelTgId, List<IError>>();
 
-        foreach (var channel in channelsResult.Value)
+        foreach (var channel in channels)
         {
             ct.ThrowIfCancellationRequested();
-            var postsResult = await channelReader.FetchPosts(channel.TgId, from, to, ct);
+            var postsResult = await channelReader.FetchPosts(
+                channel.TgId,
+                filter.DateFrom,
+                filter.DateTo,
+                ct
+            );
             if (postsResult.IsSuccess)
             {
                 posts.AddRange(postsResult.Value);
@@ -90,7 +98,7 @@ internal sealed class DigestService(
             }
         }
 
-        if (errorsByChannel.Count == channelsResult.Value.Count)
+        if (errorsByChannel.Count == channels.Count)
         {
             const string Message = "Failed to read all channels";
             var errors =
@@ -109,7 +117,11 @@ internal sealed class DigestService(
 
         if (posts.Count == 0)
         {
-            logger.LogWarning("No posts found from [{from}] to [{to}] in any channel", from, to);
+            logger.LogWarning(
+                "No posts found from [{from}] to [{to}] in any channel",
+                filter.DateFrom,
+                filter.DateTo
+            );
             digestStepsService.AddStep(
                 new SimpleStepModel
                 {

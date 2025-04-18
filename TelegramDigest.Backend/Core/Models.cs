@@ -36,6 +36,12 @@ public sealed record DigestSummaryModel(
     DateTime DateTo
 );
 
+public record DigestFilterModel(
+    DateOnly DateFrom,
+    DateOnly DateTo,
+    IReadOnlySet<ChannelTgId>? SelectedChannels = null
+);
+
 public enum DigestGenerationResultModelEnum
 {
     Success,

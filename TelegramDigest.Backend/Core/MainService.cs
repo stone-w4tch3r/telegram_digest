@@ -6,17 +6,18 @@ namespace TelegramDigest.Backend.Core;
 public interface IMainService
 {
     /// <summary>
-    /// Generates daily digest for the last period, based on settings
+    /// Generates digest based on provided filter parameters
     /// </summary>
-    Task<Result<DigestGenerationResultModelEnum>> ProcessDigestForLastPeriod(
+    Task<Result<DigestGenerationResultModelEnum>> ProcessDigest(
         DigestId digestId,
+        DigestFilterModel filter,
         CancellationToken ct
     );
 
     /// <summary>
-    /// Queues the generation of a digest for the last period
+    /// Queues the generation of a digest with specified filter parameters
     /// </summary>
-    Task<Result> QueueDigestForLastPeriod(DigestId digestId, CancellationToken ct);
+    Task<Result> QueueDigest(DigestId digestId, DigestFilterModel filter, CancellationToken ct);
 
     /// <summary>
     /// Returns all non-deleted channels
@@ -115,18 +116,23 @@ internal sealed class MainService(
     IDigestStepsService digestStepsService
 ) : IMainService
 {
-    public async Task<Result<DigestGenerationResultModelEnum>> ProcessDigestForLastPeriod(
+    public async Task<Result<DigestGenerationResultModelEnum>> ProcessDigest(
         DigestId digestId,
+        DigestFilterModel filter,
         CancellationToken ct
     )
     {
-        return await digestProcessingOrchestrator.ProcessDigestForLastPeriod(digestId, ct);
+        return await digestProcessingOrchestrator.ProcessDigest(digestId, filter, ct);
     }
 
-    public Task<Result> QueueDigestForLastPeriod(DigestId digestId, CancellationToken ct)
+    public Task<Result> QueueDigest(
+        DigestId digestId,
+        DigestFilterModel filter,
+        CancellationToken ct
+    )
     {
         return Task.FromResult(
-            Result.Try(() => digestProcessingOrchestrator.QueueDigestForLastPeriod(digestId, ct))
+            Result.Try(() => digestProcessingOrchestrator.QueueDigest(digestId, filter, ct))
         );
     }
 

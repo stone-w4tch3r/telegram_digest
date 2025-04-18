@@ -82,11 +82,20 @@ public sealed class BackendClient(IMainService mainService, ILogger<BackendClien
         }
     }
 
-    public async Task<Guid> QueueDigest()
+    public async Task<Guid> QueueDigest(DigestGenerationViewModel model)
     {
         var digestId = Guid.NewGuid();
-        var digestResult = await mainService.QueueDigestForLastPeriod(
+        var filter = new DigestFilterModel(
+            DateFrom: DateOnly.FromDateTime(model.DateFrom),
+            DateTo: DateOnly.FromDateTime(model.DateTo),
+            SelectedChannels: model.SelectedChannels.Length > 0
+                ? model.SelectedChannels.Select(c => new ChannelTgId(c)).ToHashSet()
+                : null
+        );
+
+        var digestResult = await mainService.QueueDigest(
             new(digestId),
+            filter,
             CancellationToken.None
         );
         if (digestResult.IsFailed)

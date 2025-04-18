@@ -5,24 +5,25 @@ namespace TelegramDigest.Backend.Core;
 
 internal interface IDigestProcessingOrchestrator
 {
-    Task<Result<DigestGenerationResultModelEnum>> ProcessDigestForLastPeriod(
+    Task<Result<DigestGenerationResultModelEnum>> ProcessDigest(
         DigestId digestId,
+        DigestFilterModel filter,
         CancellationToken ct
     );
 
-    void QueueDigestForLastPeriod(DigestId digestId, CancellationToken ct);
+    void QueueDigest(DigestId digestId, DigestFilterModel filter, CancellationToken ct);
 }
 
 internal sealed class DigestProcessingOrchestrator(
     IDigestService digestService,
     IDigestStepsService digestStepsService,
     ITaskScheduler<DigestId> taskScheduler,
-    ISettingsManager settingsManager,
     ILogger<DigestProcessingOrchestrator> logger
 ) : IDigestProcessingOrchestrator
 {
-    public async Task<Result<DigestGenerationResultModelEnum>> ProcessDigestForLastPeriod(
+    public async Task<Result<DigestGenerationResultModelEnum>> ProcessDigest(
         DigestId digestId,
+        DigestFilterModel filter,
         CancellationToken ct
     )
     {
@@ -34,17 +35,7 @@ internal sealed class DigestProcessingOrchestrator(
             }
         );
 
-        var settings = await settingsManager.LoadSettings(ct);
-        if (settings.IsFailed)
-        {
-            return Result.Fail(settings.Errors);
-        }
-
-        //TODO handle 00:00
-        var dateFrom = DateOnly.FromDateTime(DateTime.UtcNow.Date.AddDays(-1));
-        var dateTo = DateOnly.FromDateTime(DateTime.UtcNow.Date);
-
-        var generationResult = await digestService.GenerateDigest(digestId, dateFrom, dateTo, ct);
+        var generationResult = await digestService.GenerateDigest(digestId, filter, ct);
         if (generationResult.IsFailed)
         {
             logger.LogError(
@@ -58,7 +49,7 @@ internal sealed class DigestProcessingOrchestrator(
         return Result.Ok(generationResult.Value);
     }
 
-    public void QueueDigestForLastPeriod(DigestId digestId, CancellationToken ct)
+    public void QueueDigest(DigestId digestId, DigestFilterModel filter, CancellationToken ct)
     {
         digestStepsService.AddStep(
             new SimpleStepModel { DigestId = digestId, Type = DigestStepTypeModelEnum.Queued }
@@ -70,7 +61,7 @@ internal sealed class DigestProcessingOrchestrator(
                 // use own scope and services to avoid issues with disposing of captured scope
                 var mainService = scope.ServiceProvider.GetRequiredService<IMainService>();
                 var mergedCt = CancellationTokenSource.CreateLinkedTokenSource(ct, localCt).Token;
-                await mainService.ProcessDigestForLastPeriod(digestId, mergedCt);
+                await mainService.ProcessDigest(digestId, filter, mergedCt);
             },
             digestId,
             ex =>
@@ -82,7 +73,7 @@ internal sealed class DigestProcessingOrchestrator(
                         new SimpleStepModel
                         {
                             DigestId = digestId,
-                            Type = DigestStepTypeModelEnum.Queued,
+                            Type = DigestStepTypeModelEnum.Cancelled,
                         }
                     );
                 }

@@ -44,3 +44,5 @@
 - Using expressions instead of statements `using var stream = new FileStream("file.txt", FileMode.Open);`
 - Switch expressions instead of switch statements `var result = x switch { 1 => "one", 2 => "two", _ => "other" };`
 - Pattern matching where suitable `if (x is {int a, int[] b} and list is [1, 2, 3, ..]) { ... }`
+- Use collection expressions instead of fluent API `x.AddRange(y).Add(z).AsSpan()` -> `[x, ..y, z]`
+- Use collection expressions instead of ToArray()/ToList() for known types `person.Relatives = [..relatives]`

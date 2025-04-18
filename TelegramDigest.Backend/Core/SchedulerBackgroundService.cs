@@ -128,7 +128,13 @@ internal sealed class SchedulerBackgroundService(
             var digestId = new DigestId();
             logger.LogInformation("Starting scheduled digest generation, id {id}", digestId);
 
-            var queueResult = await mainService.QueueDigestForLastPeriod(digestId, ct);
+            var now = DateTime.UtcNow;
+            var filter = new DigestFilterModel(
+                DateFrom: DateOnly.FromDateTime(now.Date.AddDays(-1)),
+                DateTo: DateOnly.FromDateTime(now.Date)
+            );
+
+            var queueResult = await mainService.QueueDigest(digestId, filter, ct);
             if (queueResult.IsFailed)
             {
                 logger.LogError(
@@ -148,7 +154,7 @@ internal sealed class SchedulerBackgroundService(
             //     return;
             // }
 
-            logger.LogInformation("Scheduled digest generation completed successfully");
+            logger.LogInformation("Scheduled digest generation queued successfully");
         }
         catch (Exception ex)
         {

@@ -48,12 +48,12 @@ public sealed class AddModel(BackendClient backend) : BasePageModel
             ModelState.Remove("DirectRss.FeedUrl");
         }
 
+        RssProviders = await backend.GetRssProviders();
+
         if (!ModelState.IsValid)
         {
-            return RedirectToPage();
+            return Page();
         }
-
-        RssProviders = await backend.GetRssProviders();
 
         try
         {
@@ -73,8 +73,7 @@ public sealed class AddModel(BackendClient backend) : BasePageModel
         catch (Exception ex)
         {
             ErrorMessage = $"Failed to add feed: {ex.Message}";
-            RssProviders = await backend.GetRssProviders();
-            return RedirectToPage();
+            return Page();
         }
     }
 }

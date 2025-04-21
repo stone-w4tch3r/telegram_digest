@@ -5,16 +5,22 @@ using TelegramDigest.Web.Services;
 
 namespace TelegramDigest.Web.Pages.Channels;
 
+public sealed record FeedWithMetadata(FeedViewModel Feed, bool IsTelegramFeed)
+{
+    public static FeedWithMetadata FromFeedViewModel(FeedViewModel feed) =>
+        new(feed, feed.Url.StartsWith("https://t.me/", StringComparison.OrdinalIgnoreCase));
+}
+
 public sealed class IndexModel(BackendClient backend) : BasePageModel
 {
-    public List<FeedViewModel>? Feeds { get; set; }
+    public List<FeedWithMetadata>? Feeds { get; set; }
 
     public async Task OnGetAsync()
     {
         try
         {
-            Feeds = await backend.GetFeeds();
-            Feeds = Feeds.OrderBy(c => c.Title).ToList();
+            var feeds = await backend.GetFeeds();
+            Feeds = feeds.OrderBy(c => c.Title).Select(FeedWithMetadata.FromFeedViewModel).ToList();
         }
         catch (Exception ex)
         {

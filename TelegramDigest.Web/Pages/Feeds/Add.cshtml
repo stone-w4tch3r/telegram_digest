@@ -5,7 +5,7 @@
     ViewData["Title"] = "Add Feed";
 }
 
-@functions{
+@functions {
     public enum FeedType
     {
         [Display(Name = "Direct RSS Feed")]
@@ -54,22 +54,29 @@
                                     <option value="@provider.Id" data-base-url="@provider.BaseUrl">@provider.Name</option>
                                 }
                             </select>
-                            <div id="providerError" class="invalid-feedback">Please select an RSS provider</div>
+                            <div class="invalid-feedback">Please select an RSS provider</div>
                             <small class="form-text text-muted">Select the service that will convert the Telegram
                                 channel to RSS</small>
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label required">Channel ID</label>
-                            <div class="input-group">
+                            <div class="input-group has-validation">
                                 <span class="input-group-text">t.me/</span>
                                 <input id="telegramChannel" class="form-control" pattern="[a-zA-Z][a-zA-Z0-9_]{4,31}"
                                     title="Channel ID must be 5-32 characters, only letters, numbers, and underscores, starting with a letter" />
+                                <div class="invalid-feedback">Channel ID must be 5-32 characters, only letters, numbers,
+                                    and underscores, starting with a letter</div>
                             </div>
-                            <div id="channelError" class="invalid-feedback">Channel ID must be 5-32 characters, only
-                                letters, numbers, and underscores, starting with a letter</div>
                             <small class="form-text text-muted">Enter the channel ID from the t.me URL (e.g., for
                                 t.me/example enter 'example')</small>
+                        </div>
+
+                        <div class="mb-3" id="resultingUrlGroup" style="display: none;">
+                            <label class="form-label">Resulting RSS Feed URL</label>
+                            <div class="p-2 bg-light border rounded text-break" id="resultingUrl"></div>
+                            <small class="form-text text-muted">This is the URL that will be used to fetch the RSS
+                                feed</small>
                         </div>
                     </div>
 
@@ -93,7 +100,6 @@
             const feedTypeSelect = $("#feedType");
             const directRssFields = $("#directRssFields");
             const telegramFields = $("#telegramFields");
-            const directRssUrl = $("#directRssUrl");
             const telegramProvider = $("#telegramProvider");
             const telegramChannel = $("#telegramChannel");
             const finalFeedUrl = $("#finalFeedUrl");
@@ -125,19 +131,61 @@
 
             // Initialize form state
             updateFormFields();
+
+            let validateTimeout;
+            // Add live validation for telegram channel with debounce
+            telegramChannel.on("input", function () {
+                const channel = $(this);
+
+                // Clear any existing timeout
+                clearTimeout(validateTimeout);
+
+                // Set a new timeout
+                validateTimeout = setTimeout(function () {
+                    const channelRegex = /^[a-zA-Z][a-zA-Z0-9_]{4,31}$/;
+                    const isValid = channelRegex.test(channel.val());
+
+                    channel.toggleClass("is-invalid", !isValid && channel.val());
+                    updateResultingUrl();
+                }, 300); // 300ms debounce delay
+            });
+
+            // Add change handler for provider
+            telegramProvider.on("change", function () {
+                updateResultingUrl();
+            });
+
+            function updateResultingUrl() {
+                const provider = telegramProvider;
+                const channel = telegramChannel;
+                const resultingUrlGroup = $("#resultingUrlGroup");
+                const resultingUrl = $("#resultingUrl");
+
+                if (provider.val() && channel.val()) {
+                    const baseUrl = provider.find(":selected").data("base-url");
+                    const url = baseUrl + channel.val();
+                    resultingUrl.text(url);
+                    resultingUrlGroup.show();
+                } else {
+                    resultingUrlGroup.hide();
+                }
+            }
         });
 
         function prepareFeedUrl() {
-            const feedType = $("#feedType").val();
+            const directRssUrl = $("#directRssUrl");
+            const feedTypeSelect = $("#feedType");
+            
+            const feedType = feedTypeSelect.val();
             let isValid = true;
 
             // Clear previous validation states
             $(".is-invalid").removeClass("is-invalid");
 
             if (feedType === "@((int)FeedType.DirectRss)") {
-                const url = $("#directRssUrl").val();
+                const url = directRssUrl.val();
                 if (!url || !isValidUrl(url)) {
-                    $("#directRssUrl").addClass("is-invalid");
+                    directRssUrl.addClass("is-invalid");
                     isValid = false;
                 } else {
                     $("#finalFeedUrl").val(url);
@@ -164,7 +212,7 @@
                 }
             }
             else {
-                $("#feedType").addClass("is-invalid");
+                feedTypeSelect.addClass("is-invalid");
                 isValid = false;
             }
 

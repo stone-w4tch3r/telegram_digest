@@ -1,18 +1,29 @@
 @page
 @model TelegramDigest.Web.Pages.Channels.IndexModel
 @{
-    ViewData["Title"] = "Channels";
+    ViewData["Title"] = "Feeds";
 }
 
 <div class="row">
-    <!-- Channels List -->
+    <!-- Add Feed link -->
+    <a asp-page="/Feeds/Add" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> Add New Feed
+    </a>
+
+    <!-- Feeds List -->
     <div class="col-md-8">
         <h1>Channels</h1>
 
-        @if (!Model.Channels.Any())
+        @if (Model.Feeds == null)
+        {
+            <div class="alert alert-danger">
+                Error in frontend. Failed to load feeds.
+            </div>
+        }
+        else if (!Model.Feeds.Any())
         {
             <div class="alert alert-info">
-                No channels added yet. Use the form on the right to add your first channel.
+                No Feeds added yet.
             </div>
         }
         else
@@ -26,22 +37,23 @@
                     </tr>
                     </thead>
                     <tbody>
-                    @foreach (var channel in Model.Channels)
+                    @foreach (var feed in Model.Feeds)
                     {
                         <tr>
                             <td>
-                                <a href="@channel.Url" target="_blank" class="text-decoration-none">
-                                    @channel.Title
+                                <a href="@feed.Url" target="_blank" class="text-decoration-none">
+                                    @feed.Title
                                     <i class="bi bi-box-arrow-up-right small ms-1"></i>
                                 </a>
                             </td>
                             <td>
                                 <div class="btn-group" role="group">
-                                    <form method="post" asp-page-handler="Delete" asp-route-tgId="@channel.TgId"
+                                    <form method="post" asp-page-handler="Delete"
+                                          asp-route-tgId="@feed.Url"
                                           class="d-inline"
-                                          onsubmit="return confirm('Are you sure you want to delete this channel?');">
+                                          onsubmit="return confirm('Are you sure you want to delete this feed?');">
                                         <button type="submit" class="btn btn-sm btn-outline-danger"
-                                                title="Delete channel">
+                                                title="Delete feed">
                                             <i class="bi bi-trash"></i>
                                         </button>
                                     </form>
@@ -54,31 +66,4 @@
             </div>
         }
     </div>
-
-    <!-- Add Channel Form -->
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">Add New Channel</h5>
-            </div>
-            <div class="card-body">
-                <form method="post" asp-page-handler="Add">
-                    <div class="mb-3">
-                        <label asp-for="NewChannel!.TgId" class="form-label required"></label>
-                        <input asp-for="NewChannel!.TgId" class="form-control"/>
-                        <span asp-validation-for="NewChannel!.TgId" class="text-danger"></span>
-                    </div>
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-plus-circle"></i> Add Channel
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
 </div>
-
-@section Scripts {
-    <partial name="_ValidationScriptsPartial"/>
-}

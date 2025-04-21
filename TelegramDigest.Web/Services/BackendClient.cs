@@ -308,6 +308,79 @@ public sealed class BackendClient(IMainService mainService, ILogger<BackendClien
             throw new("Failed to remove waiting digest");
         }
     }
+
+    public async Task<List<FeedViewModel>> GetFeeds()
+    {
+        // var result = await mainService.GetChannels(CancellationToken.None);
+        // if (result.IsFailed)
+        // {
+        //     logger.LogError("Failed to get feeds: {Errors}", result.Errors);
+        //     throw new("Failed to get feeds");
+        // }
+        //
+        // return result
+        //     .Value.Select(c => new FeedViewModel { Title = c.Title, FeedUrl = c.RssFeedUrl })
+        //     .ToList();
+        // Mock implementation - in real app this would come from backend configuration
+        return
+        [
+            new() { Title = "Telegram Digest", Url = "https://t.me/TelegramDigestBot" },
+            new() { Title = "Telegram Digest (test)", Url = "https://t.me/TelegramDigestBotTest" },
+        ];
+    }
+
+    public async Task AddOrUpdateFeed(AddFeedViewModel feed)
+    {
+        // var result = await mainService.AddOrUpdateFeed(
+        //     feed.Title,
+        //     feed.FeedUrl,
+        //     CancellationToken.None
+        // );
+        // if (result.IsFailed)
+        // {
+        //     logger.LogError("Failed to add feed: {Errors}", result.Errors);
+        //     throw new("Failed to add feed");
+        // }
+    }
+
+    public async Task DeleteFeedAsync(string feedUrl)
+    {
+        // var result = await mainService.RemoveFeed(feedUrl, CancellationToken.None);
+        // if (result.IsFailed)
+        // {
+        //     logger.LogError("Failed to delete feed {FeedUrl}: {Errors}", feedUrl, result.Errors);
+        //     throw new($"Failed to delete feed {feedUrl}");
+        // }
+    }
+
+    public Task<List<RssProvider>> GetRssProviders()
+    {
+        // Mock implementation - in real app this would come from backend configuration
+        var providers = new List<RssProvider>
+        {
+            new()
+            {
+                Id = "rsshub",
+                Name = "RSSHub (t.me)",
+                BaseUrl = "https://rsshub.app/telegram/channel/",
+            },
+            new()
+            {
+                Id = "rssbridge",
+                Name = "RSS Bridge",
+                BaseUrl =
+                    "https://rssbridge.org/bridge01/?action=display&bridge=Telegram&format=Atom&username=",
+            },
+            new()
+            {
+                Id = "telegramrss",
+                Name = "Telegram RSS Bot",
+                BaseUrl = "https://t.me/rss_bot?channel=",
+            },
+        };
+
+        return Task.FromResult(providers);
+    }
 }
 
 public static class StepsHelper

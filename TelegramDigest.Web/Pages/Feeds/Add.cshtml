@@ -1,0 +1,183 @@
+@page
+@model TelegramDigest.Web.Pages.Feeds.AddModel
+@using System.ComponentModel.DataAnnotations
+@{
+    ViewData["Title"] = "Add Feed";
+}
+
+@functions{
+    public enum FeedType
+    {
+        [Display(Name = "Direct RSS Feed")]
+        DirectRss,
+
+        [Display(Name = "Telegram Channel")]
+        Telegram,
+    }
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Add New Feed</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" id="addFeedForm" onsubmit="return prepareFeedUrl()">
+                    <div class="mb-3">
+                        <select id="feedType" class="form-select" asp-items="Html.GetEnumSelectList<FeedType>()">
+                            <option value="">-- Select Feed Type --</option>
+                        </select>
+                    </div>
+
+                    <!-- Hidden field for final feed URL -->
+                    <input asp-for="FeedUrl" type="hidden" id="finalFeedUrl" />
+
+                    <!-- Direct RSS Fields -->
+                    <div id="directRssFields" style="display: none;">
+                        <div class="mb-3">
+                            <label class="form-label required">RSS Feed URL</label>
+                            <input id="directRssUrl" class="form-control" type="url" />
+                            <div id="directRssUrlError" class="invalid-feedback">Please enter a valid URL</div>
+                            <small class="form-text text-muted">Enter the full URL of the RSS feed</small>
+                        </div>
+                    </div>
+
+                    <!-- Telegram Channel Fields -->
+                    <div id="telegramFields" style="display: none;">
+                        <div class="mb-3">
+                            <label class="form-label required">RSS Provider</label>
+                            <select id="telegramProvider" class="form-select">
+                                <option value="">-- Select RSS Provider --</option>
+                                @foreach (var provider in Model.RssProviders)
+                                {
+                                    <option value="@provider.Id" data-base-url="@provider.BaseUrl">@provider.Name</option>
+                                }
+                            </select>
+                            <div id="providerError" class="invalid-feedback">Please select an RSS provider</div>
+                            <small class="form-text text-muted">Select the service that will convert the Telegram
+                                channel to RSS</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label required">Channel ID</label>
+                            <div class="input-group">
+                                <span class="input-group-text">t.me/</span>
+                                <input id="telegramChannel" class="form-control" pattern="[a-zA-Z][a-zA-Z0-9_]{4,31}"
+                                    title="Channel ID must be 5-32 characters, only letters, numbers, and underscores, starting with a letter" />
+                            </div>
+                            <div id="channelError" class="invalid-feedback">Channel ID must be 5-32 characters, only
+                                letters, numbers, and underscores, starting with a letter</div>
+                            <small class="form-text text-muted">Enter the channel ID from the t.me URL (e.g., for
+                                t.me/example enter 'example')</small>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a asp-page="/Feeds/Index" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left"></i> Back
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-plus-circle"></i> Add Feed
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            const feedTypeSelect = $("#feedType");
+            const directRssFields = $("#directRssFields");
+            const telegramFields = $("#telegramFields");
+            const directRssUrl = $("#directRssUrl");
+            const telegramProvider = $("#telegramProvider");
+            const telegramChannel = $("#telegramChannel");
+            const finalFeedUrl = $("#finalFeedUrl");
+
+            function updateFormFields() {
+                const feedType = feedTypeSelect.val();
+
+                // Hide all fields and clear validation states
+                directRssFields.hide();
+                telegramFields.hide();
+                clearValidationState();
+
+                // Show fields based on feed type
+                if (feedType === "@((int)FeedType.DirectRss)") {
+                    directRssFields.show();
+                }
+                else if (feedType === "@((int)FeedType.Telegram)") {
+                    telegramFields.show();
+                }
+            }
+
+            function clearValidationState() {
+                $(".is-invalid").removeClass("is-invalid");
+                finalFeedUrl.val("");
+            }
+
+            // Update fields when feed type changes
+            feedTypeSelect.change(updateFormFields);
+
+            // Initialize form state
+            updateFormFields();
+        });
+
+        function prepareFeedUrl() {
+            const feedType = $("#feedType").val();
+            let isValid = true;
+
+            // Clear previous validation states
+            $(".is-invalid").removeClass("is-invalid");
+
+            if (feedType === "@((int)FeedType.DirectRss)") {
+                const url = $("#directRssUrl").val();
+                if (!url || !isValidUrl(url)) {
+                    $("#directRssUrl").addClass("is-invalid");
+                    isValid = false;
+                } else {
+                    $("#finalFeedUrl").val(url);
+                }
+            }
+            else if (feedType === "@((int)FeedType.Telegram)") {
+                const provider = $("#telegramProvider");
+                const channel = $("#telegramChannel");
+
+                if (!provider.val()) {
+                    provider.addClass("is-invalid");
+                    isValid = false;
+                }
+
+                const channelRegex = /^[a-zA-Z][a-zA-Z0-9_]{4,31}$/;
+                if (!channel.val() || !channelRegex.test(channel.val())) {
+                    channel.addClass("is-invalid");
+                    isValid = false;
+                }
+
+                if (isValid) {
+                    const baseUrl = provider.find(":selected").data("base-url");
+                    $("#finalFeedUrl").val(baseUrl + channel.val());
+                }
+            }
+            else {
+                $("#feedType").addClass("is-invalid");
+                isValid = false;
+            }
+
+            return isValid;
+        }
+
+        function isValidUrl(string) {
+            try {
+                new URL(string);
+                return true;
+            } catch (_) {
+                return false;
+            }
+        }
+    </script>
+}

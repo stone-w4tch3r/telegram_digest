@@ -5,7 +5,7 @@ namespace TelegramDigest.Backend.Db;
 internal sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
     : DbContext(options)
 {
-    internal DbSet<ChannelEntity> Channels => Set<ChannelEntity>();
+    internal DbSet<FeedEntity> Feeds => Set<FeedEntity>();
     internal DbSet<DigestEntity> Digests => Set<DigestEntity>();
     internal DbSet<PostSummaryEntity> PostSummaries => Set<PostSummaryEntity>();
     internal DbSet<DigestSummaryEntity> DigestSummaries => Set<DigestSummaryEntity>();
@@ -16,20 +16,20 @@ internal sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext
     /// </summary>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.ApplyConfiguration(new ChannelConfiguration());
+        modelBuilder.ApplyConfiguration(new FeedConfiguration());
         modelBuilder.ApplyConfiguration(new DigestConfiguration());
         modelBuilder.ApplyConfiguration(new PostSummaryConfiguration());
         modelBuilder.ApplyConfiguration(new DigestSummaryConfiguration());
         modelBuilder.ApplyConfiguration(new DigestStepsConfiguration());
     }
 
-    private sealed class ChannelConfiguration : IEntityTypeConfiguration<ChannelEntity>
+    private sealed class FeedConfiguration : IEntityTypeConfiguration<FeedEntity>
     {
-        public void Configure(EntityTypeBuilder<ChannelEntity> builder)
+        public void Configure(EntityTypeBuilder<FeedEntity> builder)
         {
-            builder.ToTable("Channels");
-            builder.HasKey(e => e.TgId);
-            builder.Property(e => e.TgId).IsRequired();
+            builder.ToTable("Feeds");
+            builder.HasKey(e => e.RssUrl);
+            builder.Property(e => e.RssUrl).IsRequired();
             builder.Property(e => e.Title).IsRequired();
             builder.Property(e => e.Description).IsRequired();
             builder.Property(e => e.ImageUrl).IsRequired();
@@ -67,7 +67,7 @@ internal sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext
         {
             builder.ToTable("PostSummaries");
             builder.HasKey(e => e.Id);
-            builder.Property(e => e.ChannelTgId).IsRequired();
+            builder.Property(e => e.FeedUrl).IsRequired();
             builder.Property(e => e.Summary).IsRequired();
             builder.Property(e => e.Url).IsRequired();
             builder.Property(e => e.PublishedAt).IsRequired();
@@ -75,9 +75,9 @@ internal sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext
 
             // Relationship with Channel
             builder
-                .HasOne(p => p.ChannelNav)
+                .HasOne(p => p.FeedNav)
                 .WithMany()
-                .HasForeignKey(p => p.ChannelTgId)
+                .HasForeignKey(p => p.FeedUrl)
                 .OnDelete(DeleteBehavior.Restrict);
         }
     }

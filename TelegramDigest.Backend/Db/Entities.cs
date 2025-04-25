@@ -3,15 +3,15 @@ using System.ComponentModel.DataAnnotations;
 namespace TelegramDigest.Backend.Db;
 
 /// <summary>
-/// Represents a Telegram channel
+/// Represents a RSS feed
 /// </summary>
-internal sealed class ChannelEntity
+internal sealed class FeedEntity
 {
     /// <summary>
-    /// Channel ID (part of the channel URL)
+    /// RSS feed URL
     /// </summary>
-    [MaxLength(32)]
-    public required string TgId { get; init; }
+    [MaxLength(2048)]
+    public required string RssUrl { get; init; }
 
     [MaxLength(100)]
     public required string Title { get; init; }
@@ -85,8 +85,8 @@ internal sealed class PostSummaryEntity
 {
     public required Guid Id { get; init; }
 
-    [MaxLength(32)]
-    public required string ChannelTgId { get; init; }
+    [MaxLength(2048)]
+    public required string FeedUrl { get; init; }
 
     [MaxLength(2000)]
     public required string Summary { get; init; }
@@ -105,9 +105,9 @@ internal sealed class PostSummaryEntity
     public required Guid DigestId { get; init; }
 
     /// <summary>
-    /// Navigation property to ChannelEntity
+    /// Navigation property to FeedEntity
     /// </summary>
-    public ChannelEntity? ChannelNav { get; init; }
+    public FeedEntity? FeedNav { get; init; }
 
     /// <summary>
     /// Navigation property to DigestEntity

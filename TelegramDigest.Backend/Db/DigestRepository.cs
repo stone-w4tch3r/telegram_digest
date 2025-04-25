@@ -43,7 +43,7 @@ internal sealed class DigestRepository(
             // Include both PostsNav and SummaryNav to get complete digest data
             var digest = await dbContext
                 .Digests.Include(d => d.PostsNav)!
-                .ThenInclude(p => p.ChannelNav)
+                .ThenInclude(p => p.FeedNav)
                 .Include(d => d.SummaryNav)
                 .FirstOrDefaultAsync(d => d.Id == digestId.Guid, ct);
 
@@ -104,7 +104,7 @@ internal sealed class DigestRepository(
         {
             var digests = await dbContext
                 .Digests.Include(d => d.PostsNav)!
-                .ThenInclude(p => p.ChannelNav)
+                .ThenInclude(p => p.FeedNav)
                 .Include(d => d.SummaryNav)
                 .ToListAsync(ct);
 
@@ -174,7 +174,9 @@ internal sealed class DigestRepository(
             PostsSummaries:
             [
                 .. entity.PostsNav.Select(p => new PostSummaryModel(
-                    ChannelTgId: new(p.ChannelTgId),
+                    ChannelTgId: p.FeedUrl.StartsWith("https://rsshub.app/telegram/channel/")
+                        ? new(p.FeedUrl["https://rsshub.app/telegram/channel/".Length..])
+                        : new("unknown"), // TODO migrate this to FeedUrl
                     Summary: p.Summary,
                     Url: new(p.Url),
                     PublishedAt: p.PublishedAt,
@@ -207,14 +209,14 @@ internal sealed class DigestRepository(
                 .. model.PostsSummaries.Select(p => new PostSummaryEntity
                 {
                     Id = Guid.NewGuid(),
-                    ChannelTgId = p.ChannelTgId.ChannelName,
+                    FeedUrl = $"https://rsshub.app/telegram/channel/{p.ChannelTgId.ChannelName}", // TODO migrate this to proper FeedUrl
                     Summary = p.Summary,
                     Url = p.Url.ToString(),
                     PublishedAt = p.PublishedAt,
                     Importance = p.Importance.Number,
                     DigestId = model.DigestId.Guid,
                     DigestNav = null, // Will be set by EF Core
-                    ChannelNav = null, // Will be set by EF Core
+                    FeedNav = null, // Will be set by EF Core
                 }),
             ],
         };

@@ -5,48 +5,63 @@ namespace TelegramDigest.Backend.Db;
 
 internal interface IChannelsRepository
 {
-    /// <summary>
-    /// Saves or updates a channel in the repository
-    /// </summary>
-    public Task<Result> SaveChannel(ChannelModel channel, CancellationToken cancellationToken);
+    // Obsolete channel methods
+    Task<Result> SaveChannel(ChannelModel channel, CancellationToken cancellationToken);
+    Task<Result<List<ChannelModel>>> LoadChannels(CancellationToken cancellationToken);
+    Task<Result> DeleteChannel(string channelTgId, CancellationToken cancellationToken);
 
-    /// <summary>
-    /// Retrieves all non-deleted channels from the repository
-    /// </summary>
-    public Task<Result<List<ChannelModel>>> LoadChannels(CancellationToken cancellationToken);
-
-    /// <summary>
-    /// Marks a channel as deleted in the repository (soft delete)
-    /// </summary>
-    public Task<Result> DeleteChannel(ChannelTgId channelId, CancellationToken cancellationToken);
+    // New feed methods
+    Task<Result> SaveFeed(FeedModel feed, CancellationToken cancellationToken);
+    Task<Result<List<FeedModel>>> LoadFeeds(CancellationToken cancellationToken);
+    Task<Result> DeleteFeed(Uri feedUrl, CancellationToken cancellationToken);
 }
+
+// tmp models
+public sealed record FeedModel(Uri RssUrl, string Description, string Title, Uri ImageUrl);
 
 internal sealed class ChannelsRepository(
     ApplicationDbContext dbContext,
     ILogger<ChannelsRepository> logger
 ) : IChannelsRepository
 {
-    public async Task<Result> SaveChannel(ChannelModel channel, CancellationToken cancellationToken)
+    public Task<Result> SaveChannel(ChannelModel channel, CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException("Obsolete, delete this!");
+    }
+
+    // TODO
+    public Task<Result<List<ChannelModel>>> LoadChannels(CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException("Obsolete, delete this!");
+    }
+
+    // TODO
+    public Task<Result> DeleteChannel(string channelTgId, CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException("Obsolete, delete this!");
+    }
+
+    public async Task<Result> SaveFeed(FeedModel feed, CancellationToken cancellationToken)
     {
         try
         {
-            var entity = new ChannelEntity
+            var entity = new FeedEntity
             {
-                TgId = channel.TgId.ChannelName,
-                Title = channel.Title,
-                Description = channel.Description,
-                ImageUrl = channel.ImageUrl.ToString(),
+                RssUrl = feed.RssUrl.ToString(),
+                Title = feed.Title,
+                Description = feed.Description,
+                ImageUrl = feed.ImageUrl.ToString(),
                 IsDeleted = false,
             };
 
-            var existing = await dbContext.Channels.FindAsync([entity.TgId], cancellationToken);
+            var existing = await dbContext.Feeds.FindAsync([entity.RssUrl], cancellationToken);
             if (existing != null)
             {
                 dbContext.Entry(existing).CurrentValues.SetValues(entity);
             }
             else
             {
-                await dbContext.Channels.AddAsync(entity, cancellationToken);
+                await dbContext.Feeds.AddAsync(entity, cancellationToken);
             }
 
             await dbContext.SaveChangesAsync(cancellationToken);
@@ -54,47 +69,42 @@ internal sealed class ChannelsRepository(
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Failed to save channel [{ChannelId}]", channel.TgId);
+            logger.LogError(ex, "Failed to save feed [{FeedUrl}]", feed.RssUrl);
             return Result.Fail(new Error("Database operation failed").CausedBy(ex));
         }
     }
 
-    public async Task<Result<List<ChannelModel>>> LoadChannels(CancellationToken cancellationToken)
+    public async Task<Result<List<FeedModel>>> LoadFeeds(CancellationToken cancellationToken)
     {
         try
         {
             var entities = await dbContext
-                .Channels.Where(e => !e.IsDeleted)
+                .Feeds.Where(e => !e.IsDeleted)
                 .ToListAsync(cancellationToken);
-            var channels = entities
-                .Select(e => new ChannelModel(
-                    TgId: new(e.TgId),
+
+            var feeds = entities
+                .Select(e => new FeedModel(
+                    RssUrl: new(e.RssUrl),
                     Title: e.Title,
                     Description: e.Description,
                     ImageUrl: new(e.ImageUrl)
                 ))
                 .ToList();
 
-            return Result.Ok(channels);
+            return Result.Ok(feeds);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Failed to load channels");
+            logger.LogError(ex, "Failed to load feeds");
             return Result.Fail(new Error("Database operation failed").CausedBy(ex));
         }
     }
 
-    public async Task<Result> DeleteChannel(
-        ChannelTgId channelId,
-        CancellationToken cancellationToken
-    )
+    public async Task<Result> DeleteFeed(Uri feedUrl, CancellationToken cancellationToken)
     {
         try
         {
-            var entity = await dbContext.Channels.FindAsync(
-                [channelId.ChannelName],
-                cancellationToken
-            );
+            var entity = await dbContext.Feeds.FindAsync([feedUrl.ToString()], cancellationToken);
             if (entity == null)
             {
                 return Result.Ok(); // Already deleted
@@ -106,7 +116,7 @@ internal sealed class ChannelsRepository(
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Failed to delete channel [{ChannelId}]", channelId);
+            logger.LogError(ex, "Failed to delete feed [{FeedUrl}]", feedUrl);
             return Result.Fail(new Error("Database operation failed").CausedBy(ex));
         }
     }

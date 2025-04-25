@@ -1,5 +1,15 @@
 # TelegramDigest
 
+## How-to
+
+### Add migration
+
+```bash
+dotnet ef migrations add MIGRATIONNAME \
+  --project TelegramDigest.Backend/TelegramDigest.Backend.csproj \
+  --startup-project TelegramDigest.Web/TelegramDigest.Web.csproj
+````
+
 ## Technologies
 
 - .NET 9

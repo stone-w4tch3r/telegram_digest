@@ -50,35 +50,35 @@ dotnet ef migrations add MIGRATIONNAME \
 The application is split into four main projects:
 
 1. **Backend**
-- **Core Services:**
-  - **Channel Reader:** Fetches RSS feeds from Telegram channels
-  - **Summary Generator:** Generates summaries using OpenAI API
-  - **Settings Manager:** Manages application configuration
-  - **Task Scheduler:** Manages background task scheduling
-  - **Task Processor:** Handles concurrent task execution
-  - **Email Sender:** Sends digest emails
-  - **Digest Service:** Manages digest creation and storage
-  - **Digest Steps Service:** Tracks digest generation progress
-  - **RSS Service:** Generates RSS feeds
-  - **Main Service:** Coordinates all services and serves as a facade
-- **Data Layer:**
-  - Entity Framework Core
-  - Repository pattern
+   - **Core Services:**
+     - **Channel Reader:** Fetches RSS feeds from Telegram channels
+     - **Summary Generator:** Generates summaries using OpenAI API
+     - **Settings Manager:** Manages application configuration
+     - **Task Scheduler:** Manages background task scheduling
+     - **Task Processor:** Handles concurrent task execution
+     - **Email Sender:** Sends digest emails
+     - **Digest Service:** Manages digest creation and storage
+     - **Digest Steps Service:** Tracks digest generation progress
+     - **RSS Service:** Generates RSS feeds
+     - **Main Service:** Coordinates all services and serves as a facade
+   - **Data Layer:**
+     - Entity Framework Core
+     - Repository pattern
 2. **Web UI**
-- **Features:**
-  - Digest viewing and management
-  - Channel management
-  - Settings configuration
-  - Progress tracking
-- **Technologies:**
-  - Razor Pages
-  - Bootstrap 5
-  - Bootstrap Icons
+   - **Features:**
+     - Digest viewing and management
+     - Channel management
+     - Settings configuration
+     - Progress tracking
+   - **Technologies:**
+     - Razor Pages
+     - Bootstrap 5
+     - Bootstrap Icons
 3. **Tests**
-- Unit tests
-- Integration tests
-- Mock-based testing
-- Test data builders
+   - Unit tests
+   - Integration tests
+   - Mock-based testing
+   - Test data builders
 
 ```mermaid
 graph TB

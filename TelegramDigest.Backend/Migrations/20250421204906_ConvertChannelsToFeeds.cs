@@ -10,6 +10,14 @@ namespace TelegramDigest.Backend.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            // Verify provider before migration
+            if (!migrationBuilder.IsSqlite())
+            {
+                throw new NotImplementedException(
+                    "Migration for this database provider is not implemented."
+                );
+            }
+
             // Create temporary table to store Channel data
             migrationBuilder.CreateTable(
                 name: "TempChannels",
@@ -120,6 +128,14 @@ namespace TelegramDigest.Backend.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            // Verify provider before migration
+            if (!migrationBuilder.IsSqlite())
+            {
+                throw new NotImplementedException(
+                    "Migration for this database provider is not implemented."
+                );
+            }
+
             // Create temporary table to store Feed data
             migrationBuilder.CreateTable(
                 name: "TempFeeds",

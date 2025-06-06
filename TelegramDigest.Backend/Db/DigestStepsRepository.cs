@@ -77,9 +77,9 @@ internal sealed partial class DigestStepsRepository(
             RssReadingStartedStepEntity e => new RssReadingStartedStepModel
             {
                 DigestId = digestId,
-                Channels =
-                    e.ChannelsJson != null
-                        ? JsonSerializer.Deserialize<ChannelTgId[]>(e.ChannelsJson) ?? []
+                Feeds =
+                    e.FeedsJson != null
+                        ? JsonSerializer.Deserialize<FeedUrl[]>(e.FeedsJson) ?? []
                         : [],
                 Message = entity.Message,
                 Timestamp = entity.Timestamp,
@@ -134,7 +134,7 @@ internal sealed partial class DigestStepsRepository(
                 DigestId = model.DigestId.Guid,
                 Type = type,
                 Message = model.Message,
-                ChannelsJson = JsonSerializer.Serialize(m.Channels),
+                FeedsJson = JsonSerializer.Serialize(m.Feeds),
                 Timestamp = model.Timestamp,
             },
             RssReadingFinishedStepModel m => new RssReadingFinishedStepEntity

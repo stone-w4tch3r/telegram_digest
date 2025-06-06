@@ -20,19 +20,19 @@ public interface IMainService
     Task<Result> QueueDigest(DigestId digestId, DigestFilterModel filter, CancellationToken ct);
 
     /// <summary>
-    /// Returns all non-deleted channels
+    /// Returns all non-deleted feeds
     /// </summary>
-    Task<Result<List<ChannelModel>>> GetChannels(CancellationToken ct);
+    Task<Result<List<FeedModel>>> GetFeeds(CancellationToken ct);
 
     /// <summary>
-    /// Adds or updates a channel
+    /// Adds or updates a feed
     /// </summary>
-    Task<Result> AddOrUpdateChannel(ChannelTgId channelTgId, CancellationToken ct);
+    Task<Result> AddOrUpdateFeed(FeedUrl feedUrl, CancellationToken ct);
 
     /// <summary>
-    /// Marks a channel as deleted (soft delete)
+    /// Marks a feed as deleted (soft delete)
     /// </summary>
-    Task<Result> RemoveChannel(ChannelTgId channelTgId, CancellationToken ct);
+    Task<Result> RemoveFeed(FeedUrl feedUrl, CancellationToken ct);
 
     /// <summary>
     /// Loads all digest summaries (metadata for each digest) without posts
@@ -161,19 +161,19 @@ internal sealed class MainService(
         return Task.FromResult(Result.Try(() => taskScheduler.RemoveWaitingTask(key)));
     }
 
-    public async Task<Result<List<ChannelModel>>> GetChannels(CancellationToken ct)
+    public async Task<Result<List<FeedModel>>> GetFeeds(CancellationToken ct)
     {
-        return await feedsService.GetChannels(ct);
+        return await feedsService.GetFeeds(ct);
     }
 
-    public async Task<Result> AddOrUpdateChannel(ChannelTgId channelTgId, CancellationToken ct)
+    public async Task<Result> AddOrUpdateFeed(FeedUrl feedUrl, CancellationToken ct)
     {
-        return await feedsService.AddOrUpdateChannel(channelTgId, ct);
+        return await feedsService.AddOrUpdateFeed(feedUrl, ct);
     }
 
-    public async Task<Result> RemoveChannel(ChannelTgId channelTgId, CancellationToken ct)
+    public async Task<Result> RemoveFeed(FeedUrl feedUrl, CancellationToken ct)
     {
-        return await feedsService.RemoveChannel(channelTgId, ct);
+        return await feedsService.RemoveFeed(feedUrl, ct);
     }
 
     public async Task<Result<DigestSummaryModel[]>> GetDigestSummaries(CancellationToken ct)

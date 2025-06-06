@@ -53,7 +53,7 @@ public sealed record RssReadingStartedStepModel : IDigestStepModel
     public DigestStepTypeModelEnum Type => DigestStepTypeModelEnum.RssReadingStarted;
     public DateTime Timestamp { get; init; } = DateTime.UtcNow;
     public required DigestId DigestId { get; init; }
-    public required ChannelTgId[] Channels { get; init; }
+    public required FeedUrl[] Feeds { get; init; }
     public string? Message { get; init; }
 }
 

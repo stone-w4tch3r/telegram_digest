@@ -96,7 +96,7 @@ internal sealed class AiSummarizer(ISettingsManager settingsManager, ILogger<AiS
 
             return Result.Ok(
                 new PostSummaryModel(
-                    ChannelTgId: post.ChannelTgId,
+                    FeedUrl: post.FeedUrl,
                     Summary: completionResult.Value.Content[0].Text.Trim(),
                     Url: post.Url,
                     PublishedAt: post.PublishedAt,

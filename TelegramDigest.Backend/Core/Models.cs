@@ -2,7 +2,7 @@ using TelegramDigest.Types.Host;
 
 namespace TelegramDigest.Backend.Core;
 
-public sealed record ChannelModel(FeedUrl FeedUrl, string Description, string Title, Uri ImageUrl);
+public sealed record FeedModel(FeedUrl FeedUrl, string Description, string Title, Uri ImageUrl);
 
 public sealed record PostModel(FeedUrl FeedUrl, Html HtmlContent, Uri Url, DateTime PublishedAt);
 

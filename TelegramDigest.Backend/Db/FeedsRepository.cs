@@ -5,49 +5,23 @@ namespace TelegramDigest.Backend.Db;
 
 internal interface IFeedsRepository
 {
-    // Obsolete channel methods
-    Task<Result> SaveChannel(ChannelModel channel, CancellationToken cancellationToken);
-    Task<Result<List<ChannelModel>>> LoadChannels(CancellationToken cancellationToken);
-    Task<Result> DeleteChannel(string channelTgId, CancellationToken cancellationToken);
-
-    // New feed methods
     Task<Result> SaveFeed(FeedModel feed, CancellationToken cancellationToken);
     Task<Result<List<FeedModel>>> LoadFeeds(CancellationToken cancellationToken);
     Task<Result> DeleteFeed(Uri feedUrl, CancellationToken cancellationToken);
 }
-
-// tmp model, refactor and move to Models.cs
-public sealed record FeedModel(Uri RssUrl, string Description, string Title, Uri ImageUrl);
 
 internal sealed class FeedsRepository(
     ApplicationDbContext dbContext,
     ILogger<FeedsRepository> logger
 ) : IFeedsRepository
 {
-    public Task<Result> SaveChannel(ChannelModel channel, CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException("Obsolete, delete this!");
-    }
-
-    // TODO
-    public Task<Result<List<ChannelModel>>> LoadChannels(CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException("Obsolete, delete this!");
-    }
-
-    // TODO
-    public Task<Result> DeleteChannel(string channelTgId, CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException("Obsolete, delete this!");
-    }
-
     public async Task<Result> SaveFeed(FeedModel feed, CancellationToken cancellationToken)
     {
         try
         {
             var entity = new FeedEntity
             {
-                RssUrl = feed.RssUrl.ToString(),
+                RssUrl = feed.FeedUrl.ToString(),
                 Title = feed.Title,
                 Description = feed.Description,
                 ImageUrl = feed.ImageUrl.ToString(),
@@ -69,7 +43,7 @@ internal sealed class FeedsRepository(
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Failed to save feed [{FeedUrl}]", feed.RssUrl);
+            logger.LogError(ex, "Failed to save feed [{FeedUrl}]", feed.FeedUrl);
             return Result.Fail(new Error("Database operation failed").CausedBy(ex));
         }
     }
@@ -84,7 +58,7 @@ internal sealed class FeedsRepository(
 
             var feeds = entities
                 .Select(e => new FeedModel(
-                    RssUrl: new(e.RssUrl),
+                    FeedUrl: new(e.RssUrl),
                     Title: e.Title,
                     Description: e.Description,
                     ImageUrl: new(e.ImageUrl)

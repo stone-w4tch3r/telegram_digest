@@ -6,26 +6,21 @@ using TelegramDigest.Backend.DeploymentOptions;
 
 namespace TelegramDigest.Backend.Core;
 
-internal interface IChannelReader
+internal interface IFeedReader
 {
     Task<Result<List<PostModel>>> FetchPosts(
-        ChannelTgId channelTgId,
+        FeedUrl feedUrl,
         DateOnly from,
         DateOnly to,
         CancellationToken ct
     );
-    Task<Result<ChannelModel>> FetchChannelInfo(ChannelTgId channelTgId, CancellationToken ct);
+    Task<Result<FeedModel>> FetchFeedInfo(FeedUrl feedUrl, CancellationToken ct);
 }
 
-internal sealed class ChannelReader(
-    ILogger<ChannelReader> logger,
-    IOptions<BackendDeploymentOptions> options
-) : IChannelReader
+internal sealed class FeedReader(ILogger<FeedReader> logger) : IFeedReader
 {
-    private readonly Uri _telegramRssBaseUrl = options.Value.TelegramRssBaseUrl;
-
     public Task<Result<List<PostModel>>> FetchPosts(
-        ChannelTgId channelTgId,
+        FeedUrl feedUrl,
         DateOnly from,
         DateOnly to,
         CancellationToken ct
@@ -45,8 +40,7 @@ internal sealed class ChannelReader(
                 try
                 {
                     ct.ThrowIfCancellationRequested();
-                    var feedUrl = $"{_telegramRssBaseUrl}/{channelTgId.ChannelName}";
-                    using var reader = XmlReader.Create(feedUrl);
+                    using var reader = XmlReader.Create(feedUrl.Url.ToString());
                     var feed = SyndicationFeed.Load(reader);
 
                     ct.ThrowIfCancellationRequested();
@@ -56,11 +50,11 @@ internal sealed class ChannelReader(
                             && DateOnly.FromDateTime(x.PublishDate.DateTime) <= to
                         )
                         .Select(x => new PostModel(
-                            ChannelTgId: channelTgId,
+                            FeedUrl: feedUrl,
                             HtmlContent: new(x.Summary.Text),
                             Url: x.Links.SingleOrDefault()?.Uri
                                 ?? throw new FormatException(
-                                    $"Telegram Channel RSS item [{x.Id}] does not have a valid URL [{LinksCollectionToString(x.Links)}]"
+                                    $"Feed item [{x.Id}] does not have a valid URL [{LinksCollectionToString(x.Links)}]"
                                 ),
                             PublishedAt: x.PublishDate.DateTime
                         ))
@@ -74,42 +68,34 @@ internal sealed class ChannelReader(
                 }
                 catch (Exception ex)
                 {
-                    logger.LogError(
-                        ex,
-                        "Error fetching posts for channel {ChannelId}",
-                        channelTgId
-                    );
+                    logger.LogError(ex, "Error fetching posts for feed {FeedUrl}", feedUrl);
                     return Result.Fail(
-                        new Error($"Error fetching posts for channel {channelTgId}").CausedBy(ex)
+                        new Error($"Error fetching posts for feed {feedUrl}").CausedBy(ex)
                     );
                 }
             },
             ct
         );
 
-    public Task<Result<ChannelModel>> FetchChannelInfo(
-        ChannelTgId channelTgId,
-        CancellationToken ct
-    ) =>
+    public Task<Result<FeedModel>> FetchFeedInfo(FeedUrl feedUrl, CancellationToken ct) =>
         Task.Run(
             () =>
             {
                 ct.ThrowIfCancellationRequested();
                 try
                 {
-                    var feedUrl = $"{_telegramRssBaseUrl}/{channelTgId.ChannelName}";
-                    using var reader = XmlReader.Create(feedUrl);
+                    using var reader = XmlReader.Create(feedUrl.Url.ToString());
                     var feed = SyndicationFeed.Load(reader);
 
                     ct.ThrowIfCancellationRequested();
-                    var channelModel = new ChannelModel(
-                        TgId: channelTgId,
+                    var feedModel = new FeedModel(
+                        FeedUrl: feedUrl,
                         Description: feed.Description.Text,
                         Title: feed.Title.Text,
-                        ImageUrl: feed.ImageUrl ?? new Uri(feedUrl)
+                        ImageUrl: feed.ImageUrl ?? new Uri(feedUrl.Url.ToString())
                     );
 
-                    return Result.Ok(channelModel);
+                    return Result.Ok(feedModel);
                 }
                 catch (OperationCanceledException)
                 {
@@ -117,8 +103,8 @@ internal sealed class ChannelReader(
                 }
                 catch (Exception ex)
                 {
-                    logger.LogError(ex, "Error fetching channel info for {ChannelId}", channelTgId);
-                    return Result.Fail(new Error("Failed to fetch channel info").CausedBy(ex));
+                    logger.LogError(ex, "Error fetching feed info for {FeedUrl}", feedUrl);
+                    return Result.Fail(new Error("Failed to fetch feed info").CausedBy(ex));
                 }
             },
             ct

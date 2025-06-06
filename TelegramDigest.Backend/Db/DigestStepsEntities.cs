@@ -44,7 +44,7 @@ internal sealed class AiProcessingStepEntity : DigestStepEntity
 internal sealed class RssReadingStartedStepEntity : DigestStepEntity
 {
     [Required]
-    public required string? ChannelsJson { get; init; }
+    public required string? FeedsJson { get; init; }
 }
 
 internal sealed class RssReadingFinishedStepEntity : DigestStepEntity

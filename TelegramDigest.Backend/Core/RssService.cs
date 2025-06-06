@@ -34,7 +34,7 @@ internal sealed class RssService(
             var feed = new SyndicationFeed
             {
                 Title = new("Telegram Digest Feed"),
-                Description = new("Daily summaries of your followed Telegram channels"),
+                Description = new("Daily summaries of your followed feeds"),
                 Language = "en-us",
                 BaseUri = new(FEED_BASE_URL),
                 Generator = "Telegram Digest RSS Generator",

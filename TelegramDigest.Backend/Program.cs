@@ -20,7 +20,7 @@ public static class ServiceCollectionExtensions
         builder.Services.AddHostedService<DigestStepsProcessor>();
 
         // Scoped
-        builder.Services.AddScoped<IChannelReader, ChannelReader>();
+        builder.Services.AddScoped<IFeedReader, FeedReader>();
         builder.Services.AddScoped<IFeedsService, FeedsService>();
         builder.Services.AddScoped<IFeedsRepository, FeedsRepository>();
         builder.Services.AddScoped<IDigestService, DigestService>();

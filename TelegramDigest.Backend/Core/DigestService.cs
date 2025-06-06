@@ -37,7 +37,7 @@ internal interface IDigestService
 
 internal sealed class DigestService(
     IDigestRepository digestRepository,
-    IChannelReader channelReader,
+    IFeedReader feedReader,
     IFeedsRepository feedsRepository,
     IAiSummarizer aiSummarizer,
     IDigestStepsService digestStepsService,
@@ -54,31 +54,31 @@ internal sealed class DigestService(
         CancellationToken ct
     )
     {
-        var channelsResult = await feedsRepository.LoadChannels(ct);
-        if (channelsResult.IsFailed)
+        var feedsResult = await feedsRepository.LoadFeeds(ct);
+        if (feedsResult.IsFailed)
         {
             digestStepsService.AddStep(
-                new ErrorStepModel { DigestId = digestId, Errors = channelsResult.Errors }
+                new ErrorStepModel { DigestId = digestId, Message = "Failed to load feeds" }
             );
-            return Result.Fail(channelsResult.Errors);
+            return Result.Fail(feedsResult.Errors);
         }
 
-        var channels =
-            filter.SelectedChannels != null
-                ? [.. channelsResult.Value.Where(c => filter.SelectedChannels.Contains(c.TgId))]
-                : channelsResult.Value;
+        var feeds =
+            filter.SelectedFeeds != null
+                ? [.. feedsResult.Value.Where(f => filter.SelectedFeeds.Contains(f.FeedUrl))]
+                : feedsResult.Value;
 
         digestStepsService.AddStep(
             new RssReadingStartedStepModel
             {
                 DigestId = digestId,
-                Channels = channels.Select(x => x.TgId).ToArray(),
+                Feeds = feeds.Select(x => x.FeedUrl).ToArray(),
             }
         );
 
-        if (channels.Count == 0)
+        if (!feeds.Any())
         {
-            const string Message = "No channels selected";
+            const string Message = "No feeds selected";
             logger.LogError(Message);
             digestStepsService.AddStep(
                 new ErrorStepModel
@@ -92,13 +92,13 @@ internal sealed class DigestService(
         }
 
         var posts = new List<PostModel>();
-        var errorsByChannel = new Dictionary<ChannelTgId, List<IError>>();
+        var errorsByFeed = new Dictionary<FeedUrl, List<IError>>();
 
-        foreach (var channel in channels)
+        foreach (var feed in feeds)
         {
             ct.ThrowIfCancellationRequested();
-            var postsResult = await channelReader.FetchPosts(
-                channel.TgId,
+            var postsResult = await feedReader.FetchPosts(
+                feed.FeedUrl,
                 filter.DateFrom,
                 filter.DateTo,
                 ct
@@ -109,15 +109,15 @@ internal sealed class DigestService(
             }
             else
             {
-                errorsByChannel[channel.TgId] = postsResult.Errors;
+                errorsByFeed[feed.FeedUrl] = postsResult.Errors;
             }
         }
 
-        if (errorsByChannel.Count == channels.Count)
+        if (errorsByFeed.Count == feeds.Count())
         {
-            const string Message = "Failed to read all channels";
+            const string Message = "Failed to read all feeds";
             var errors =
-                (List<IError>)[new Error(Message), .. errorsByChannel.Values.SelectMany(x => x)];
+                (List<IError>)[new Error(Message), .. errorsByFeed.Values.SelectMany(x => x)];
             logger.LogError(Message);
             digestStepsService.AddStep(
                 new ErrorStepModel
@@ -133,7 +133,7 @@ internal sealed class DigestService(
         if (posts.Count == 0)
         {
             logger.LogWarning(
-                "No posts found from [{from}] to [{to}] in any channel",
+                "No posts found from [{from}] to [{to}] in any feed",
                 filter.DateFrom,
                 filter.DateTo
             );

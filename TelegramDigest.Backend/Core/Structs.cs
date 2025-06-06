@@ -45,20 +45,20 @@ public readonly record struct FeedUrl
 {
     [Obsolete("Do not use parameterless constructor", true)]
     public FeedUrl()
-        : this(new("")) { }
+        : this("") { }
 
     [JsonConstructor]
-    public FeedUrl(Uri url)
+    public FeedUrl(string url)
     {
         if (
-            !Uri.TryCreate(url.ToString(), UriKind.Absolute, out var uri)
+            !Uri.TryCreate(url, UriKind.Absolute, out var uri)
             || (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps)
         )
         {
             throw new ArgumentException($"Invalid feed URL: {url}", nameof(url));
         }
 
-        Url = url;
+        Url = uri;
     }
 
     public Uri Url { get; }

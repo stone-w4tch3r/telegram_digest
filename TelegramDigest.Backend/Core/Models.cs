@@ -2,17 +2,12 @@ using TelegramDigest.Types.Host;
 
 namespace TelegramDigest.Backend.Core;
 
-public sealed record ChannelModel(ChannelTgId TgId, string Description, string Title, Uri ImageUrl);
+public sealed record ChannelModel(FeedUrl FeedUrl, string Description, string Title, Uri ImageUrl);
 
-public sealed record PostModel(
-    ChannelTgId ChannelTgId, // TODO delete ChannelTgId model and create FeedUrl model
-    Html HtmlContent,
-    Uri Url,
-    DateTime PublishedAt
-);
+public sealed record PostModel(FeedUrl FeedUrl, Html HtmlContent, Uri Url, DateTime PublishedAt);
 
 public sealed record PostSummaryModel(
-    ChannelTgId ChannelTgId, // TODO delete ChannelTgId model and create FeedUrl model
+    FeedUrl FeedUrl,
     string Summary,
     Uri Url,
     DateTime PublishedAt,
@@ -39,7 +34,7 @@ public sealed record DigestSummaryModel(
 public record DigestFilterModel(
     DateOnly DateFrom,
     DateOnly DateTo,
-    IReadOnlySet<ChannelTgId>? SelectedChannels = null
+    IReadOnlySet<FeedUrl>? SelectedFeeds = null
 );
 
 public enum DigestGenerationResultModelEnum

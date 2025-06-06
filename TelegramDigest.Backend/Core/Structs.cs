@@ -39,43 +39,33 @@ public readonly record struct Html(string HtmlString)
 }
 
 /// <summary>
-/// Telegram channel name, e.g. https://t.me/this_is_channel_name
+/// Represents a generic RSS/Atom feed URL.
 /// </summary>
-public readonly partial record struct ChannelTgId
+public readonly record struct FeedUrl
 {
     [Obsolete("Do not use parameterless constructor", true)]
-    public ChannelTgId()
-        : this(string.Empty) { }
-
-    [GeneratedRegex("^[a-zA-Z][a-zA-Z0-9_]{4,31}$")]
-    private static partial Regex ChannelNamePattern();
+    public FeedUrl()
+        : this(new("")) { }
 
     [JsonConstructor]
-    public ChannelTgId(string ChannelName)
+    public FeedUrl(Uri url)
     {
-        if (string.IsNullOrWhiteSpace(ChannelName))
+        if (
+            !Uri.TryCreate(url.ToString(), UriKind.Absolute, out var uri)
+            || (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps)
+        )
         {
-            throw new ArgumentException(
-                "ChannelName cannot be null or whitespace.",
-                nameof(ChannelName)
-            );
+            throw new ArgumentException($"Invalid feed URL: {url}", nameof(url));
         }
 
-        this.ChannelName = ChannelNamePattern().IsMatch(ChannelName)
-            ? ChannelName
-            : throw new ArgumentException(
-                $"Channel name must be 5-32 characters, only letters, numbers, and underscores, starting with a letter, got {ChannelName}"
-            );
+        Url = url;
     }
 
-    public static Result<ChannelTgId> TryFromString(string channelName) =>
-        Result.Try(() => new ChannelTgId(channelName));
+    public Uri Url { get; }
 
-    public override string ToString() => ChannelName;
+    public override string ToString() => Url.ToString();
 
-    public string ChannelName { get; }
-
-    public static implicit operator string(ChannelTgId id) => id.ToString();
+    public static implicit operator string(FeedUrl feedUrl) => feedUrl.ToString();
 }
 
 /// <summary>
@@ -124,10 +114,12 @@ internal readonly partial record struct Template
         {
             throw new ArgumentException($"Placeholder must be in the format {TemplateRegex()}");
         }
+
         if (string.IsNullOrWhiteSpace(text))
         {
             throw new ArgumentException("Text cannot be empty", nameof(text));
         }
+
         if (!text.Contains(placeholder, StringComparison.OrdinalIgnoreCase))
         {
             throw new ArgumentException(
@@ -135,6 +127,7 @@ internal readonly partial record struct Template
                 nameof(text)
             );
         }
+
         if (text.ToLower().Split([placeholder.ToLower()], StringSplitOptions.None).Length != 2)
         {
             throw new ArgumentException(

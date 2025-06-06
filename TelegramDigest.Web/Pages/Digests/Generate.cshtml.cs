@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using TelegramDigest.Backend.Core;
 using TelegramDigest.Web.Models.ViewModels;
 using TelegramDigest.Web.Pages.Shared;
 using TelegramDigest.Web.Services;
@@ -10,7 +11,7 @@ public sealed class GenerateModel(BackendClient backend) : BasePageModel
     [BindProperty]
     public DigestGenerationViewModel? Form { get; set; }
 
-    public List<ChannelViewModel> Channels { get; private set; } = [];
+    public List<FeedViewModel> Feeds { get; private set; } = [];
 
     public async Task OnGetAsync()
     {
@@ -18,7 +19,7 @@ public sealed class GenerateModel(BackendClient backend) : BasePageModel
         var currentUtc = DateTime.UtcNow;
         var digestTimeToday = currentUtc.Date.Add(settings.DigestTimeUtc.ToTimeSpan());
 
-        Channels = await backend.GetChannels();
+        Feeds = await backend.GetFeeds();
 
         // If digest time hasn't passed today, set range to previous day
         // Otherwise set range to today
@@ -27,7 +28,7 @@ public sealed class GenerateModel(BackendClient backend) : BasePageModel
             DateTo = currentUtc >= digestTimeToday ? currentUtc.Date.AddDays(1) : currentUtc.Date,
             DateFrom =
                 currentUtc >= digestTimeToday ? currentUtc.Date : currentUtc.Date.AddDays(-1),
-            SelectedChannels = [.. Channels.Select(c => c.TgId.ToString())],
+            SelectedFeeds = Feeds.Select(f => new FeedUrl(f.Url)).ToArray(),
         };
     }
 
@@ -35,14 +36,14 @@ public sealed class GenerateModel(BackendClient backend) : BasePageModel
     {
         if (!ModelState.IsValid)
         {
-            Channels = await backend.GetChannels();
+            Feeds = await backend.GetFeeds();
             return Page();
         }
 
         if (Form == null)
         {
             ErrorMessage = "Form is null. Error in frontend!";
-            Channels = await backend.GetChannels();
+            Feeds = await backend.GetFeeds();
             return Page();
         }
 
@@ -55,7 +56,7 @@ public sealed class GenerateModel(BackendClient backend) : BasePageModel
         catch (Exception ex)
         {
             ErrorMessage = $"Failed to queue digest: {ex.Message}";
-            Channels = await backend.GetChannels();
+            Feeds = await backend.GetFeeds();
             return Page();
         }
     }

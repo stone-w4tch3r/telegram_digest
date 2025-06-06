@@ -36,6 +36,7 @@
 | [x]  | Digest generation: fix progress                                             | 1h    |
 | [x]  | Clean logs                                                                  | 30min |
 | [x]  | Digest generation: Parametrized                                             | 3h    |
+| [x]  | Any RSS: Handle any rss feed in SummaryGenerator                            | 1h    |
 
 ### High priority
 
@@ -54,7 +55,6 @@
 | Done | Task                                              | Time  |
 |------|---------------------------------------------------|-------|
 | [ ]  | Any RSS: Add any RSS feed in UI                   | 1h    |
-| [ ]  | Any RSS: Handle any rss feed in SummaryGenerator  | 1h    |
 | [ ]  | Any RSS: rename digest UI items                   | 1h    |
 | [ ]  | Add more parameters and jinja template to prompts | 1h    |
 | [ ]  | Add XML docs in existing code                     | 1h    |
@@ -85,4 +85,3 @@
 - auto apply runtime argument null checks via code generation on compilation
 - use attributes for entity declaration
 - use separate library for env vars handling
-- move API controller into the Web project

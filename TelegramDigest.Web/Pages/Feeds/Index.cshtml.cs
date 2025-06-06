@@ -3,7 +3,7 @@ using TelegramDigest.Web.Models.ViewModels;
 using TelegramDigest.Web.Pages.Shared;
 using TelegramDigest.Web.Services;
 
-namespace TelegramDigest.Web.Pages.Channels;
+namespace TelegramDigest.Web.Pages.Feeds;
 
 public sealed record FeedWithMetadata(FeedViewModel Feed, bool IsTelegramFeed)
 {

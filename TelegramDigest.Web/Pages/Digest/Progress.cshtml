@@ -108,14 +108,14 @@
                                 <p class="mb-1">@step.Message</p>
                             }
 
-                            @if (step is { Type: DigestStepViewModelEnum.RssReadingStarted, Channels.Length: > 0 })
+                            @if (step is { Type: DigestStepViewModelEnum.RssReadingStarted, Feeds.Length: > 0 })
                             {
                                 <div class="mt-2">
-                                    <small>Channels:</small>
+                                    <small>Feeds:</small>
                                     <ul class="list-unstyled ms-3">
-                                        @foreach (var channel in step.Channels)
+                                        @foreach (var feed in step.Feeds)
                                         {
-                                            <li><small>• @channel</small></li>
+                                            <li><small>• @feed</small></li>
                                         }
                                     </ul>
                                 </div>

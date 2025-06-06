@@ -7,7 +7,7 @@
 @if (Model.Form == null)
 {
     <div class="alert alert-warning">
-        Failed to load Channel. Error in frontend.
+        Failed to load Feed. Error in frontend.
     </div>
     return;
 }
@@ -64,32 +64,32 @@
                             </div>
                         </div>
 
-                        <!-- Channel Selection -->
+                        <!-- Feed Selection -->
                         <div class="card mb-4">
                             <div class="card-body">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <h6 class="card-subtitle text-muted mb-0">
-                                        <i class="bi bi-broadcast me-2"></i>Select Channels
+                                        <i class="bi bi-broadcast me-2"></i>Select Feedss
                                     </h6>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="selectAllChannels">
-                                        <label class="form-check-label" for="selectAllChannels">
+                                        <input class="form-check-input" type="checkbox" id="selectAllFeeds">
+                                        <label class="form-check-label" for="selectAllFeeds">
                                             Select All
                                         </label>
                                     </div>
                                 </div>
                                 <div class="row row-cols-1 g-2">
-                                    @foreach (var channel in Model.Channels)
+                                    @foreach (var feed in Model.Feeds)
                                     {
-                                        <div class="col card channel-card">
+                                        <div class="col card feed-card">
                                             <div class="card-body p-2">
                                                 <div class="form-check mb-0">
-                                                    <input class="form-check-input channel-checkbox" type="checkbox"
-                                                           name="Form.SelectedChannels" value="@channel.TgId"
-                                                           id="channel_@channel.TgId"
-                                                           checked="@Model.Form.SelectedChannels.Contains(channel.TgId)" />
-                                                    <label class="form-check-label" for="channel_@channel.TgId">
-                                                        <i class="bi bi-telegram text-primary me-2"></i>@channel.Title
+                                                    <input class="form-check-input feed-checkbox" type="checkbox"
+                                                           name="Form.SelectedFeeds" value="@feed.Url"
+                                                           id="feed_@feed.Url"
+                                                           checked="@Model.Form.SelectedFeeds.Any(f => f.ToString() == feed.Url)" />
+                                                    <label class="form-check-label" for="feed_@feed.Url">
+                                                        <i class="bi bi-telegram text-primary me-2"></i>@feed.Title
                                                     </label>
                                                 </div>
                                             </div>
@@ -112,12 +112,12 @@
 </div>
 
 <style>
-    .channel-card {
+    .feed-card {
         transition: all 0.2s ease-in-out;
         border: 1px solid rgba(0, 0, 0, .125);
     }
 
-    .channel-card:hover {
+    .feed-card:hover {
         transform: translateY(-2px);
         box-shadow: 0 .125rem .25rem rgba(0, 0, 0, .075);
     }
@@ -125,23 +125,20 @@
 
 @section Scripts {
     <script>
-        const $selectAllCheckbox = $('#selectAllChannels');
-        const $channelCheckboxes = $('.channel-checkbox');
+        const $selectAllCheckbox = $('#selectAllFeeds');
+        const $feedCheckboxes = $('.feed-checkbox');
 
         $selectAllCheckbox.on('change', function () {
-            $channelCheckboxes.prop('checked', this.checked);
+            $feedCheckboxes.prop('checked', this.checked);
         });
 
-        $channelCheckboxes.on('change', function () {
-            const allChecked = $channelCheckboxes.length === $channelCheckboxes.filter(':checked').length;
+        $feedCheckboxes.on('change', function () {
+            const allChecked = $feedCheckboxes.length === $feedCheckboxes.filter(':checked').length;
             $selectAllCheckbox.prop('checked', allChecked);
         });
 
         // Set initial state
-        const allChecked = $channelCheckboxes.length === $channelCheckboxes.filter(':checked').length;
+        const allChecked = $feedCheckboxes.length === $feedCheckboxes.filter(':checked').length;
         $selectAllCheckbox.prop('checked', allChecked);
     </script>
 }
-
-              
-   

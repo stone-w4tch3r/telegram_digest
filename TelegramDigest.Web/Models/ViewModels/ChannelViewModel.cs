@@ -32,27 +32,3 @@ public sealed record AddFeedViewModel
     public required string FeedUrl { get; init; }
 }
 
-public sealed record ChannelViewModel
-{
-    [Required]
-    [Display(Name = "Channel Id")]
-    [ModelBinder(typeof(ChannelTgIdModelBinder))]
-    public required ChannelTgId TgId { get; init; }
-
-    [Required]
-    [Display(Name = "Channel Name")]
-    public required string Title { get; init; }
-
-    [Required]
-    [Display(Name = "Channel URL")]
-    [Url]
-    public string Url => $"https://t.me/{TgId}";
-}
-
-public sealed record AddChannelViewModel
-{
-    [Required]
-    [Display(Name = "Channel Id")]
-    [ModelBinder(typeof(ChannelTgIdModelBinder))]
-    public required ChannelTgId TgId { get; init; }
-}

@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using TelegramDigest.Backend.Core;
 
 namespace TelegramDigest.Web.Models.ViewModels;
 
@@ -15,7 +16,7 @@ public enum DigestStepViewModelEnum
     NoPostsFound,
 }
 
-public sealed record class DigestProgressViewModel
+public sealed record DigestProgressViewModel
 {
     public required Guid Id { get; init; }
 
@@ -38,9 +39,9 @@ public sealed record DigestStepViewModel
 {
     public DigestStepViewModel()
     {
-        if (Type != DigestStepViewModelEnum.RssReadingStarted && Channels != null)
+        if (Type != DigestStepViewModelEnum.RssReadingStarted && Feeds != null)
         {
-            throw new ArgumentException("Channels should be null if Type is not RssReadingStarted");
+            throw new ArgumentException("Feeds should be null if Type is not RssReadingStarted");
         }
         if (Type != DigestStepViewModelEnum.RssReadingFinished && PostsCount != null)
         {
@@ -62,7 +63,7 @@ public sealed record DigestStepViewModel
 
     public required string? Message { get; init; }
 
-    public required string[]? Channels { get; init; }
+    public required string[]? Feeds { get; init; }
 
     public required int? PercentComplete { get; init; }
 

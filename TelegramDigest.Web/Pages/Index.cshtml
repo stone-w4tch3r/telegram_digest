@@ -22,10 +22,10 @@
         <div class="col-md-4">
             <div class="card bg-primary text-white h-100">
                 <div class="card-body">
-                    <h5 class="card-title">Channels</h5>
-                    <p class="display-4">@Model.TotalChannels</p>
-                    <a asp-page="/Channels/Index" class="text-white text-decoration-none">
-                        Manage Channels <i class="bi bi-arrow-right"></i>
+                    <h5 class="card-title">Feeds</h5>
+                    <p class="display-4">@Model.TotalFeeds</p>
+                    <a asp-page="/Feeds/Index" class="text-white text-decoration-none">
+                        Manage Feeds <i class="bi bi-arrow-right"></i>
                     </a>
                 </div>
             </div>
@@ -98,36 +98,37 @@
             }
         </div>
 
-        <!-- Recent Channels -->
+        <!-- Recent Feeds -->
         <div class="col-md-5 mb-4">
             <div class="card h-100">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Recent Channels</h5>
-                    <a asp-page="/Channels/Index" class="btn btn-sm btn-outline-primary">
+                    <h5 class="mb-0">Recent Feeds</h5>
+                    <a asp-page="/Feeds/Index" class="btn btn-sm btn-outline-primary">
                         View All
                     </a>
                 </div>
                 <div class="card-body">
-                    @if (!Model.RandomChannels.Any())
+                    @if (!Model.RandomFeeds.Any())
                     {
                         <div class="text-center text-muted">
-                            <p class="mb-3">No channels added yet</p>
-                            <a asp-page="/Channels/Index" class="btn btn-outline-primary">
-                                <i class="bi bi-plus-circle"></i> Add Channel
+                            <p class="mb-3">No feeds added yet</p>
+                            <a asp-page="/Feeds/Index" class="btn btn-outline-primary">
+                                <i class="bi bi-plus-circle"></i> Add Feed
                             </a>
                         </div>
                     }
                     else
                     {
                         <div class="list-group list-group-flush">
-                            @foreach (var channel in Model.RandomChannels)
+                            @foreach (var feed in Model.RandomFeeds)
                             {
                                 <div class="list-group-item">
                                     <div class="d-flex justify-content-between align-items-center">
                                         <div>
-                                            <h6 class="mb-0">@channel.Title</h6>
+                                            <h6 class="mb-0">@feed.Title</h6>
                                             <small class="text-muted">
-                                                Url: @channel.Url
+                                                Url: @feed.Url
+                                                Url: @feed.Url
                                             </small>
                                         </div>
                                     </div>

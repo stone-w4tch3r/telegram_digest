@@ -12,4 +12,8 @@
       <_ContentIncludedByDefault Remove="wwwroot\lib\autosize\src\autosize.js" />
     </ItemGroup>
 
+    <ItemGroup>
+      <AdditionalFiles Include="Pages\Feeds\Index.cshtml" />
+    </ItemGroup>
+
 </Project>

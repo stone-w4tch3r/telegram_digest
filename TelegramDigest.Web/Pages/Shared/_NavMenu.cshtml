@@ -5,8 +5,8 @@
            asp-page="/Digests/Index">Digests</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link @(ViewContext.RouteData.Values["Page"]?.ToString() == "/Channels/Index" ? "active" : "")"
-           asp-page="/Channels/Index">Channels</a>
+        <a class="nav-link @(ViewContext.RouteData.Values["Page"]?.ToString() == "/Feeds/Index" ? "active" : "")"
+           asp-page="/Feeds/Index">Feeds</a>
     </li>
     <li class="nav-item">
         <a class="nav-link @(ViewContext.RouteData.Values["Page"]?.ToString() == "/Digests/Queue" ? "active" : "")"

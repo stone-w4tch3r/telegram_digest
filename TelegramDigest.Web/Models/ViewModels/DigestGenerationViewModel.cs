@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using TelegramDigest.Backend.Core;
 
 namespace TelegramDigest.Web.Models.ViewModels;
 
@@ -12,14 +13,14 @@ public sealed class DigestGenerationViewModel : IValidatableObject
     [Display(Name = "To Date")]
     public required DateTime DateTo { get; init; }
 
-    [Display(Name = "Selected Channels")]
-    public required string[] SelectedChannels { get; init; } = [];
+    [Display(Name = "Selected Feeds")]
+    public required FeedUrl[] SelectedFeeds { get; init; } = Array.Empty<FeedUrl>();
 
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
         if (DateTo <= DateFrom)
         {
-            yield return new ValidationResult(
+            yield return new(
                 "End date must be after start date",
                 [nameof(DateTo), nameof(DateFrom)]
             );
@@ -30,7 +31,7 @@ public sealed class DigestGenerationViewModel : IValidatableObject
             || DateTo.ToUniversalTime() > DateTime.UtcNow
         )
         {
-            yield return new ValidationResult(
+            yield return new(
                 "Cannot generate digest for future dates",
                 [nameof(DateTo), nameof(DateFrom)]
             );

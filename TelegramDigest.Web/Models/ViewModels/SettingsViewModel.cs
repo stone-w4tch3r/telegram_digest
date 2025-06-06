@@ -5,7 +5,7 @@ using Host = TelegramDigest.Types.Host.Host;
 
 namespace TelegramDigest.Web.Models.ViewModels;
 
-public sealed record class SettingsViewModel
+public sealed record SettingsViewModel
 {
     [Required]
     [EmailAddress]

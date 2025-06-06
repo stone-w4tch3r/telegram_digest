@@ -62,7 +62,7 @@ public sealed class BackendClient(IMainService mainService, ILogger<BackendClien
             result
                 .Value.PostsSummaries.Select(p => new PostSummaryViewModel
                 {
-                    ChannelName = p.ChannelTgId.ChannelName,
+                    FeedUrl = p.FeedUrl.ToString(),
                     Summary = p.Summary,
                     Url = p.Url.ToString(),
                     PostedAt = p.PublishedAt,
@@ -88,7 +88,7 @@ public sealed class BackendClient(IMainService mainService, ILogger<BackendClien
         var filter = new DigestFilterModel(
             DateFrom: DateOnly.FromDateTime(model.DateFrom),
             DateTo: DateOnly.FromDateTime(model.DateTo),
-            SelectedChannels: model.SelectedChannels.Select(c => new ChannelTgId(c)).ToHashSet()
+            SelectedFeeds: model.SelectedFeeds.Select(f => new FeedUrl(f)).ToHashSet()
         );
 
         var digestResult = await mainService.QueueDigest(
@@ -106,40 +106,37 @@ public sealed class BackendClient(IMainService mainService, ILogger<BackendClien
         return digestId;
     }
 
-    public async Task<List<ChannelViewModel>> GetChannels()
+    public async Task<List<FeedViewModel>> GetFeeds()
     {
-        var result = await mainService.GetChannels(CancellationToken.None);
+        var result = await mainService.GetFeeds(CancellationToken.None);
         if (result.IsFailed)
         {
-            logger.LogError("Failed to get channels: {Errors}", result.Errors);
-            throw new("Failed to get channels");
+            logger.LogError("Failed to get feeds: {Errors}", result.Errors);
+            throw new("Failed to get feeds");
         }
 
         return result
-            .Value.Select(c => new ChannelViewModel { TgId = c.TgId, Title = c.Title })
+            .Value.Select(f => new FeedViewModel { Title = f.Title, Url = f.FeedUrl.ToString() })
             .ToList();
     }
 
-    public async Task AddOrUpdateChannel(AddChannelViewModel channel)
+    public async Task AddOrUpdateFeed(AddFeedViewModel feed)
     {
-        var result = await mainService.AddOrUpdateChannel(
-            new(channel.TgId),
-            CancellationToken.None
-        );
+        var result = await mainService.AddOrUpdateFeed(new(feed.FeedUrl), CancellationToken.None);
         if (result.IsFailed)
         {
-            logger.LogError("Failed to add channel: {Errors}", result.Errors);
-            throw new("Failed to add channel");
+            logger.LogError("Failed to add feed: {Errors}", result.Errors);
+            throw new("Failed to add feed");
         }
     }
 
-    public async Task DeleteChannelAsync(string tgId)
+    public async Task DeleteFeedAsync(string feedUrl)
     {
-        var result = await mainService.RemoveChannel(new(tgId), CancellationToken.None);
+        var result = await mainService.RemoveFeed(new(feedUrl), CancellationToken.None);
         if (result.IsFailed)
         {
-            logger.LogError("Failed to delete channel {ChannelId}: {Errors}", tgId, result.Errors);
-            throw new($"Failed to delete channel {tgId}");
+            logger.LogError("Failed to delete feed {FeedUrl}: {Errors}", feedUrl, result.Errors);
+            throw new($"Failed to delete feed {feedUrl}");
         }
     }
 
@@ -259,8 +256,8 @@ public sealed class BackendClient(IMainService mainService, ILogger<BackendClien
                         Type = x.Type.MapToVm(),
                         Message = x.Message,
                         Timestamp = x.Timestamp,
-                        Channels = x is RssReadingStartedStepModel readingStartedStep
-                            ? readingStartedStep.Channels.Select(c => c.ChannelName).ToArray()
+                        Feeds = x is RssReadingStartedStepModel readingStartedStep
+                            ? readingStartedStep.Feeds.Select(f => f.ToString()).ToArray()
                             : null,
                         PostsCount = x is RssReadingFinishedStepModel readingFinishedStep
                             ? readingFinishedStep.PostsCount
@@ -307,50 +304,6 @@ public sealed class BackendClient(IMainService mainService, ILogger<BackendClien
             logger.LogError("Failed to remove waiting digest: {Errors}", result.Errors);
             throw new("Failed to remove waiting digest");
         }
-    }
-
-    public async Task<List<FeedViewModel>> GetFeeds()
-    {
-        // var result = await mainService.GetChannels(CancellationToken.None);
-        // if (result.IsFailed)
-        // {
-        //     logger.LogError("Failed to get feeds: {Errors}", result.Errors);
-        //     throw new("Failed to get feeds");
-        // }
-        //
-        // return result
-        //     .Value.Select(c => new FeedViewModel { Title = c.Title, FeedUrl = c.RssFeedUrl })
-        //     .ToList();
-        // Mock implementation - in real app this would come from backend configuration
-        return
-        [
-            new() { Title = "Telegram Digest", Url = "https://t.me/TelegramDigestBot" },
-            new() { Title = "Telegram Digest (test)", Url = "https://t.me/TelegramDigestBotTest" },
-        ];
-    }
-
-    public async Task AddOrUpdateFeed(AddFeedViewModel feed)
-    {
-        // var result = await mainService.AddOrUpdateFeed(
-        //     feed.Title,
-        //     feed.FeedUrl,
-        //     CancellationToken.None
-        // );
-        // if (result.IsFailed)
-        // {
-        //     logger.LogError("Failed to add feed: {Errors}", result.Errors);
-        //     throw new("Failed to add feed");
-        // }
-    }
-
-    public async Task DeleteFeedAsync(string feedUrl)
-    {
-        // var result = await mainService.RemoveFeed(feedUrl, CancellationToken.None);
-        // if (result.IsFailed)
-        // {
-        //     logger.LogError("Failed to delete feed {FeedUrl}: {Errors}", feedUrl, result.Errors);
-        //     throw new($"Failed to delete feed {feedUrl}");
-        // }
     }
 
     public Task<List<RssProvider>> GetRssProviders()

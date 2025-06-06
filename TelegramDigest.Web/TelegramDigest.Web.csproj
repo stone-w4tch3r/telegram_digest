@@ -3,6 +3,11 @@
     <PropertyGroup>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     </PropertyGroup>
+    
+    <ItemGroup>
+        <PackageReference Include="Fody" PrivateAssets="all" />
+        <PackageReference Include="RuntimeNullables.Fody" />
+    </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\TelegramDigest.Backend\TelegramDigest.Backend.csproj" />

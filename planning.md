@@ -37,6 +37,9 @@
 | [x]  | Clean logs                                                                  | 30min |
 | [x]  | Digest generation: Parametrized                                             | 3h    |
 | [x]  | Any RSS: Handle any rss feed in SummaryGenerator                            | 1h    |
+| [x]  | Any RSS: Add any RSS feed in UI                                             | 1h    |
+| [x]  | Any RSS: rename digest UI items                                             | 1h    |
+| [x]  | auto apply runtime argument null checks via code generation on compilation  | 1h    |
 
 ### High priority
 
@@ -54,8 +57,6 @@
 
 | Done | Task                                              | Time  |
 |------|---------------------------------------------------|-------|
-| [ ]  | Any RSS: Add any RSS feed in UI                   | 1h    |
-| [ ]  | Any RSS: rename digest UI items                   | 1h    |
 | [ ]  | Add more parameters and jinja template to prompts | 1h    |
 | [ ]  | Add XML docs in existing code                     | 1h    |
 | [ ]  | Obtain API key and pay                            | 30min |
@@ -82,6 +83,5 @@
 - improve error handling by adding error "location" to UI
 - settings migration support
 - simplify db schema (remove digests table)
-- auto apply runtime argument null checks via code generation on compilation
 - use attributes for entity declaration
 - use separate library for env vars handling

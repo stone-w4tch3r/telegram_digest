@@ -38,7 +38,7 @@ internal interface IDigestService
 internal sealed class DigestService(
     IDigestRepository digestRepository,
     IChannelReader channelReader,
-    IChannelsRepository channelsRepository,
+    IFeedsRepository feedsRepository,
     IAiSummarizer aiSummarizer,
     IDigestStepsService digestStepsService,
     ILogger<DigestService> logger
@@ -54,7 +54,7 @@ internal sealed class DigestService(
         CancellationToken ct
     )
     {
-        var channelsResult = await channelsRepository.LoadChannels(ct);
+        var channelsResult = await feedsRepository.LoadChannels(ct);
         if (channelsResult.IsFailed)
         {
             digestStepsService.AddStep(
@@ -75,7 +75,7 @@ internal sealed class DigestService(
                 Channels = channels.Select(x => x.TgId).ToArray(),
             }
         );
-        
+
         if (channels.Count == 0)
         {
             const string Message = "No channels selected";

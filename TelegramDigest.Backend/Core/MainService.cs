@@ -107,7 +107,7 @@ public interface IMainService
 /// </summary>
 internal sealed class MainService(
     IDigestService digestService,
-    IChannelsService channelsService,
+    IFeedsService feedsService,
     IEmailSender emailSender,
     IDigestProcessingOrchestrator digestProcessingOrchestrator,
     ISettingsManager settingsManager,
@@ -163,17 +163,17 @@ internal sealed class MainService(
 
     public async Task<Result<List<ChannelModel>>> GetChannels(CancellationToken ct)
     {
-        return await channelsService.GetChannels(ct);
+        return await feedsService.GetChannels(ct);
     }
 
     public async Task<Result> AddOrUpdateChannel(ChannelTgId channelTgId, CancellationToken ct)
     {
-        return await channelsService.AddOrUpdateChannel(channelTgId, ct);
+        return await feedsService.AddOrUpdateChannel(channelTgId, ct);
     }
 
     public async Task<Result> RemoveChannel(ChannelTgId channelTgId, CancellationToken ct)
     {
-        return await channelsService.RemoveChannel(channelTgId, ct);
+        return await feedsService.RemoveChannel(channelTgId, ct);
     }
 
     public async Task<Result<DigestSummaryModel[]>> GetDigestSummaries(CancellationToken ct)

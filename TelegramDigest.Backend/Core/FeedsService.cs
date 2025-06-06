@@ -3,7 +3,7 @@ using TelegramDigest.Backend.Db;
 
 namespace TelegramDigest.Backend.Core;
 
-internal interface IChannelsService
+internal interface IFeedsService
 {
     /// <summary>
     /// Adds or updates a channel
@@ -21,13 +21,13 @@ internal interface IChannelsService
     public Task<Result> RemoveChannel(ChannelTgId channelTgId, CancellationToken ct);
 }
 
-internal sealed class ChannelsService(
-    IChannelsRepository channelsRepository,
+internal sealed class FeedsService(
+    IFeedsRepository feedsRepository,
     IChannelReader channelReader,
-    ILogger<ChannelsService> logger
-) : IChannelsService
+    ILogger<FeedsService> logger
+) : IFeedsService
 {
-    private readonly ILogger<ChannelsService> _logger = logger;
+    private readonly ILogger<FeedsService> _logger = logger;
 
     public async Task<Result> AddOrUpdateChannel(ChannelTgId channelTgId, CancellationToken ct)
     {
@@ -37,16 +37,16 @@ internal sealed class ChannelsService(
             return Result.Fail(channelResult.Errors);
         }
 
-        return await channelsRepository.SaveChannel(channelResult.Value, ct);
+        return await feedsRepository.SaveChannel(channelResult.Value, ct);
     }
 
     public async Task<Result<List<ChannelModel>>> GetChannels(CancellationToken ct)
     {
-        return await channelsRepository.LoadChannels(ct);
+        return await feedsRepository.LoadChannels(ct);
     }
 
     public async Task<Result> RemoveChannel(ChannelTgId channelTgId, CancellationToken ct)
     {
-        return await channelsRepository.DeleteChannel(channelTgId, ct);
+        return await feedsRepository.DeleteChannel(channelTgId, ct);
     }
 }

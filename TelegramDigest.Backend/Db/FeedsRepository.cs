@@ -3,7 +3,7 @@ using TelegramDigest.Backend.Core;
 
 namespace TelegramDigest.Backend.Db;
 
-internal interface IChannelsRepository
+internal interface IFeedsRepository
 {
     // Obsolete channel methods
     Task<Result> SaveChannel(ChannelModel channel, CancellationToken cancellationToken);
@@ -16,13 +16,13 @@ internal interface IChannelsRepository
     Task<Result> DeleteFeed(Uri feedUrl, CancellationToken cancellationToken);
 }
 
-// tmp models
+// tmp model, refactor and move to Models.cs
 public sealed record FeedModel(Uri RssUrl, string Description, string Title, Uri ImageUrl);
 
-internal sealed class ChannelsRepository(
+internal sealed class FeedsRepository(
     ApplicationDbContext dbContext,
-    ILogger<ChannelsRepository> logger
-) : IChannelsRepository
+    ILogger<FeedsRepository> logger
+) : IFeedsRepository
 {
     public Task<Result> SaveChannel(ChannelModel channel, CancellationToken cancellationToken)
     {

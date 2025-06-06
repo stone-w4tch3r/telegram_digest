@@ -21,8 +21,8 @@ public static class ServiceCollectionExtensions
 
         // Scoped
         builder.Services.AddScoped<IChannelReader, ChannelReader>();
-        builder.Services.AddScoped<IChannelsService, ChannelsService>();
-        builder.Services.AddScoped<IChannelsRepository, ChannelsRepository>();
+        builder.Services.AddScoped<IFeedsService, FeedsService>();
+        builder.Services.AddScoped<IFeedsRepository, FeedsRepository>();
         builder.Services.AddScoped<IDigestService, DigestService>();
         builder.Services.AddScoped<IDigestService, DigestService>();
         builder.Services.AddScoped<IDigestRepository, DigestRepository>();

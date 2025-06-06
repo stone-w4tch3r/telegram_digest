@@ -174,9 +174,11 @@ internal sealed class DigestRepository(
             PostsSummaries:
             [
                 .. entity.PostsNav.Select(p => new PostSummaryModel(
+                    // TODO replace ChannelTgId model with FeedUrl model; entities in db already
+                    // contain proper feed URLs, no compatibility code needed
                     ChannelTgId: p.FeedUrl.StartsWith("https://rsshub.app/telegram/channel/")
                         ? new(p.FeedUrl["https://rsshub.app/telegram/channel/".Length..])
-                        : new("unknown"), // TODO migrate this to FeedUrl
+                        : new("unknown"),
                     Summary: p.Summary,
                     Url: new(p.Url),
                     PublishedAt: p.PublishedAt,
@@ -209,7 +211,9 @@ internal sealed class DigestRepository(
                 .. model.PostsSummaries.Select(p => new PostSummaryEntity
                 {
                     Id = Guid.NewGuid(),
-                    FeedUrl = $"https://rsshub.app/telegram/channel/{p.ChannelTgId.ChannelName}", // TODO migrate this to proper FeedUrl
+                    // TODO replace ChannelTgId model with FeedUrl model; entities in db already
+                    // contain proper feed URLs, no compatibility code needed
+                    FeedUrl = $"https://rsshub.app/telegram/channel/{p.ChannelTgId.ChannelName}",
                     Summary = p.Summary,
                     Url = p.Url.ToString(),
                     PublishedAt = p.PublishedAt,

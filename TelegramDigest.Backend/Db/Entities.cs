@@ -29,7 +29,7 @@ internal sealed class FeedEntity
 }
 
 /// <summary>
-/// Digest that has multiple posts from different channels
+/// Digest that has multiple posts from different feeds
 /// </summary>
 internal sealed class DigestEntity
 {

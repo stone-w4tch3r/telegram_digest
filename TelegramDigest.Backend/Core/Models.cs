@@ -5,14 +5,14 @@ namespace TelegramDigest.Backend.Core;
 public sealed record ChannelModel(ChannelTgId TgId, string Description, string Title, Uri ImageUrl);
 
 public sealed record PostModel(
-    ChannelTgId ChannelTgId, // TODO migrate this to 
+    ChannelTgId ChannelTgId, // TODO delete ChannelTgId model and create FeedUrl model
     Html HtmlContent,
     Uri Url,
     DateTime PublishedAt
 );
 
 public sealed record PostSummaryModel(
-    ChannelTgId ChannelTgId, // TODO migrate this to FeedUrl
+    ChannelTgId ChannelTgId, // TODO delete ChannelTgId model and create FeedUrl model
     string Summary,
     Uri Url,
     DateTime PublishedAt,

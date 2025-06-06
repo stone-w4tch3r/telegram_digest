@@ -73,7 +73,7 @@ internal sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext
             builder.Property(e => e.PublishedAt).IsRequired();
             builder.Property(e => e.Importance).IsRequired();
 
-            // Relationship with Channel
+            // Relationship with Feed
             builder
                 .HasOne(p => p.FeedNav)
                 .WithMany()

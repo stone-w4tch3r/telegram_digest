@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using TelegramDigest.Backend.Core;
 
 namespace TelegramDigest.Web.Models.ViewModels;
 

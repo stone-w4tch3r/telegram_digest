@@ -1,8 +1,6 @@
 using System.ServiceModel.Syndication;
 using System.Xml;
 using FluentResults;
-using Microsoft.Extensions.Options;
-using TelegramDigest.Backend.DeploymentOptions;
 
 namespace TelegramDigest.Backend.Core;
 

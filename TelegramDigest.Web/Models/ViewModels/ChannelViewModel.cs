@@ -1,6 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Mvc;
-using TelegramDigest.Backend.Core;
 
 namespace TelegramDigest.Web.Models.ViewModels;
 
@@ -31,4 +29,3 @@ public sealed record AddFeedViewModel
     [Url]
     public required string FeedUrl { get; init; }
 }
-

@@ -7,7 +7,7 @@ using Moq;
 using TelegramDigest.Backend.Core;
 using TelegramDigest.Backend.DeploymentOptions;
 
-namespace TelegramDigest.Application.Tests.IntegrationTests;
+namespace TelegramDigest.Backend.Tests.IntegrationTests;
 
 [TestFixture]
 [SuppressMessage("ReSharper", "MethodSupportsCancellation")]

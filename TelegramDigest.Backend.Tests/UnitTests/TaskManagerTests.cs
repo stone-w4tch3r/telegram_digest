@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using TelegramDigest.Backend.Core;
 
-namespace TelegramDigest.Application.Tests.UnitTests;
+namespace TelegramDigest.Backend.Tests.UnitTests;
 
 [TestFixture]
 [SuppressMessage("ReSharper", "MethodSupportsCancellation")]

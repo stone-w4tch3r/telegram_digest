@@ -1,7 +1,7 @@
 using FluentAssertions;
 using TelegramDigest.Types.Host;
 
-namespace TelegramDigest.Application.Tests.UnitTests;
+namespace TelegramDigest.Backend.Tests.UnitTests;
 
 [TestFixture]
 public sealed class HostTests

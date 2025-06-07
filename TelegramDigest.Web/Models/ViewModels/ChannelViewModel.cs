@@ -31,4 +31,3 @@ public sealed record AddFeedViewModel
     [Url]
     public required string FeedUrl { get; init; }
 }
-

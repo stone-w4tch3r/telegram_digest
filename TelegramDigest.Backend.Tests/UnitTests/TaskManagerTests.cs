@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
+using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using TelegramDigest.Backend.Core;
@@ -27,7 +28,7 @@ public class TaskManagerTests
         _taskManager.AddTaskToWaitQueue(task, key);
 
         var waitingTasks = _taskManager.GetWaitingTasks();
-        Assert.That(waitingTasks, Does.Contain(key));
+        waitingTasks.Should().Contain(key);
     }
 
     [Test]
@@ -39,7 +40,8 @@ public class TaskManagerTests
         _taskManager.AddTaskToWaitQueue(task, key);
         _taskManager.MoveTaskToInProgress(key);
 
-        Assert.Throws<InvalidOperationException>(() => _taskManager.AddTaskToWaitQueue(task, key));
+        var action = () => _taskManager.AddTaskToWaitQueue(task, key);
+        action.Should().Throw<InvalidOperationException>();
     }
 
     [Test]
@@ -52,8 +54,8 @@ public class TaskManagerTests
 
         var (dequeuedTask, _, dequeuedKey) = await _taskManager.DequeueWaitingTask();
 
-        Assert.That(task, Is.EqualTo(dequeuedTask));
-        Assert.That(key, Is.EqualTo(dequeuedKey));
+        dequeuedTask.Should().Be(task);
+        dequeuedKey.Should().Be(key);
     }
 
     [Test]
@@ -67,8 +69,8 @@ public class TaskManagerTests
 
         var inProgressTasks = _taskManager.GetInProgressTasks();
         var waitingTasks = _taskManager.GetWaitingTasks();
-        Assert.That(waitingTasks, Does.Not.Contain(key));
-        Assert.That(inProgressTasks, Does.Contain(key));
+        waitingTasks.Should().NotContain(key);
+        inProgressTasks.Should().Contain(key);
     }
 
     [Test]
@@ -82,7 +84,7 @@ public class TaskManagerTests
         _taskManager.CompleteTaskInProgress(key);
 
         var inProgressTasks = _taskManager.GetInProgressTasks();
-        Assert.That(inProgressTasks, Does.Not.Contain(key));
+        inProgressTasks.Should().NotContain(key);
     }
 
     [Test]
@@ -98,7 +100,7 @@ public class TaskManagerTests
 
         _taskManager.CancelTaskInProgress(key);
 
-        Assert.That(cancellationToken.IsCancellationRequested);
+        cancellationToken.IsCancellationRequested.Should().BeTrue();
     }
 
     [Test]
@@ -111,13 +113,14 @@ public class TaskManagerTests
         _taskManager.RemoveWaitingTask(key);
 
         var waitingTasks = _taskManager.GetWaitingTasks();
-        Assert.That(waitingTasks, Does.Not.Contain(key));
+        waitingTasks.Should().NotContain(key);
     }
 
     [Test]
     public void RemoveWaitingTask_ShouldThrowException_WhenTaskNotFound()
     {
-        Assert.Throws<KeyNotFoundException>(() => _taskManager.RemoveWaitingTask("nonexistent"));
+        var action = () => _taskManager.RemoveWaitingTask("nonexistent");
+        action.Should().Throw<KeyNotFoundException>();
     }
 
     [Test]
@@ -128,7 +131,8 @@ public class TaskManagerTests
 
         _taskManager.AddTaskToWaitQueue(task, key);
 
-        Assert.Throws<InvalidOperationException>(() => _taskManager.AddTaskToWaitQueue(task, key));
+        var action = () => _taskManager.AddTaskToWaitQueue(task, key);
+        action.Should().Throw<InvalidOperationException>();
     }
 
     [Test]
@@ -157,8 +161,8 @@ public class TaskManagerTests
 
         await Task.WhenAll(tasks);
 
-        Assert.That(exceptions, Has.Count.EqualTo(3)); // Only 1 success, 3 failures
-        Assert.That(_taskManager.GetWaitingTasks(), Has.Exactly(1).Items);
+        exceptions.Count.Should().Be(3); // Only 1 success, 3 failures
+        _taskManager.GetWaitingTasks().Should().ContainSingle();
     }
 
     [Test]
@@ -197,7 +201,7 @@ public class TaskManagerTests
         await Task.WhenAll(dequeueTasks);
         await Task.Delay(100); // Small delay for final processing
 
-        Assert.That(processedKeys, Is.EquivalentTo(addedKeys));
+        processedKeys.Should().BeEquivalentTo(addedKeys);
     }
 
     [Test]
@@ -222,8 +226,8 @@ public class TaskManagerTests
             }
         );
 
-        Assert.That(_taskManager.GetInProgressTasks(), Is.Empty);
-        Assert.That(_taskManager.GetWaitingTasks(), Is.Empty);
+        _taskManager.GetInProgressTasks().Should().BeEmpty();
+        _taskManager.GetWaitingTasks().Should().BeEmpty();
     }
 
     [Test]
@@ -260,19 +264,15 @@ public class TaskManagerTests
 
         await Task.Delay(200); // Allow cancellation to propagate
 
-        Assert.Multiple(() =>
-        {
-            Assert.That(taskCompleted, Is.True);
-            Assert.That(cancellationConfirmed, Is.True);
-        });
+        taskCompleted.Should().BeTrue();
+        cancellationConfirmed.Should().BeTrue();
     }
 
     [Test]
     public void CompleteTask_ShouldThrowForNonExistentKey()
     {
-        Assert.Throws<KeyNotFoundException>(
-            () => _taskManager.CompleteTaskInProgress("nonexistent")
-        );
+        var action = () => _taskManager.CompleteTaskInProgress("nonexistent");
+        action.Should().Throw<KeyNotFoundException>();
     }
 
     [Test]
@@ -302,8 +302,8 @@ public class TaskManagerTests
 
         Task.WaitAll(tasks.ToArray());
 
-        Assert.That(exceptions, Has.Count.EqualTo(3)); // Only 1 success
-        Assert.That(_taskManager.GetInProgressTasks(), Has.Exactly(1).Items);
+        exceptions.Count.Should().Be(3); // Only 1 success
+        _taskManager.GetInProgressTasks().Should().ContainSingle();
     }
 
     [Test]
@@ -318,27 +318,29 @@ public class TaskManagerTests
         _taskManager.CompleteTaskInProgress(key);
 
         // Now the same key can be reused.
-        Assert.DoesNotThrow(() => _taskManager.AddTaskToWaitQueue(task, key));
+        var action = () => _taskManager.AddTaskToWaitQueue(task, key);
+        action.Should().NotThrow();
         var waitingTasks = _taskManager.GetWaitingTasks();
-        Assert.That(waitingTasks, Contains.Item(key));
+        waitingTasks.Should().Contain(key);
     }
 
     [Test]
     public void MoveTaskToInProgress_ShouldThrow_WhenTaskNotInWaitingQueue()
     {
         var key = "nonexistent";
-        var ex = Assert.Throws<InvalidOperationException>(
-            () => _taskManager.MoveTaskToInProgress(key)
-        );
-        Assert.That(ex.Message, Does.Contain("is not in waiting queue"));
+        var act = () => _taskManager.MoveTaskToInProgress(key);
+        act.Should().Throw<InvalidOperationException>().WithMessage("*is not in waiting queue*");
     }
 
     [Test]
     public void CancelTaskInProgress_ShouldThrow_WhenTaskNotFound()
     {
         var key = "nonexistent";
-        var ex = Assert.Throws<KeyNotFoundException>(() => _taskManager.CancelTaskInProgress(key));
-        Assert.That(ex.Message, Does.Contain("was not found in progress tasks list"));
+        var action = () => _taskManager.CancelTaskInProgress(key);
+        action
+            .Should()
+            .Throw<KeyNotFoundException>()
+            .WithMessage("*was not found in progress tasks list*");
     }
 
     [Test]
@@ -353,11 +355,12 @@ public class TaskManagerTests
         var token = _taskManager.MoveTaskToInProgress(key);
 
         // First cancellation should cancel the token.
-        Assert.DoesNotThrow(() => _taskManager.CancelTaskInProgress(key));
-        Assert.That(token.IsCancellationRequested, Is.True);
+        var action = () => _taskManager.CancelTaskInProgress(key);
+        action.Should().NotThrow();
+        token.IsCancellationRequested.Should().BeTrue();
 
         // Calling cancellation again should not throw.
-        Assert.DoesNotThrow(() => _taskManager.CancelTaskInProgress(key));
+        action.Should().NotThrow();
     }
 
     [Test]
@@ -376,7 +379,7 @@ public class TaskManagerTests
             dequeuedKeys.Add(key);
         }
 
-        Assert.That(dequeuedKeys, Is.EqualTo(keys).AsCollection);
+        dequeuedKeys.Should().BeEquivalentTo(keys);
     }
 
     [Test]
@@ -389,10 +392,8 @@ public class TaskManagerTests
         _taskManager.MoveTaskToInProgress(key);
         _taskManager.CompleteTaskInProgress(key);
 
-        var ex = Assert.Throws<KeyNotFoundException>(
-            () => _taskManager.CompleteTaskInProgress(key)
-        );
-        Assert.That(ex.Message, Does.Contain("is not in progress"));
+        var action = () => _taskManager.CompleteTaskInProgress(key);
+        action.Should().Throw<KeyNotFoundException>().WithMessage("*is not in progress*");
     }
 
     [Test]
@@ -416,12 +417,9 @@ public class TaskManagerTests
         var cancelledTasks = _taskManager.GetCancellationRequestedTasks();
 
         // Assert
-        Assert.Multiple(() =>
-        {
-            Assert.That(cancelledTasks, Has.Length.EqualTo(1));
-            Assert.That(cancelledTasks, Does.Contain(cancelledKey));
-            Assert.That(cancelledTasks, Does.Not.Contain(runningKey));
-        });
+        cancelledTasks.Should().ContainSingle();
+        cancelledTasks.Should().Contain(cancelledKey);
+        cancelledTasks.Should().NotContain(runningKey);
     }
 
     [Test]
@@ -442,7 +440,7 @@ public class TaskManagerTests
         var cancelledTasks = _taskManager.GetCancellationRequestedTasks();
 
         // Assert
-        Assert.That(cancelledTasks, Is.Empty);
+        cancelledTasks.Should().BeEmpty();
     }
 
     [Test]
@@ -478,14 +476,14 @@ public class TaskManagerTests
 
         // Wait for a task to start
         await Task.Delay(100);
-        Assert.That(taskStarted, Is.True, "Task should have started");
+        taskStarted.Should().BeTrue("Task should have started");
 
         // Cancel and wait for completion
         _taskManager.CancelTaskInProgress(key);
         await Task.Delay(100);
 
         // Assert
-        Assert.That(cleanupExecuted, Is.True, "Cleanup code should have executed");
+        cleanupExecuted.Should().BeTrue("Cleanup code should have executed");
     }
 
     [Test]
@@ -537,11 +535,8 @@ public class TaskManagerTests
         await Task.Delay(100); // Wait for cancellation to propagate
 
         // Assert
-        Assert.Multiple(() =>
-        {
-            Assert.That(innerTaskCancelled, Is.True, "Inner task should be cancelled");
-            Assert.That(outerTaskCancelled, Is.True, "Outer task should be cancelled");
-        });
+        innerTaskCancelled.Should().BeTrue("Inner task should be cancelled");
+        outerTaskCancelled.Should().BeTrue("Outer task should be cancelled");
     }
 
     [Test]
@@ -578,14 +573,14 @@ public class TaskManagerTests
         );
 
         // Assert
-        Assert.DoesNotThrowAsync(async () =>
+        var action = async () =>
         {
             _taskManager.AddTaskToWaitQueue(newTask, key);
             await _taskManager.DequeueWaitingTask();
             _taskManager.MoveTaskToInProgress(key);
-        });
-
-        Assert.That(_taskManager.GetInProgressTasks(), Does.Contain(key));
+        };
+        await action.Should().NotThrowAsync();
+        _taskManager.GetInProgressTasks().Should().Contain(key);
     }
 
     [Test]
@@ -627,7 +622,7 @@ public class TaskManagerTests
         catch (OperationCanceledException) { }
 
         // Assert
-        Assert.That(cancellationReceived, Is.True, "Task should have received cancellation");
+        cancellationReceived.Should().BeTrue("Task should have received cancellation");
     }
 
     [Test]
@@ -669,8 +664,8 @@ public class TaskManagerTests
         await Task.Delay(100); // Allow cancellation to propagate
 
         // Assert
-        Assert.That(cancelledTasks, Is.EqualTo(taskCount), "All tasks should have been cancelled");
-        Assert.That(_taskManager.GetCancellationRequestedTasks(), Has.Length.EqualTo(taskCount));
+        cancelledTasks.Should().Be(taskCount, "All tasks should have been cancelled");
+        _taskManager.GetCancellationRequestedTasks().Should().HaveCount(taskCount);
     }
 
     [Test]
@@ -704,7 +699,7 @@ public class TaskManagerTests
         _taskManager.CompleteTaskInProgress(key);
 
         // Assert
-        Assert.That(_taskManager.GetInProgressTasks(), Does.Not.Contain(key));
-        Assert.That(_taskManager.GetCancellationRequestedTasks(), Is.Empty);
+        _taskManager.GetInProgressTasks().Should().NotContain(key);
+        _taskManager.GetCancellationRequestedTasks().Should().BeEmpty();
     }
 }

@@ -29,7 +29,7 @@ internal sealed class FileSettingsManager(
     ILogger<FileSettingsManager> logger
 ) : ISettingsManager
 {
-    private readonly FileInfo _settingsFileInfo = new(options.Value.SettingsFilePath.ToString());
+    private readonly FileInfo _settingsFileInfo = new(options.Value.SettingsFilePath.LocalPath);
     private readonly JsonSerializerOptions _jsonOptions = new()
     {
         WriteIndented = true,

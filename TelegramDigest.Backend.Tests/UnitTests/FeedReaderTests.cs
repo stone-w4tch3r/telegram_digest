@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using TelegramDigest.Backend.Core;
 
-namespace TelegramDigest.Backend.Tests.UnitTests.Core;
+namespace TelegramDigest.Backend.Tests.UnitTests;
 
 [TestFixture]
 public class FeedReaderTests

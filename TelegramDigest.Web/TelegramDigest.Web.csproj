@@ -6,7 +6,7 @@
     
     <ItemGroup>
         <PackageReference Include="Fody" Version="6.9.2" />
-        <PackageReference Include="RuntimeNullables.Fody" Version="2.0.0" />
+        <PackageReference Include="RuntimeNullables.Fody" Version="2.0.0" PrivateAssets="all" />
     </ItemGroup>
 
     <ItemGroup>

@@ -130,9 +130,9 @@ public sealed class BackendClient(IMainService mainService, ILogger<BackendClien
         );
     }
 
-    public async Task<Result> AddOrUpdateFeed(AddFeedViewModel feed)
+    public async Task<Result> AddOrUpdateFeed(AddFeedViewModel feed, CancellationToken ct)
     {
-        return await mainService.AddOrUpdateFeed(new(feed.FeedUrl), CancellationToken.None);
+        return await mainService.AddOrUpdateFeed(new(feed.FeedUrl), ct);
     }
 
     public async Task<Result> DeleteFeedAsync(string feedUrl)
@@ -304,7 +304,7 @@ public sealed class BackendClient(IMainService mainService, ILogger<BackendClien
         return Result.Ok();
     }
 
-    public Task<List<RssProvider>> GetRssProviders()
+    public Task<List<RssProvider>> GetRssProviders(CancellationToken ct)
     {
         // Mock implementation - in real app this would come from backend configuration
         var providers = new List<RssProvider>

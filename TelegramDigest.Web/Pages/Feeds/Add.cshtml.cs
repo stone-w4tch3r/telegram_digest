@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
+using Microsoft.AspNetCore.Http.Timeouts;
 using Microsoft.AspNetCore.Mvc;
 using RuntimeNullables;
 using TelegramDigest.Web.Models.ViewModels;
@@ -8,6 +9,7 @@ using TelegramDigest.Web.Services;
 
 namespace TelegramDigest.Web.Pages.Feeds;
 
+[RequestTimeout(10)]
 public sealed class AddModel(BackendClient backend) : BasePageModel
 {
     public enum FeedType
@@ -30,13 +32,13 @@ public sealed class AddModel(BackendClient backend) : BasePageModel
 
     public List<RssProvider>? RssProviders { get; private set; }
 
-    public async Task<IActionResult> OnGetAsync()
+    public async Task<IActionResult> OnGetAsync(CancellationToken ct)
     {
-        RssProviders = await backend.GetRssProviders();
+        RssProviders = await backend.GetRssProviders(ct);
         return Page();
     }
 
-    public async Task<IActionResult> OnPostAsync()
+    public async Task<IActionResult> OnPostAsync(CancellationToken ct)
     {
         // Clear validation errors for the model that wasn't selected
         if (Type == FeedType.DirectRss)
@@ -49,7 +51,7 @@ public sealed class AddModel(BackendClient backend) : BasePageModel
             ModelState.Remove("DirectRss.FeedUrl");
         }
 
-        RssProviders = await backend.GetRssProviders();
+        RssProviders = await backend.GetRssProviders(ct);
 
         if (!ModelState.IsValid)
         {
@@ -65,7 +67,7 @@ public sealed class AddModel(BackendClient backend) : BasePageModel
             _ => throw new UnreachableException("Invalid form state"),
         };
 
-        var result = await backend.AddOrUpdateFeed(new() { FeedUrl = feedUrl });
+        var result = await backend.AddOrUpdateFeed(new() { FeedUrl = feedUrl }, ct);
         if (result.IsFailed)
         {
             Errors = result.Errors;

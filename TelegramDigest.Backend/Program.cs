@@ -3,7 +3,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using TelegramDigest.Backend.Core;
 using TelegramDigest.Backend.Db;
-using TelegramDigest.Backend.DeploymentOptions;
+using TelegramDigest.Backend.Infrastructure;
 
 namespace TelegramDigest.Backend;
 
@@ -12,7 +12,11 @@ public static class ServiceCollectionExtensions
     public static void AddBackend(this IHostApplicationBuilder builder)
     {
         // Deployment options
-        builder.AddBackendDeploymentOptions();
+        builder
+            .Services.AddOptions<BackendDeploymentOptions>()
+            .Bind(builder.Configuration)
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
 
         // Application services
         builder.Services.AddHostedService<DigestProcessor>();

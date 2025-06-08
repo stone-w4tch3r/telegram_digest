@@ -2,7 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using FluentResults;
 using Microsoft.Extensions.Options;
-using TelegramDigest.Backend.DeploymentOptions;
+using TelegramDigest.Backend.Infrastructure;
 
 namespace TelegramDigest.Backend.Core;
 
@@ -29,7 +29,7 @@ internal sealed class FileSettingsManager(
     ILogger<FileSettingsManager> logger
 ) : ISettingsManager
 {
-    private readonly FileInfo _settingsFileInfo = new(options.Value.SettingsFilePath.LocalPath);
+    private readonly FileInfo _settingsFileInfo = new(options.Value.SettingsFilePath);
     private readonly JsonSerializerOptions _jsonOptions = new()
     {
         WriteIndented = true,

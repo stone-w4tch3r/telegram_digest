@@ -224,7 +224,7 @@ internal sealed class TaskManager<TKey> : ITaskScheduler<TKey>, ITaskTracker<TKe
             cts.Dispose();
         }
 
-        _waitingTasksQueue.Writer.Complete();
+        _waitingTasksQueue.Writer.TryComplete();
         _waitingTasksQueue.Reader.Completion.Wait();
     }
 }

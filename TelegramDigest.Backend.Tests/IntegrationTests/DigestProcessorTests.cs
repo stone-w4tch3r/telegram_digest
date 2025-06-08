@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using TelegramDigest.Backend.Core;
-using TelegramDigest.Backend.DeploymentOptions;
+using TelegramDigest.Backend.Infrastructure;
 
 namespace TelegramDigest.Backend.Tests.IntegrationTests;
 

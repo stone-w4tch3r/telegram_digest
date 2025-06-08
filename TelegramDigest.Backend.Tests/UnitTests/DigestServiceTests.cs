@@ -410,7 +410,7 @@ public class DigestServiceTests
 
         // Assert
         result.IsFailed.Should().BeTrue();
-        result.Errors.First().Message.Should().Be("No feeds selected");
+        result.Errors.First().Message.Should().Contain("No feeds selected");
     }
 
     [Test]

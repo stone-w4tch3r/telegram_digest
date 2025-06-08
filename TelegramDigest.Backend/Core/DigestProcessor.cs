@@ -2,7 +2,7 @@ using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using TelegramDigest.Backend.DeploymentOptions;
+using TelegramDigest.Backend.Infrastructure;
 
 namespace TelegramDigest.Backend.Core;
 
@@ -14,9 +14,7 @@ internal sealed class DigestProcessor(
     IOptions<BackendDeploymentOptions> deploymentOptions
 ) : BackgroundService
 {
-    private readonly SemaphoreSlim _semaphore = new(
-        deploymentOptions.Value.MaxConcurrentAiTasks.Value
-    );
+    private readonly SemaphoreSlim _semaphore = new(deploymentOptions.Value.MaxConcurrentAiTasks);
 
     protected override async Task ExecuteAsync(CancellationToken ct)
     {

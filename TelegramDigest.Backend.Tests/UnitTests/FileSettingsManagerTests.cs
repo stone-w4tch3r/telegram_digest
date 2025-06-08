@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using TelegramDigest.Backend.Core;
-using TelegramDigest.Backend.DeploymentOptions;
+using TelegramDigest.Backend.Infrastructure;
 
 namespace TelegramDigest.Backend.Tests.UnitTests;
 
@@ -21,7 +21,12 @@ public class FileSettingsManagerTests
     public void SetUp()
     {
         _settingsFilePath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.json");
-        var options = new BackendDeploymentOptions { SettingsFilePath = new(_settingsFilePath) };
+        var options = new BackendDeploymentOptions
+        {
+            SettingsFilePath = _settingsFilePath,
+            MaxConcurrentAiTasks = default,
+            SqlLiteConnectionString = string.Empty,
+        };
         _mockOptions = new();
         _mockOptions.Setup(o => o.Value).Returns(options);
         _mockLogger = new();
@@ -220,7 +225,12 @@ public class FileSettingsManagerTests
         var settings = CreateDefaultSettings();
         var directory = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
         _settingsFilePath = Path.Combine(directory, "settings.json");
-        var options = new BackendDeploymentOptions { SettingsFilePath = new(_settingsFilePath) };
+        var options = new BackendDeploymentOptions
+        {
+            SettingsFilePath = _settingsFilePath,
+            MaxConcurrentAiTasks = default,
+            SqlLiteConnectionString = string.Empty,
+        };
         _mockOptions.Setup(o => o.Value).Returns(options);
         _settingsManager = new(_mockOptions.Object, _mockLogger.Object);
 

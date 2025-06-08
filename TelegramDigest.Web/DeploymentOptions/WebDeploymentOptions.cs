@@ -1,20 +1,21 @@
 using System.ComponentModel.DataAnnotations;
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Mvc;
+using RuntimeNullables;
 using TelegramDigest.Web.Models;
+using Host = TelegramDigest.Types.Host.Host;
 
 namespace TelegramDigest.Web.DeploymentOptions;
 
+[NullChecks(false)]
 public sealed record WebDeploymentOptions
 {
-    public const string BASEPATH_KEY = "BASEPATH";
-    public const string HOSTNAME_KEY = "HOSTNAME";
+    [UrlBasePath(memberName: "BASEPATH")]
+    [Required(ErrorMessage = "BASEPATH configuration option was not set")]
+    [ConfigurationKeyName("BASEPATH")]
+    public required string BasePath { get; set; }
 
-    [UrlBasePath(memberName: BASEPATH_KEY)]
-    [Required(ErrorMessage = $"{BASEPATH_KEY} configuration option was not set")]
-    [NotNull]
-    public string? BasePath { get; set; }
-
-    [ModelBinder(typeof(HostModelBinder))]
-    public string? HostName { get; set; }
+    [ModelBinder(typeof(HostModelBinder))] // TODO not called
+    [Required(ErrorMessage = "HOSTNAME configuration option was not set")]
+    [ConfigurationKeyName("HOSTNAME")]
+    public required Host HostName { get; set; }
 }

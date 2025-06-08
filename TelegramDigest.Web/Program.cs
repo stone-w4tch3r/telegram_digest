@@ -7,7 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Deployment options
 builder.Configuration.AddEnvironmentVariables();
-builder.AddWebDeploymentOptions();
+builder.Services.AddOptions<WebDeploymentOptions>().Bind(builder.Configuration).ValidateOnStart();
 
 // Backend configuration
 builder.AddBackend();

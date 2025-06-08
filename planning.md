@@ -43,6 +43,7 @@
 | [x]  | Error handling: exception stacktrace in UI                                  | 30min |
 | [x]  | Error handling: use Result in frontend                                      | 1h    |
 | [x]  | Check new tests done by ai                                                  | 30min |
+| [x]  | Simplify env vars handling                                                  | 30min |
 
 ### High priority
 
@@ -94,4 +95,3 @@
 - settings migration support
 - simplify db schema (remove digests table)
 - use attributes for entity declaration
-- use separate library for env vars handling

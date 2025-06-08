@@ -146,16 +146,11 @@ internal sealed class FileSettingsManager(
             new(new("smtp.example.com"), 22, "username", "password", true),
             new("apikey", "model", 2048, new("https://generativelanguage.googleapis.com/v1beta/")),
             new(
-                PostSummarySystemPrompt: "You are a summarizer of media posts. Use english language.",
-                PostSummaryUserPrompt: new(
-                    "Summarize the following post in one sentence:\n\n{Content}"
-                ),
-                PostImportanceSystemPrompt: "You are a post reviewer.",
-                PostImportanceUserPrompt: new(
+                new("Summarize the following post in one sentence:\n\n{Content}"),
+                new(
                     "Please rate the importance of the following post on a scale of 1 to 10, where 1 is least important and 10 is most important.\n\n{Content}"
                 ),
-                DigestSummarySystemPrompt: "You are a summarizer of big digests. Use english language.",
-                DigestSummaryUserPrompt: new("Summarize the digest in one sentence:\n\n{Content}")
+                new("Summarize the digest in one sentence:\n\n{Content}")
             )
         );
 
@@ -168,11 +163,8 @@ internal sealed class FileSettingsManager(
     );
 
     private sealed record PromptSettingsJson(
-        [property: JsonRequired] string PostSummarySystemPrompt,
         [property: JsonRequired] string PostSummaryUserPrompt,
-        [property: JsonRequired] string PostImportanceSystemPrompt,
         [property: JsonRequired] string PostImportanceUserPrompt,
-        [property: JsonRequired] string DigestSummarySystemPrompt,
         [property: JsonRequired] string DigestSummaryUserPrompt
     );
 
@@ -209,12 +201,9 @@ internal sealed class FileSettingsManager(
                 settings.OpenAiSettings.Endpoint
             ),
             new(
-                settings.PromptSettings.PostSummarySystemPrompt,
-                settings.PromptSettings.PostSummaryUserPrompt,
-                settings.PromptSettings.PostImportanceSystemPrompt,
-                settings.PromptSettings.PostImportanceUserPrompt,
-                settings.PromptSettings.DigestSummarySystemPrompt,
-                settings.PromptSettings.DigestSummaryUserPrompt
+                settings.PromptSettings.PostSummaryUserPrompt.Text,
+                settings.PromptSettings.PostImportanceUserPrompt.Text,
+                settings.PromptSettings.DigestSummaryUserPrompt.Text
             )
         );
 
@@ -236,12 +225,9 @@ internal sealed class FileSettingsManager(
                 settingsJson.OpenAiSettings.Endpoint
             ),
             new(
-                PostSummarySystemPrompt: settingsJson.PromptSettings.PostSummarySystemPrompt,
-                PostSummaryUserPrompt: new(settingsJson.PromptSettings.PostSummaryUserPrompt),
-                PostImportanceSystemPrompt: settingsJson.PromptSettings.PostImportanceSystemPrompt,
-                PostImportanceUserPrompt: new(settingsJson.PromptSettings.PostImportanceUserPrompt),
-                DigestSummarySystemPrompt: settingsJson.PromptSettings.DigestSummarySystemPrompt,
-                DigestSummaryUserPrompt: new(settingsJson.PromptSettings.DigestSummaryUserPrompt)
+                new(settingsJson.PromptSettings.PostSummaryUserPrompt),
+                new(settingsJson.PromptSettings.PostImportanceUserPrompt),
+                new(settingsJson.PromptSettings.DigestSummaryUserPrompt)
             )
         );
 }

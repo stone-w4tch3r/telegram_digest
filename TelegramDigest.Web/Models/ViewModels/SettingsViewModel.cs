@@ -46,22 +46,13 @@ public sealed record SettingsViewModel
     [DataType(DataType.Time)]
     public required TimeOnly DigestTimeUtc { get; init; }
 
-    [Display(Name = "Post Summary System Prompt")]
-    public required string PromptPostSummarySystem { get; init; }
-
     [Display(Name = "Post Summary User Prompt")]
     [ModelBinder(typeof(TemplateWithContentModelBinder))]
     public required TemplateWithContent PromptPostSummaryUser { get; init; }
 
-    [Display(Name = "Post Importance System Prompt")]
-    public required string PromptPostImportanceSystem { get; init; }
-
     [Display(Name = "Post Importance User Prompt")]
     [ModelBinder(typeof(TemplateWithContentModelBinder))]
     public required TemplateWithContent PromptPostImportanceUser { get; init; }
-
-    [Display(Name = "Digest Summary System Prompt")]
-    public required string PromptDigestSummarySystem { get; init; }
 
     [Display(Name = "Digest Summary User Prompt")]
     [ModelBinder(typeof(TemplateWithContentModelBinder))]

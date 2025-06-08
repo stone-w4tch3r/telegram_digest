@@ -63,10 +63,7 @@ public sealed record SmtpSettingsModel(
 public sealed record OpenAiSettingsModel(string ApiKey, string Model, int MaxTokens, Uri Endpoint);
 
 public sealed record PromptSettingsModel(
-    string PostSummarySystemPrompt,
     TemplateWithContent PostSummaryUserPrompt,
-    string PostImportanceSystemPrompt,
     TemplateWithContent PostImportanceUserPrompt,
-    string DigestSummarySystemPrompt,
     TemplateWithContent DigestSummaryUserPrompt
 );

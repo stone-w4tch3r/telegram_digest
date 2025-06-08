@@ -21,6 +21,13 @@ public static class ServiceCollectionExtensions
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
+        // AI options
+        builder
+            .Services.AddOptions<AiOptions>()
+            .Bind(builder.Configuration)
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
         // Application services
         builder.Services.AddHostedService<DigestProcessor>();
         builder.Services.AddHostedService<SchedulerBackgroundService>();

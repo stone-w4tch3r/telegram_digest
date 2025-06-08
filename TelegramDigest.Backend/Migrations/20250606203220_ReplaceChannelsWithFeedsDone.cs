@@ -13,7 +13,8 @@ namespace TelegramDigest.Backend.Migrations
             migrationBuilder.RenameColumn(
                 name: "ChannelsJson",
                 table: "DigestStatuses",
-                newName: "FeedsJson");
+                newName: "FeedsJson"
+            );
         }
 
         /// <inheritdoc />
@@ -22,7 +23,8 @@ namespace TelegramDigest.Backend.Migrations
             migrationBuilder.RenameColumn(
                 name: "FeedsJson",
                 table: "DigestStatuses",
-                newName: "ChannelsJson");
+                newName: "ChannelsJson"
+            );
         }
     }
 }

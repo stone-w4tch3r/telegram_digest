@@ -166,11 +166,8 @@ public sealed class BackendClient(IMainService mainService, ILogger<BackendClien
                 OpenAiMaxToken = settings.OpenAiSettings.MaxTokens,
                 OpenAiEndpoint = settings.OpenAiSettings.Endpoint,
                 DigestTimeUtc = settings.DigestTime.Time,
-                PromptDigestSummarySystem = settings.PromptSettings.DigestSummarySystemPrompt,
                 PromptDigestSummaryUser = settings.PromptSettings.DigestSummaryUserPrompt,
-                PromptPostSummarySystem = settings.PromptSettings.PostSummarySystemPrompt,
                 PromptPostSummaryUser = settings.PromptSettings.PostSummaryUserPrompt,
-                PromptPostImportanceSystem = settings.PromptSettings.PostImportanceSystemPrompt,
                 PromptPostImportanceUser = settings.PromptSettings.PostImportanceUserPrompt,
             }
         );
@@ -195,12 +192,9 @@ public sealed class BackendClient(IMainService mainService, ILogger<BackendClien
                 settings.OpenAiEndpoint
             ),
             new(
-                PostSummarySystemPrompt: settings.PromptPostSummarySystem,
-                PostSummaryUserPrompt: new(settings.PromptPostSummaryUser),
-                PostImportanceSystemPrompt: settings.PromptPostImportanceSystem,
-                PostImportanceUserPrompt: new(settings.PromptPostImportanceUser),
-                DigestSummarySystemPrompt: settings.PromptDigestSummarySystem,
-                DigestSummaryUserPrompt: new(settings.PromptDigestSummaryUser)
+                new(settings.PromptPostSummaryUser),
+                new(settings.PromptPostImportanceUser),
+                new(settings.PromptDigestSummaryUser)
             )
         );
 

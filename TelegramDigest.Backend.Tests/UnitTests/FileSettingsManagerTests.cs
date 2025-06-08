@@ -50,16 +50,11 @@ public sealed class FileSettingsManagerTests
             new(new("smtp.example.com"), 22, "username", "password", true),
             new("apikey", "model", 2048, new("https://generativelanguage.googleapis.com/v1beta/")),
             new(
-                PostSummarySystemPrompt: "You are a summarizer of media posts. Use english language.",
-                PostSummaryUserPrompt: new(
-                    "Summarize the following post in one sentence:\n\n{Content}"
-                ),
-                PostImportanceSystemPrompt: "You are a post reviewer.",
-                PostImportanceUserPrompt: new(
+                new("Summarize the following post in one sentence:\n\n{Content}"),
+                new(
                     "Please rate the importance of the following post on a scale of 1 to 10, where 1 is least important and 10 is most important.\n\n{Content}"
                 ),
-                DigestSummarySystemPrompt: "You are a summarizer of big digests. Use english language.",
-                DigestSummaryUserPrompt: new("Summarize the digest in one sentence:\n\n{Content}")
+                new("Summarize the digest in one sentence:\n\n{Content}")
             )
         );
 
@@ -86,11 +81,8 @@ public sealed class FileSettingsManagerTests
             },
             PromptSettings = new
             {
-                PostSummarySystemPrompt = "You are a summarizer of media posts. Use english language.",
                 PostSummaryUserPrompt = "Summarize the following post in one sentence:\n\n{Content}",
-                PostImportanceSystemPrompt = "You are a post reviewer.",
                 PostImportanceUserPrompt = "Please rate the importance of the following post on a scale of 1 to 10, where 1 is least important and 10 is most important.\n\n{Content}",
-                DigestSummarySystemPrompt = "You are a summarizer of big digests. Use english language.",
                 DigestSummaryUserPrompt = "Summarize the digest in one sentence:\n\n{Content}",
             },
         };

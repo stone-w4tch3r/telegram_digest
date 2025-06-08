@@ -1,6 +1,8 @@
 using FluentResults;
+using Microsoft.Extensions.Options;
 using OpenAI.Chat;
 using TelegramDigest.Backend.Models;
+using TelegramDigest.Backend.Options;
 
 namespace TelegramDigest.Backend.Features;
 
@@ -13,9 +15,13 @@ internal interface IAiSummarizer
     );
 }
 
-internal sealed class AiSummarizer(ISettingsManager settingsManager, ILogger<AiSummarizer> logger)
-    : IAiSummarizer
+internal sealed class AiSummarizer(
+    ISettingsManager settingsManager,
+    IOptions<AiOptions> aiOptions,
+    ILogger<AiSummarizer> logger
+) : IAiSummarizer
 {
+    private readonly AiOptions _aiOptions = aiOptions.Value;
     private ChatClient? _chatClient;
     private (string Model, string ApiKey, Uri Endpoint)? _lastClientSettings;
 
@@ -76,7 +82,7 @@ internal sealed class AiSummarizer(ISettingsManager settingsManager, ILogger<AiS
 
             var messages = (ChatMessage[])
                 [
-                    new SystemChatMessage(prompts.PostSummarySystemPrompt),
+                    new SystemChatMessage(_aiOptions.PostSummarySystemPrompt),
                     new UserChatMessage(
                         prompts.PostSummaryUserPrompt.ReplacePlaceholder(
                             post.HtmlContent.HtmlString
@@ -137,7 +143,7 @@ internal sealed class AiSummarizer(ISettingsManager settingsManager, ILogger<AiS
 
             var messages = (ChatMessage[])
                 [
-                    new SystemChatMessage(prompts.PostImportanceSystemPrompt),
+                    new SystemChatMessage(_aiOptions.PostImportanceSystemPrompt),
                     new UserChatMessage(
                         prompts.PostImportanceUserPrompt.ReplacePlaceholder(
                             post.HtmlContent.HtmlString
@@ -187,7 +193,7 @@ internal sealed class AiSummarizer(ISettingsManager settingsManager, ILogger<AiS
 
             var messages = (ChatMessage[])
                 [
-                    new SystemChatMessage(prompts.DigestSummarySystemPrompt),
+                    new SystemChatMessage(_aiOptions.DigestSummarySystemPrompt),
                     new UserChatMessage(
                         prompts.DigestSummaryUserPrompt.ReplacePlaceholder(postsContent)
                     ),

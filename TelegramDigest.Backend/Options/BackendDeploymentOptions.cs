@@ -4,7 +4,7 @@ using RuntimeNullables;
 namespace TelegramDigest.Backend.Options;
 
 [NullChecks(false)]
-internal sealed record BackendDeploymentOptions
+internal record BackendDeploymentOptions
 {
     [Range(1, int.MaxValue, ErrorMessage = "Max concurrent AI tasks must be a positive integer")]
     [Required(ErrorMessage = "MAX_CONCURRENT_AI_TASKS configuration option was not set")]

@@ -4,7 +4,7 @@ using FluentResults;
 
 namespace TelegramDigest.Backend.Models;
 
-public readonly record struct DigestId(Guid Guid = new())
+public sealed record DigestId(Guid Guid = new())
 {
     public DigestId()
         : this(Guid.NewGuid()) { }
@@ -16,23 +16,15 @@ public readonly record struct DigestId(Guid Guid = new())
     public static implicit operator string(DigestId id) => id.ToString();
 }
 
-public readonly record struct TimeUtc(TimeOnly Time)
+public sealed record TimeUtc(TimeOnly Time)
 {
-    [Obsolete("Do not use parameterless constructor", true)]
-    public TimeUtc()
-        : this(TimeOnly.MinValue) { }
-
     public override string ToString() => Time.ToString();
 
     public static implicit operator string(TimeUtc time) => time.ToString();
 }
 
-public readonly record struct Html(string HtmlString)
+public sealed record Html(string HtmlString)
 {
-    [Obsolete("Do not use parameterless constructor", true)]
-    public Html()
-        : this(string.Empty) { }
-
     public override string ToString() => HtmlString;
 
     public static implicit operator string(Html html) => html.ToString();
@@ -41,12 +33,8 @@ public readonly record struct Html(string HtmlString)
 /// <summary>
 /// Represents a generic RSS/Atom feed URL.
 /// </summary>
-public readonly record struct FeedUrl
+public sealed record FeedUrl
 {
-    [Obsolete("Do not use parameterless constructor", true)]
-    public FeedUrl()
-        : this("") { }
-
     [JsonConstructor]
     public FeedUrl(string url)
     {
@@ -65,7 +53,7 @@ public readonly record struct FeedUrl
         Url = uri;
     }
 
-    public Uri Url { get; }
+    public Uri Url { get; } = new("");
 
     public override string ToString() => Url.ToString();
 
@@ -75,12 +63,8 @@ public readonly record struct FeedUrl
 /// <summary>
 /// Describes the importance of a post. Importance value must be between 1 and 10, inclusive
 /// </summary>
-public readonly record struct Importance
+public sealed record Importance
 {
-    [Obsolete("Do not use parameterless constructor", true)]
-    public Importance()
-        : this(default) { }
-
     public Importance(int Number)
     {
         this.Number = Number is > 0 and <= 10
@@ -101,12 +85,8 @@ public readonly record struct Importance
 /// <summary>
 /// Basic template with a {placeholder} inside. Provides validation and helper methods such as ReplacePlaceholder
 /// </summary>
-internal readonly partial record struct Template
+internal sealed partial record Template
 {
-    [Obsolete("Do not use parameterless constructor", true)]
-    public Template()
-        : this(string.Empty, string.Empty) { }
-
     [GeneratedRegex(@"^\{[a-zA-Z0-9_]+\}$")]
     private static partial Regex TemplateRegex();
 
@@ -144,7 +124,7 @@ internal readonly partial record struct Template
         Text = text;
     }
 
-    public string Text { get; }
+    public string Text { get; } = string.Empty;
 
     public override string ToString() => Text;
 
@@ -156,12 +136,8 @@ internal readonly partial record struct Template
 /// Template with {Content} placeholder
 /// </summary>
 /// <see cref="Template"/>
-public readonly record struct TemplateWithContent
+public sealed record TemplateWithContent
 {
-    [Obsolete("Do not use parameterless constructor", true)]
-    public TemplateWithContent()
-        : this(string.Empty) { }
-
     private readonly Template _template;
 
     public TemplateWithContent(string text)

@@ -78,8 +78,8 @@ public sealed class HostTests
         if (expectedSuccess)
         {
             host.Should().NotBeNull();
-            host.Value.HostPart.Should().Be(expectedHost);
-            host.Value.Port.Should().Be(expectedPort);
+            host.HostPart.Should().Be(expectedHost);
+            host.Port.Should().Be(expectedPort);
         }
         else
         {

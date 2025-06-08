@@ -6,7 +6,7 @@ using System.Text.Json.Serialization;
 
 namespace TelegramDigest.Types.Host;
 
-public readonly record struct Host
+public sealed record Host
 {
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     public enum HostnameType

@@ -14,11 +14,8 @@ internal interface IRssService
     Task<Result<SyndicationFeed>> GenerateRssFeed(CancellationToken ct);
 }
 
-internal sealed class RssService(
-    IDigestService digestService,
-    ISettingsManager settingsManager,
-    ILogger<RssService> logger
-) : IRssService
+internal sealed class RssService(IDigestService digestService, ILogger<RssService> logger)
+    : IRssService
 {
     private const string FEED_BASE_URL = "https://your-app-url"; // TODO: Move to settings
 

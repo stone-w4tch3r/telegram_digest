@@ -4,7 +4,7 @@ using TelegramDigest.Web.Services;
 
 namespace TelegramDigest.Web.Pages.Digests;
 
-public class QueueModel(BackendClient backend) : BasePageModel
+public sealed class QueueModel(BackendClient backend) : BasePageModel
 {
     public Guid[] InProgressDigests { get; private set; } = [];
     public Guid[] WaitingDigests { get; private set; } = [];

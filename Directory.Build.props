@@ -6,4 +6,12 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <WarningsAsErrors>nullable</WarningsAsErrors>
   </PropertyGroup>
+  
+  <PropertyGroup>
+    <MeziantouAnalysisMode>None</MeziantouAnalysisMode>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="Meziantou.Analyzer" Version="2.0.201"/>
+  </ItemGroup>
 </Project>

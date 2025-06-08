@@ -9,7 +9,7 @@ namespace TelegramDigest.Backend.Tests.UnitTests;
 
 [TestFixture]
 [SuppressMessage("ReSharper", "MethodSupportsCancellation")]
-public class TaskManagerTests
+public sealed class TaskManagerTests
 {
     private TaskManager<string> _taskManager;
 

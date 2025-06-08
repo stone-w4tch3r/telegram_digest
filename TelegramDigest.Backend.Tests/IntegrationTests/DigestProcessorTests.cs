@@ -13,7 +13,7 @@ namespace TelegramDigest.Backend.Tests.IntegrationTests;
 [TestFixture]
 [SuppressMessage("ReSharper", "MethodSupportsCancellation")]
 [SuppressMessage("Reliability", "CA2016:Forward the \'CancellationToken\' parameter to methods")]
-public class DigestProcessorTests
+public sealed class DigestProcessorTests
 {
     private readonly Mock<ILogger<DigestProcessor>> _mockLogger = new();
     private readonly Mock<IServiceProvider> _mockServiceProvider = new();

@@ -11,7 +11,7 @@ using TelegramDigest.Backend.Models;
 namespace TelegramDigest.Backend.Tests.UnitTests;
 
 [TestFixture]
-public class FileSettingsManagerTests
+public sealed class FileSettingsManagerTests
 {
     private Mock<IOptions<BackendDeploymentOptions>> _mockOptions;
     private Mock<ILogger<FileSettingsManager>> _mockLogger;

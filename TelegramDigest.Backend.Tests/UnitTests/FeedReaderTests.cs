@@ -7,7 +7,7 @@ using TelegramDigest.Backend.Models;
 namespace TelegramDigest.Backend.Tests.UnitTests;
 
 [TestFixture]
-public class FeedReaderTests
+public sealed class FeedReaderTests
 {
     private Mock<ILogger<FeedReader>> _loggerMock;
 

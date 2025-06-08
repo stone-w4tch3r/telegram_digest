@@ -4,7 +4,7 @@ using TelegramDigest.Backend.Models;
 
 namespace TelegramDigest.Backend.Serialization
 {
-    public class FeedUrlJsonConverter : JsonConverter<FeedUrl>
+    public sealed class FeedUrlJsonConverter : JsonConverter<FeedUrl>
     {
         public override FeedUrl Read(
             ref Utf8JsonReader reader,

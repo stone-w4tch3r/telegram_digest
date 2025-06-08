@@ -140,12 +140,11 @@
                 }
                 else if (Model.Progress.CurrentStep == DigestStepViewModelEnum.Error)
                 {
-                    <a asp-page="/Digests/Index" class="btn btn-primary">Back to Digests</a>
+                    <a href="javascript:history.back()" class="btn btn-primary">Back</a>
                 }
                 else
                 {
-                    <a asp-page="/Digests/Index" class="btn btn-outline-secondary">Back to
-                        Digests</a>
+                    <a href="javascript:history.back()" class="btn btn-outline-secondary">Back</a>
                 }
             </div>
         </div>

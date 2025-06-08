@@ -19,7 +19,7 @@
                 <h1 class="h3">
                     <i class="bi bi-newspaper text-primary"></i> Generate Digest
                 </h1>
-                <a asp-page="Index" class="btn btn-outline-secondary">
+                <a href="javascript:history.back()" class="btn btn-outline-secondary">
                     <i class="bi bi-arrow-left"></i> Back
                 </a>
             </div>
@@ -40,9 +40,11 @@
                                             <small class="text-muted">UTC time</small>
                                         </h6>
                                         <div class="mb-2">
-                                            <input asp-for="@Model.Form.DateFrom" type="datetime-local"
-                                                class="form-control" />
-                                            <span asp-validation-for="@Model.Form.DateFrom" class="text-danger"></span>
+                                            <input asp-for="@Model.Form.DateFrom"
+                                                   type="datetime-local"
+                                                   class="form-control"/>
+                                            <span asp-validation-for="@Model.Form.DateFrom"
+                                                  class="text-danger"></span>
                                         </div>
                                     </div>
                                 </div>
@@ -51,13 +53,15 @@
                                 <div class="card h-100">
                                     <div class="card-body">
                                         <h6 class="card-subtitle mb-3 text-muted d-flex justify-content-between">
-                                            <span><i class="bi bi-calendar-range me-2"></i>End Date</span> 
+                                            <span><i class="bi bi-calendar-range me-2"></i>End Date</span>
                                             <small class="text-muted">UTC time</small>
                                         </h6>
                                         <div class="mb-2">
-                                            <input asp-for="@Model.Form.DateTo" type="datetime-local"
-                                                class="form-control" />
-                                            <span asp-validation-for="@Model.Form.DateTo" class="text-danger"></span>
+                                            <input asp-for="@Model.Form.DateTo"
+                                                   type="datetime-local"
+                                                   class="form-control"/>
+                                            <span asp-validation-for="@Model.Form.DateTo"
+                                                  class="text-danger"></span>
                                         </div>
                                     </div>
                                 </div>
@@ -72,7 +76,8 @@
                                         <i class="bi bi-broadcast me-2"></i>Select Feeds
                                     </h6>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" id="selectAllFeeds">
+                                        <input class="form-check-input" type="checkbox"
+                                               id="selectAllFeeds">
                                         <label class="form-check-label" for="selectAllFeeds">
                                             Select All
                                         </label>
@@ -84,11 +89,14 @@
                                         <div class="col card feed-card">
                                             <div class="card-body p-2">
                                                 <div class="form-check mb-0">
-                                                    <input class="form-check-input feed-checkbox" type="checkbox"
-                                                           name="Form.SelectedFeedUrls" value="@feed.Url"
+                                                    <input class="form-check-input feed-checkbox"
+                                                           type="checkbox"
+                                                           name="Form.SelectedFeedUrls"
+                                                           value="@feed.Url"
                                                            id="feed_@feed.Url"
-                                                           @(Model.Form.SelectedFeedUrls.Contains(feed.Url) ? "checked" : "") />
-                                                    <label class="form-check-label" for="feed_@feed.Url">
+                                                           @(Model.Form.SelectedFeedUrls.Contains(feed.Url) ? "checked" : "")/>
+                                                    <label class="form-check-label"
+                                                           for="feed_@feed.Url">
                                                         <i class="bi bi-telegram text-primary me-2"></i>@feed.Title
                                                     </label>
                                                 </div>

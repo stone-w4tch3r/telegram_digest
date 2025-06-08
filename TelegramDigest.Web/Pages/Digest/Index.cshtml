@@ -8,8 +8,8 @@
 }
 
 <div class="mb-4 d-flex justify-content-between">
-    <a asp-page="/Digests/Index" class="btn btn-outline-secondary">
-        <i class="bi bi-arrow-left"></i> Back to Digests
+    <a href="javascript:history.back()" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Back
     </a>
 
     @if (Model.Summary != null)

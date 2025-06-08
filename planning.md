@@ -63,21 +63,22 @@
 
 ### Low priority
 
-| Done | Task                                              | Time  |
-|------|---------------------------------------------------|-------|
-| [ ]  | Add more parameters and jinja template to prompts | 1h    |
-| [ ]  | Move prompts from settings to table               | 1h    |
-| [ ]  | Override prompt in generate UI                    | 1h    |
-| [ ]  | Add XML docs in existing code                     | 1h    |
-| [ ]  | Obtain API key and pay                            | 30min |
-| [ ]  | Error handling: 404 page                          | 30min |
-| [ ]  | Tests: unit                                       | 2h    |
-| [ ]  | Tests: integration                                | 2h    |
-| [ ]  | Tests: UI                                         | 2h    |
-| [ ]  | Tests: validators                                 | 2h    |
-| [ ]  | Allow empty API key                               | 1h    |
-| [ ]  | Faster docker build                               | 1h    |
-| [ ]  | Support cancellation everywhere                   | 1h    |
+| Done | Task                                                | Time  |
+|------|-----------------------------------------------------|-------|
+| [ ]  | Add more parameters and jinja template to prompts   | 1h    |
+| [ ]  | Digest generation result: SuccessButSomeFeedsFailed | 2h    |
+| [ ]  | Move prompts from settings to table                 | 1h    |
+| [ ]  | Override prompt in generate UI                      | 1h    |
+| [ ]  | Add XML docs in existing code                       | 1h    |
+| [ ]  | Obtain API key and pay                              | 30min |
+| [ ]  | Error handling: 404 page                            | 30min |
+| [ ]  | Tests: unit                                         | 2h    |
+| [ ]  | Tests: integration                                  | 2h    |
+| [ ]  | Tests: UI                                           | 2h    |
+| [ ]  | Tests: validators                                   | 2h    |
+| [ ]  | Allow empty API key                                 | 1h    |
+| [ ]  | Faster docker build                                 | 1h    |
+| [ ]  | Support cancellation everywhere                     | 1h    |
 
 ### Future
 

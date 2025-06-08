@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using TelegramDigest.Backend.Core;
 using TelegramDigest.Web.Models.ViewModels;
@@ -15,20 +16,33 @@ public sealed class GenerateModel(BackendClient backend) : BasePageModel
 
     public async Task OnGetAsync()
     {
-        var settings = await backend.GetSettings();
+        var settingsResult = await backend.GetSettings();
+        if (settingsResult.IsFailed)
+        {
+            Errors = settingsResult.Errors;
+            return;
+        }
+        var settings = settingsResult.Value;
         var currentUtc = DateTime.UtcNow;
         var digestTimeToday = currentUtc.Date.Add(settings.DigestTimeUtc.ToTimeSpan());
 
-        Feeds = await backend.GetFeeds();
+        var feedsResult = await backend.GetFeeds();
+        if (feedsResult.IsFailed)
+        {
+            Errors = feedsResult.Errors;
+            return;
+        }
+        Feeds = feedsResult.Value;
 
         // If digest time hasn't passed today, set range to previous day
         // Otherwise set range to today
+        var allFeedUrls = Feeds.Select(f => f.Url).ToArray();
         Form = new()
         {
             DateTo = currentUtc >= digestTimeToday ? currentUtc.Date.AddDays(1) : currentUtc.Date,
             DateFrom =
                 currentUtc >= digestTimeToday ? currentUtc.Date : currentUtc.Date.AddDays(-1),
-            SelectedFeeds = Feeds.Select(f => new FeedUrl(f.Url)).ToArray(),
+            SelectedFeedUrls = allFeedUrls,
         };
     }
 
@@ -36,28 +50,33 @@ public sealed class GenerateModel(BackendClient backend) : BasePageModel
     {
         if (!ModelState.IsValid)
         {
-            Feeds = await backend.GetFeeds();
+            var feedsResult = await backend.GetFeeds();
+            if (!feedsResult.IsFailed)
+            {
+                Feeds = feedsResult.Value;
+            }
+
             return Page();
         }
 
         if (Form == null)
         {
-            ErrorMessage = "Form is null. Error in frontend!";
-            Feeds = await backend.GetFeeds();
-            return Page();
+            throw new UnreachableException("Form is null. Error in frontend!");
         }
 
-        try
+        var result = await backend.QueueDigest(Form.DateFrom, Form.DateTo, Form.SelectedFeedUrls);
+        if (result.IsFailed)
         {
-            var digestId = await backend.QueueDigest(Form);
-            SuccessMessage = "Digest generation queued successfully";
-            return RedirectToPage("/Digest/Progress", new { id = digestId });
-        }
-        catch (Exception ex)
-        {
-            ErrorMessage = $"Failed to queue digest: {ex.Message}";
-            Feeds = await backend.GetFeeds();
+            Errors = result.Errors;
+            var feedsResult = await backend.GetFeeds();
+            if (!feedsResult.IsFailed)
+            {
+                Feeds = feedsResult.Value;
+            }
+
             return Page();
         }
+        SuccessMessage = "Digest generation queued successfully";
+        return RedirectToPage("/Digest/Progress", new { id = result.Value });
     }
 }

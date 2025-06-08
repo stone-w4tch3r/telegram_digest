@@ -1,3 +1,4 @@
+using FluentResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -8,6 +9,6 @@ public class BasePageModel : PageModel
     [TempData]
     public string? SuccessMessage { get; set; }
 
-    [TempData]
-    public string? ErrorMessage { get; set; }
+    [ViewData]
+    public List<IError>? Errors { get; set; }
 }

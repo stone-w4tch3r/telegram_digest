@@ -36,20 +36,31 @@ public sealed class RssController(
 
         if (isNoCache)
         {
-            return Content(
-                SerializeRssFeed(await backendClient.GetRssFeed()),
-                RSS_CONTENT_TYPE,
-                Encoding.UTF8
-            );
+            var result = await backendClient.GetRssFeed();
+            if (!result.IsSuccess)
+            {
+                logger.LogWarning(
+                    "Failed to get RSS feed: {Errors}",
+                    string.Join("; ", result.Errors.Select(e => e.Message))
+                );
+                return StatusCode(500, new { errors = result.Errors.Select(e => e.Message) });
+            }
+            return Content(SerializeRssFeed(result.Value), RSS_CONTENT_TYPE, Encoding.UTF8);
         }
 
         if (!cache.TryGetValue(CacheKey, out string? feed))
         {
-            var newFeed = await backendClient.GetRssFeed();
-
+            var result = await backendClient.GetRssFeed();
+            if (!result.IsSuccess)
+            {
+                logger.LogWarning(
+                    "Failed to get RSS feed: {Errors}",
+                    string.Join("; ", result.Errors.Select(e => e.Message))
+                );
+                return StatusCode(500, new { errors = result.Errors.Select(e => e.Message) });
+            }
             var cacheOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(_cacheDuration);
-
-            feed = SerializeRssFeed(newFeed);
+            feed = SerializeRssFeed(result.Value);
             cache.Set(CacheKey, feed, cacheOptions);
         }
 

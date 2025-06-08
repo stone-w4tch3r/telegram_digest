@@ -14,29 +14,40 @@ public sealed class IndexModel(BackendClient backend, ILogger<IndexModel> logger
 
     public async Task OnGetAsync()
     {
-        try
+        // Get latest digest
+        var digestsResult = await backend.GetDigestSummaries();
+        if (digestsResult.IsFailed)
         {
-            // Get latest digest
-            var digests = await backend.GetDigestSummaries();
-            LatestDigest = digests.OrderByDescending(d => d.CreatedAt).FirstOrDefault();
-            TotalDigests = digests.Count;
-
-            // Get feeds info
-            var feeds = await backend.GetFeeds();
-            TotalFeeds = feeds.Count;
-            RandomFeeds = feeds.OrderByDescending(_ => Random.Shared.Next()).Take(5).ToList();
-
-            // Get next digest time from settings
-            var settings = await backend.GetSettings();
-            NextDigestTime = DateTime.UtcNow.Date.Add(settings.DigestTimeUtc.ToTimeSpan());
-            if (NextDigestTime < DateTime.UtcNow)
-            {
-                NextDigestTime = NextDigestTime.Value.AddDays(1);
-            }
+            Errors = digestsResult.Errors;
+            return;
         }
-        catch (Exception ex)
+        var digests = digestsResult.Value;
+        LatestDigest = digests.OrderByDescending(d => d.CreatedAt).FirstOrDefault();
+        TotalDigests = digests.Count;
+
+        // Get feeds info
+        var feedsResult = await backend.GetFeeds();
+        if (feedsResult.IsFailed)
         {
-            logger.LogError(ex, "Error loading dashboard data");
+            Errors = feedsResult.Errors;
+            return;
+        }
+        var feeds = feedsResult.Value;
+        TotalFeeds = feeds.Count;
+        RandomFeeds = feeds.OrderByDescending(_ => Random.Shared.Next()).Take(5).ToList();
+
+        // Get next digest time from settings
+        var settingsResult = await backend.GetSettings();
+        if (settingsResult.IsFailed)
+        {
+            Errors = settingsResult.Errors;
+            return;
+        }
+        var settings = settingsResult.Value;
+        NextDigestTime = DateTime.UtcNow.Date.Add(settings.DigestTimeUtc.ToTimeSpan());
+        if (NextDigestTime < DateTime.UtcNow)
+        {
+            NextDigestTime = NextDigestTime.Value.AddDays(1);
         }
     }
 }

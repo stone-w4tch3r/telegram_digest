@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.ServiceModel.Syndication;
+using FluentResults;
 using TelegramDigest.Backend.Core;
 using TelegramDigest.Web.Models.ViewModels;
 
@@ -7,88 +8,91 @@ namespace TelegramDigest.Web.Services;
 
 public sealed class BackendClient(IMainService mainService, ILogger<BackendClient> logger)
 {
-    public async Task<List<DigestSummaryViewModel>> GetDigestSummaries()
+    public async Task<Result<List<DigestSummaryViewModel>>> GetDigestSummaries()
     {
         var result = await mainService.GetDigestSummaries(CancellationToken.None);
         if (result.IsFailed)
         {
             logger.LogError("Failed to get digests: {Errors}", result.Errors);
-            throw new("Failed to get digests");
+            return Result.Fail(result.Errors);
         }
 
-        return result
-            .Value.Select(d => new DigestSummaryViewModel
-            {
-                Id = d.DigestId.Guid,
-                Title = d.Title,
-                Summary = d.PostsSummary,
-                PostsCount = d.PostsCount,
-                AverageImportance = d.AverageImportance,
-                CreatedAt = d.CreatedAt,
-                DateFrom = d.DateFrom,
-                DateTo = d.DateTo,
-            })
-            .ToList();
+        return Result.Ok(
+            result
+                .Value.Select(d => new DigestSummaryViewModel
+                {
+                    Id = d.DigestId.Guid,
+                    Title = d.Title,
+                    Summary = d.PostsSummary,
+                    PostsCount = d.PostsCount,
+                    AverageImportance = d.AverageImportance,
+                    CreatedAt = d.CreatedAt,
+                    DateFrom = d.DateFrom,
+                    DateTo = d.DateTo,
+                })
+                .ToList()
+        );
     }
 
-    public async Task<(DigestSummaryViewModel summary, PostSummaryViewModel[] posts)?> GetDigest(
-        Guid id
-    )
+    public async Task<
+        Result<(DigestSummaryViewModel summary, PostSummaryViewModel[] posts)>
+    > GetDigest(Guid id)
     {
         var result = await mainService.GetDigest(new(id), CancellationToken.None);
         if (result.IsFailed)
         {
             logger.LogError("Failed to get digest {DigestId}: {Errors}", id, result.Errors);
-            throw new($"Failed to get digest {id}");
+            return Result.Fail(result.Errors);
         }
 
         if (result.Value is null)
         {
-            return null;
+            return Result.Fail("Digest not found");
         }
 
-        return (
-            new()
-            {
-                Id = result.Value.DigestId.Guid,
-                Title = result.Value.DigestSummary.Title,
-                Summary = result.Value.DigestSummary.PostsSummary,
-                PostsCount = result.Value.DigestSummary.PostsCount,
-                AverageImportance = result.Value.DigestSummary.AverageImportance,
-                CreatedAt = result.Value.DigestSummary.CreatedAt,
-                DateFrom = result.Value.DigestSummary.DateFrom,
-                DateTo = result.Value.DigestSummary.DateTo,
-            },
-            result
-                .Value.PostsSummaries.Select(p => new PostSummaryViewModel
+        return Result.Ok(
+            (
+                new DigestSummaryViewModel
                 {
-                    FeedUrl = p.FeedUrl.ToString(),
-                    Summary = p.Summary,
-                    Url = p.Url.ToString(),
-                    PostedAt = p.PublishedAt,
-                    Importance = p.Importance.Number,
-                })
-                .ToArray()
+                    Id = result.Value.DigestId.Guid,
+                    Title = result.Value.DigestSummary.Title,
+                    Summary = result.Value.DigestSummary.PostsSummary,
+                    PostsCount = result.Value.DigestSummary.PostsCount,
+                    AverageImportance = result.Value.DigestSummary.AverageImportance,
+                    CreatedAt = result.Value.DigestSummary.CreatedAt,
+                    DateFrom = result.Value.DigestSummary.DateFrom,
+                    DateTo = result.Value.DigestSummary.DateTo,
+                },
+                result
+                    .Value.PostsSummaries.Select(p => new PostSummaryViewModel
+                    {
+                        FeedUrl = p.FeedUrl.ToString(),
+                        Summary = p.Summary,
+                        Url = p.Url.ToString(),
+                        PostedAt = p.PublishedAt,
+                        Importance = p.Importance.Number,
+                    })
+                    .ToArray()
+            )
         );
     }
 
-    public async Task DeleteDigest(Guid id)
+    public async Task<Result> DeleteDigest(Guid id)
     {
-        var result = await mainService.DeleteDigest(new(id), CancellationToken.None);
-        if (result.IsFailed)
-        {
-            logger.LogError("Failed to delete digest {DigestId}: {Errors}", id, result.Errors);
-            throw new($"Failed to delete digest {id}");
-        }
+        return await mainService.DeleteDigest(new(id), CancellationToken.None);
     }
 
-    public async Task<Guid> QueueDigest(DigestGenerationViewModel model)
+    public async Task<Result<Guid>> QueueDigest(
+        DateTime dateFrom,
+        DateTime dateTo,
+        string[] selectedFeeds
+    )
     {
         var digestId = Guid.NewGuid();
         var filter = new DigestFilterModel(
-            DateFrom: DateOnly.FromDateTime(model.DateFrom),
-            DateTo: DateOnly.FromDateTime(model.DateTo),
-            SelectedFeeds: model.SelectedFeeds.Select(f => new FeedUrl(f)).ToHashSet()
+            DateFrom: DateOnly.FromDateTime(dateFrom),
+            DateTo: DateOnly.FromDateTime(dateTo),
+            SelectedFeeds: selectedFeeds.Select(f => new FeedUrl(f)).ToHashSet()
         );
 
         var digestResult = await mainService.QueueDigest(
@@ -100,79 +104,77 @@ public sealed class BackendClient(IMainService mainService, ILogger<BackendClien
         if (digestResult.IsFailed)
         {
             logger.LogError("Failed to generate digest: {Errors}", digestResult.Errors);
-            throw new("Failed to generate digest");
+            return Result.Fail(digestResult.Errors);
         }
 
-        return digestId;
+        return Result.Ok(digestId);
     }
 
-    public async Task<List<FeedViewModel>> GetFeeds()
+    public async Task<Result<List<FeedViewModel>>> GetFeeds()
     {
         var result = await mainService.GetFeeds(CancellationToken.None);
         if (result.IsFailed)
         {
             logger.LogError("Failed to get feeds: {Errors}", result.Errors);
-            throw new("Failed to get feeds");
+            return Result.Fail(result.Errors);
         }
 
-        return result
-            .Value.Select(f => new FeedViewModel { Title = f.Title, Url = f.FeedUrl.ToString() })
-            .ToList();
+        return Result.Ok(
+            result
+                .Value.Select(f => new FeedViewModel
+                {
+                    Title = f.Title,
+                    Url = f.FeedUrl.ToString(),
+                })
+                .ToList()
+        );
     }
 
-    public async Task AddOrUpdateFeed(AddFeedViewModel feed)
+    public async Task<Result> AddOrUpdateFeed(AddFeedViewModel feed)
     {
-        var result = await mainService.AddOrUpdateFeed(new(feed.FeedUrl), CancellationToken.None);
-        if (result.IsFailed)
-        {
-            logger.LogError("Failed to add feed: {Errors}", result.Errors);
-            throw new("Failed to add feed");
-        }
+        return await mainService.AddOrUpdateFeed(new(feed.FeedUrl), CancellationToken.None);
     }
 
-    public async Task DeleteFeedAsync(string feedUrl)
+    public async Task<Result> DeleteFeedAsync(string feedUrl)
     {
-        var result = await mainService.RemoveFeed(new(feedUrl), CancellationToken.None);
-        if (result.IsFailed)
-        {
-            logger.LogError("Failed to delete feed {FeedUrl}: {Errors}", feedUrl, result.Errors);
-            throw new($"Failed to delete feed {feedUrl}");
-        }
+        return await mainService.RemoveFeed(new(feedUrl), CancellationToken.None);
     }
 
-    public async Task<SettingsViewModel> GetSettings()
+    public async Task<Result<SettingsViewModel>> GetSettings()
     {
         var result = await mainService.GetSettings(CancellationToken.None);
         if (result.IsFailed)
         {
             logger.LogError("Failed to get settings: {Errors}", result.Errors);
-            throw new("Failed to get settings");
+            return Result.Fail(result.Errors);
         }
 
         var settings = result.Value;
-        return new()
-        {
-            RecipientEmail = settings.EmailRecipient,
-            SmtpHost = settings.SmtpSettings.Host,
-            SmtpPort = settings.SmtpSettings.Port,
-            SmtpUsername = settings.SmtpSettings.Username,
-            SmtpPassword = settings.SmtpSettings.Password,
-            SmtpUseSsl = settings.SmtpSettings.UseSsl,
-            OpenAiApiKey = settings.OpenAiSettings.ApiKey,
-            OpenAiModel = settings.OpenAiSettings.Model,
-            OpenAiMaxToken = settings.OpenAiSettings.MaxTokens,
-            OpenAiEndpoint = settings.OpenAiSettings.Endpoint,
-            DigestTimeUtc = settings.DigestTime.Time,
-            PromptDigestSummarySystem = settings.PromptSettings.DigestSummarySystemPrompt,
-            PromptDigestSummaryUser = settings.PromptSettings.DigestSummaryUserPrompt,
-            PromptPostSummarySystem = settings.PromptSettings.PostSummarySystemPrompt,
-            PromptPostSummaryUser = settings.PromptSettings.PostSummaryUserPrompt,
-            PromptPostImportanceSystem = settings.PromptSettings.PostImportanceSystemPrompt,
-            PromptPostImportanceUser = settings.PromptSettings.PostImportanceUserPrompt,
-        };
+        return Result.Ok(
+            new SettingsViewModel
+            {
+                RecipientEmail = settings.EmailRecipient,
+                SmtpHost = settings.SmtpSettings.Host,
+                SmtpPort = settings.SmtpSettings.Port,
+                SmtpUsername = settings.SmtpSettings.Username,
+                SmtpPassword = settings.SmtpSettings.Password,
+                SmtpUseSsl = settings.SmtpSettings.UseSsl,
+                OpenAiApiKey = settings.OpenAiSettings.ApiKey,
+                OpenAiModel = settings.OpenAiSettings.Model,
+                OpenAiMaxToken = settings.OpenAiSettings.MaxTokens,
+                OpenAiEndpoint = settings.OpenAiSettings.Endpoint,
+                DigestTimeUtc = settings.DigestTime.Time,
+                PromptDigestSummarySystem = settings.PromptSettings.DigestSummarySystemPrompt,
+                PromptDigestSummaryUser = settings.PromptSettings.DigestSummaryUserPrompt,
+                PromptPostSummarySystem = settings.PromptSettings.PostSummarySystemPrompt,
+                PromptPostSummaryUser = settings.PromptSettings.PostSummaryUserPrompt,
+                PromptPostImportanceSystem = settings.PromptSettings.PostImportanceSystemPrompt,
+                PromptPostImportanceUser = settings.PromptSettings.PostImportanceUserPrompt,
+            }
+        );
     }
 
-    public async Task UpdateSettings(SettingsViewModel settings)
+    public async Task<Result> UpdateSettings(SettingsViewModel settings)
     {
         var settingsModel = new SettingsModel(
             settings.RecipientEmail,
@@ -204,81 +206,76 @@ public sealed class BackendClient(IMainService mainService, ILogger<BackendClien
         if (result.IsFailed)
         {
             logger.LogError("Failed to update settings: {Errors}", result.Errors);
-            throw new("Failed to update settings");
+            return Result.Fail(result.Errors);
         }
+        return Result.Ok();
     }
 
-    public async Task<SyndicationFeed> GetRssFeed()
+    public async Task<Result<SyndicationFeed>> GetRssFeed()
     {
-        var result = await mainService.GetRssFeed(CancellationToken.None);
-        if (result.IsFailed)
-        {
-            logger.LogError("Failed to get RSS feed: {Errors}", result.Errors);
-            throw new("Failed to get RSS feed");
-        }
-
-        return result.Value;
+        return await mainService.GetRssFeed(CancellationToken.None);
     }
 
-    public async Task<DigestProgressViewModel> GetDigestProgress(Guid id)
+    public async Task<Result<DigestProgressViewModel>> GetDigestProgress(Guid id)
     {
         var result = await mainService.GetDigestSteps(new(id), CancellationToken.None);
         if (result.IsFailed)
         {
             logger.LogError("Failed to get digest statuses: {Errors}", result.Errors);
-            throw new("Failed to get digest statuses");
+            return Result.Fail(result.Errors);
         }
 
         var steps = result.Value.OrderBy(x => x.Timestamp).ToArray();
-        return steps.Length == 0
-            ? new()
-            {
-                Id = id,
-                StartedAt = null,
-                CompletedAt = null,
-                CurrentStep = null,
-                PercentComplete = 0,
-                Steps = [],
-                ErrorMessage = null,
-            }
-            : new()
-            {
-                Id = id,
-                StartedAt = steps[0].Timestamp,
-                CompletedAt = steps[^1].Type.MapToVm().IsFinished() ? steps[^1].Timestamp : null,
-                CurrentStep = steps.Length == 0 ? null : steps.Last().Type.MapToVm(),
-                PercentComplete = steps[^1].Type.MapToVm().IsFinished()
-                    ? 100
-                    : steps.GetLastAiStepOrDefault()?.Percentage ?? 1,
-                Steps = steps
-                    .Select(x => new DigestStepViewModel
-                    {
-                        Type = x.Type.MapToVm(),
-                        Message = x.Message,
-                        Timestamp = x.Timestamp,
-                        Feeds = x is RssReadingStartedStepModel readingStartedStep
-                            ? readingStartedStep.Feeds.Select(f => f.ToString()).ToArray()
-                            : null,
-                        PostsCount = x is RssReadingFinishedStepModel readingFinishedStep
-                            ? readingFinishedStep.PostsCount
-                            : null,
-                        PercentComplete = x is AiProcessingStepModel aiStep
-                            ? aiStep.Percentage
-                            : null,
-                    })
-                    .ToArray(),
-                ErrorMessage = steps[^1] is ErrorStepModel error ? error.FormatErrorStep() : null,
-            };
+        var progressVm =
+            steps.Length == 0
+                ? new()
+                {
+                    Id = id,
+                    StartedAt = null,
+                    CompletedAt = null,
+                    CurrentStep = null,
+                    PercentComplete = 0,
+                    Steps = [],
+                    ErrorMessage = null,
+                }
+                : new DigestProgressViewModel
+                {
+                    Id = id,
+                    StartedAt = steps[0].Timestamp,
+                    CompletedAt = steps[^1].Type.MapToVm().IsFinished()
+                        ? steps[^1].Timestamp
+                        : null,
+                    CurrentStep = steps.Length == 0 ? null : steps.Last().Type.MapToVm(),
+                    PercentComplete = steps[^1].Type.MapToVm().IsFinished()
+                        ? 100
+                        : steps.GetLastAiStepOrDefault()?.Percentage ?? 1,
+                    Steps = steps
+                        .Select(x => new DigestStepViewModel
+                        {
+                            Type = x.Type.MapToVm(),
+                            Message = x.Message,
+                            Timestamp = x.Timestamp,
+                            Feeds = x is RssReadingStartedStepModel readingStartedStep
+                                ? readingStartedStep.Feeds.Select(f => f.ToString()).ToArray()
+                                : null,
+                            PostsCount = x is RssReadingFinishedStepModel readingFinishedStep
+                                ? readingFinishedStep.PostsCount
+                                : null,
+                            PercentComplete = x is AiProcessingStepModel aiStep
+                                ? aiStep.Percentage
+                                : null,
+                        })
+                        .ToArray(),
+                    ErrorMessage = steps[^1] is ErrorStepModel error
+                        ? error.FormatErrorStep()
+                        : null,
+                };
+        return Result.Ok(progressVm);
     }
 
-    public async Task CancelDigest(Guid digestId)
+    public async Task<Result> CancelDigest(Guid digestId)
     {
-        var result = await mainService.CancelDigest(new(digestId));
-        if (result.IsFailed)
-        {
-            logger.LogError("Failed to cancel digest: {Errors}", result.Errors);
-            throw new("Failed to cancel digest");
-        }
+        return await mainService.CancelDigest(new(digestId));
     }
 
     public async Task<Guid[]> GetInProgressDigests()
@@ -296,14 +293,15 @@ public sealed class BackendClient(IMainService mainService, ILogger<BackendClien
         return (await mainService.GetCancellationRequestedDigests()).Select(x => x.Guid).ToArray();
     }
 
-    public async Task RemoveWaitingDigest(Guid key)
+    public async Task<Result> RemoveWaitingDigest(Guid key)
     {
         var result = await mainService.RemoveWaitingDigest(new(key));
         if (result.IsFailed)
         {
             logger.LogError("Failed to remove waiting digest: {Errors}", result.Errors);
-            throw new("Failed to remove waiting digest");
+            return Result.Fail(result.Errors);
         }
+        return Result.Ok();
     }
 
     public Task<List<RssProvider>> GetRssProviders()

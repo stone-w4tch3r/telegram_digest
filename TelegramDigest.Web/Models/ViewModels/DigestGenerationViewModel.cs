@@ -13,8 +13,8 @@ public sealed class DigestGenerationViewModel : IValidatableObject
     [Display(Name = "To Date")]
     public required DateTime DateTo { get; init; }
 
-    [Display(Name = "Selected Feeds")]
-    public required FeedUrl[] SelectedFeeds { get; init; } = Array.Empty<FeedUrl>();
+    [Display(Name = "Selected Feed Urls")]
+    public string[] SelectedFeedUrls { get; init; } = [];
 
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
@@ -35,6 +35,11 @@ public sealed class DigestGenerationViewModel : IValidatableObject
                 "Cannot generate digest for future dates",
                 [nameof(DateTo), nameof(DateFrom)]
             );
+        }
+
+        if (SelectedFeedUrls.Length == 0)
+        {
+            yield return new("At least one feed must be selected", [nameof(SelectedFeedUrls)]);
         }
     }
 }

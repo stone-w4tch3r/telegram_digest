@@ -1,5 +1,4 @@
 @page "{id:guid}"
-@using Microsoft.AspNetCore.Mvc.TagHelpers
 @using TelegramDigest.Web.Models.ViewModels
 @using TelegramDigest.Web.Services
 @model ProgressModel
@@ -10,7 +9,7 @@
 @if (Model.Progress == null)
 {
     <div class="alert alert-danger">
-        An error in frontend occurred while loading the digest progress.
+        An error occurred while loading the digest progress.
     </div>
     return;
 }

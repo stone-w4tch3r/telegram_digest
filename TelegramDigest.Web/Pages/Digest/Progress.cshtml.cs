@@ -11,15 +11,14 @@ public sealed class ProgressModel(BackendClient backend) : BasePageModel
 
     public async Task<IActionResult> OnGetAsync(Guid id)
     {
-        try
+        var result = await backend.GetDigestProgress(id);
+        if (result.IsFailed)
         {
-            Progress = await backend.GetDigestProgress(id);
+            Errors = result.Errors;
             return Page();
         }
-        catch (Exception ex)
-        {
-            ErrorMessage = $"Failed to load digest progress: {ex.Message}";
-            return RedirectToPage("/Digests/Index");
-        }
+
+        Progress = result.Value;
+        return Page();
     }
 }

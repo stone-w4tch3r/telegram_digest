@@ -55,26 +55,23 @@ public sealed class AddModel(BackendClient backend) : BasePageModel
             return Page();
         }
 
-        try
+        var feedUrl = Type switch
         {
-            var feedUrl = Type switch
-            {
-                FeedType.DirectRss when DirectRss != null => DirectRss.FeedUrl,
-                FeedType.Telegram when Telegram != null => RssProviders
-                    .Single(p => p.Id == Telegram.ProviderId)
-                    .BaseUrl + Telegram.ChannelId,
-                _ => throw new UnreachableException("Invalid form state"),
-            };
+            FeedType.DirectRss when DirectRss != null => DirectRss.FeedUrl,
+            FeedType.Telegram when Telegram != null => RssProviders
+                .Single(p => p.Id == Telegram.ProviderId)
+                .BaseUrl + Telegram.ChannelId,
+            _ => throw new UnreachableException("Invalid form state"),
+        };
 
-            await backend.AddOrUpdateFeed(new() { FeedUrl = feedUrl });
-            SuccessMessage = $"Feed '{feedUrl}' added successfully";
-            return RedirectToPage("/Channels/Index");
-        }
-        catch (Exception ex)
+        var result = await backend.AddOrUpdateFeed(new() { FeedUrl = feedUrl });
+        if (result.IsFailed)
         {
-            ErrorMessage = $"Failed to add feed: {ex.Message}";
+            Errors = result.Errors;
             return Page();
         }
+        SuccessMessage = $"Feed '{feedUrl}' added successfully";
+        return RedirectToPage("/Channels/Index");
     }
 }
 

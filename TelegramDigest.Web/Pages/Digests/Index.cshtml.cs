@@ -11,22 +11,24 @@ public sealed class IndexModel(BackendClient backend) : BasePageModel
 
     public async Task OnGetAsync()
     {
-        Digests = await backend.GetDigestSummaries();
-        Digests = Digests.OrderByDescending(d => d.CreatedAt).ToList();
+        var result = await backend.GetDigestSummaries();
+        if (result.IsFailed)
+        {
+            Errors = result.Errors;
+            return;
+        }
+        Digests = result.Value.OrderByDescending(d => d.CreatedAt).ToList();
     }
 
     public async Task<IActionResult> OnPostDeleteAsync(Guid id)
     {
-        try
+        var result = await backend.DeleteDigest(id);
+        if (result.IsFailed)
         {
-            await backend.DeleteDigest(id);
-            SuccessMessage = "Digest deleted successfully";
+            Errors = result.Errors;
             return RedirectToPage();
         }
-        catch (Exception ex)
-        {
-            ErrorMessage = $"Failed to delete digest: {ex.Message}";
-            return RedirectToPage();
-        }
+        SuccessMessage = "Digest deleted successfully";
+        return RedirectToPage();
     }
 }

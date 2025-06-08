@@ -17,44 +17,33 @@ public sealed class IndexModel(BackendClient backend) : BasePageModel
 
     public async Task<IActionResult> OnGetAsync(Guid id)
     {
-        try
+        if (id != Id)
         {
-            if (id != Id)
-            {
-                throw new UnreachableException(
-                    "Error in frontend! Id of digest does not match the one in the URL"
-                );
-            }
+            throw new UnreachableException(
+                "Error in frontend! Id of digest does not match the one in the URL"
+            );
+        }
 
-            var digestResult = await backend.GetDigest(id);
-            if (digestResult is null)
-            {
-                return Page();
-            }
-
-            (Summary, Posts) = digestResult.Value;
-
+        var result = await backend.GetDigest(id);
+        if (result.IsFailed)
+        {
+            Errors = result.Errors;
             return Page();
         }
-        catch (Exception ex)
-        {
-            ErrorMessage = $"Failed to load digest: {ex.Message}";
-            return RedirectToPage("/Digests/Index");
-        }
+
+        (Summary, Posts) = result.Value;
+        return Page();
     }
 
     public async Task<IActionResult> OnPostDeleteAsync(Guid id)
     {
-        try
+        var result = await backend.DeleteDigest(id);
+        if (result.IsFailed)
         {
-            await backend.DeleteDigest(id);
-            SuccessMessage = "Digest deleted successfully";
+            Errors = result.Errors;
             return RedirectToPage("/Digests/Index");
         }
-        catch (Exception ex)
-        {
-            ErrorMessage = $"Failed to delete digest: {ex.Message}";
-            return RedirectToPage("/Digests/Index");
-        }
+        SuccessMessage = "Digest deleted successfully";
+        return RedirectToPage("/Digests/Index");
     }
 }

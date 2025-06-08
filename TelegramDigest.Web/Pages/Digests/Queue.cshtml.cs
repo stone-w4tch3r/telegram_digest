@@ -19,30 +19,30 @@ public class QueueModel(BackendClient backend) : BasePageModel
 
     public async Task<IActionResult> OnPostCancelDigestAsync(Guid digestId)
     {
-        try
+        var result = await backend.CancelDigest(digestId);
+        if (result.IsFailed)
         {
-            await backend.CancelDigest(digestId);
+            Errors = result.Errors;
+            ModelState.AddModelError(string.Empty, "Failed to cancel digest");
         }
-        catch (Exception ex)
+        else
         {
-            // TODO fixme
-            ErrorMessage = $"Failed to cancel digest: {ex.Message}";
-            ModelState.AddModelError(string.Empty, ErrorMessage);
+            SuccessMessage = "Digest cancellation requested successfully";
         }
         return RedirectToPage();
     }
 
     public async Task<IActionResult> OnPostRemoveWaitingDigestAsync(Guid digestId)
     {
-        try
+        var result = await backend.RemoveWaitingDigest(digestId);
+        if (result.IsFailed)
         {
-            await backend.RemoveWaitingDigest(digestId);
+            Errors = result.Errors;
+            ModelState.AddModelError(string.Empty, "Failed to remove waiting digest");
         }
-        catch (Exception ex)
+        else
         {
-            // TODO fixme
-            ErrorMessage = $"Failed to remove waiting digest: {ex.Message}";
-            ModelState.AddModelError(string.Empty, ErrorMessage);
+            SuccessMessage = "Waiting digest removed successfully";
         }
         return RedirectToPage();
     }

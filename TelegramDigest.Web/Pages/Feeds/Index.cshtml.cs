@@ -17,29 +17,27 @@ public sealed class IndexModel(BackendClient backend) : BasePageModel
 
     public async Task OnGetAsync()
     {
-        try
+        var result = await backend.GetFeeds();
+        if (result.IsFailed)
         {
-            var feeds = await backend.GetFeeds();
-            Feeds = feeds.OrderBy(c => c.Title).Select(FeedWithMetadata.FromFeedViewModel).ToList();
+            Errors = result.Errors;
+            return;
         }
-        catch (Exception ex)
-        {
-            ErrorMessage = $"Failed to load feeds: {ex.Message}";
-        }
+        Feeds = result
+            .Value.OrderBy(c => c.Title)
+            .Select(FeedWithMetadata.FromFeedViewModel)
+            .ToList();
     }
 
     public async Task<IActionResult> OnPostDeleteAsync(string feedUrl)
     {
-        try
+        var result = await backend.DeleteFeedAsync(feedUrl);
+        if (result.IsFailed)
         {
-            await backend.DeleteFeedAsync(feedUrl);
-            SuccessMessage = "Feed deleted successfully";
+            Errors = result.Errors;
             return RedirectToPage();
         }
-        catch (Exception ex)
-        {
-            ErrorMessage = $"Failed to delete feed: {ex.Message}";
-            return RedirectToPage();
-        }
+        SuccessMessage = "Feed deleted successfully";
+        return RedirectToPage();
     }
 }

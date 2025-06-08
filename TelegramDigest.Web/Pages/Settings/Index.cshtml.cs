@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using TelegramDigest.Web.Models.ViewModels;
 using TelegramDigest.Web.Pages.Shared;
@@ -12,16 +13,14 @@ public sealed class IndexModel(BackendClient backend) : BasePageModel
 
     public async Task<IActionResult> OnGetAsync()
     {
-        try
+        var result = await backend.GetSettings();
+        if (result.IsFailed)
         {
-            Settings = await backend.GetSettings();
+            Errors = result.Errors;
             return Page();
         }
-        catch (Exception ex)
-        {
-            ErrorMessage = $"Failed to load settings: {ex.Message}";
-            return RedirectToPage("/Index");
-        }
+        Settings = result.Value;
+        return Page();
     }
 
     public async Task<IActionResult> OnPostAsync()
@@ -33,20 +32,16 @@ public sealed class IndexModel(BackendClient backend) : BasePageModel
         }
         if (Settings is null)
         {
-            ErrorMessage = "Error in web page! Can't read new settings";
-            return Page();
+            throw new UnreachableException("Error in web page! Can't read new settings");
         }
 
-        try
+        var result = await backend.UpdateSettings(Settings);
+        if (result.IsFailed)
         {
-            await backend.UpdateSettings(Settings);
-            SuccessMessage = "Settings updated successfully";
-            return RedirectToPage();
-        }
-        catch (Exception ex)
-        {
-            ErrorMessage = $"Failed to update settings: {ex.Message}";
+            Errors = result.Errors;
             return Page();
         }
+        SuccessMessage = "Settings updated successfully";
+        return RedirectToPage();
     }
 }

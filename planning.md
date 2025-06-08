@@ -40,12 +40,19 @@
 | [x]  | Any RSS: Add any RSS feed in UI                                             | 1h    |
 | [x]  | Any RSS: rename digest UI items                                             | 1h    |
 | [x]  | auto apply runtime argument null checks via code generation on compilation  | 1h    |
+| [x]  | Error handling: exception stacktrace in UI                                  | 30min |
+| [x]  | Error handling: use Result in frontend                                      | 1h    |
 
 ### High priority
 
 | Done | Task                                                      | Time  |
 |------|-----------------------------------------------------------|-------|
 | [ ]  | Bug: newlines in UI                                       | 30min |
+| [ ]  | Bug: hanging on feed add, timeout?                        | 30min |
+| [ ]  | Bug: generation cancels for unknown reason                | 30min |
+| [ ]  | Bug: spawn multiple generations and see strange stuff     | 30min |
+| [ ]  | Check new tests done by ai                                | 30min |
+| [ ]  | Simplify prompts                                          | 30min |
 | [ ]  | Bug: add new chanel: backend error not shown until reload | 30min |
 | [ ]  | Replace "Back to digests" with "Back"                     | 30min |
 | [ ]  | Digest generation: queue monitor                          | 3h    |
@@ -58,17 +65,18 @@
 | Done | Task                                              | Time  |
 |------|---------------------------------------------------|-------|
 | [ ]  | Add more parameters and jinja template to prompts | 1h    |
+| [ ]  | Move prompts from settings to table               | 1h    |
+| [ ]  | Override prompt in generate UI                    | 1h    |
 | [ ]  | Add XML docs in existing code                     | 1h    |
 | [ ]  | Obtain API key and pay                            | 30min |
-| [ ]  | Error handling: exception stacktrace in UI        | 30min |
 | [ ]  | Error handling: 404 page                          | 30min |
-| [ ]  | Error handling: use Result in frontend            | 1h    |
 | [ ]  | Tests: unit                                       | 2h    |
 | [ ]  | Tests: integration                                | 2h    |
 | [ ]  | Tests: UI                                         | 2h    |
 | [ ]  | Tests: validators                                 | 2h    |
 | [ ]  | Allow empty API key                               | 1h    |
 | [ ]  | Faster docker build                               | 1h    |
+| [ ]  | Support cancellation everywhere                   | 1h    |
 
 ### Future
 

@@ -44,6 +44,7 @@
 | [x]  | Error handling: use Result in frontend                                      | 1h    |
 | [x]  | Check new tests done by ai                                                  | 30min |
 | [x]  | Simplify env vars handling                                                  | 30min |
+| [x]  | Simplify prompts                                                            | 30min |
 
 ### High priority
 
@@ -54,7 +55,6 @@
 | [ ]  | Bug: generation cancels for unknown reason                | 30min |
 | [ ]  | Bug: spawn multiple generations and see strange stuff     | 30min |
 | [ ]  | Support reading complex media or links from RSS           | 30min |
-| [ ]  | Simplify prompts                                          | 30min |
 | [ ]  | Bug: add new chanel: backend error not shown until reload | 30min |
 | [ ]  | Replace "Back to digests" with "Back"                     | 30min |
 | [ ]  | Digest generation: queue monitor                          | 3h    |

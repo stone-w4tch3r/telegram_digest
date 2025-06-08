@@ -55,6 +55,7 @@
 | [ ]  | Bug: generation cancels for unknown reason                | 30min |
 | [ ]  | Bug: spawn multiple generations and see strange stuff     | 30min |
 | [ ]  | Support reading complex media or links from RSS           | 30min |
+| [ ]  | Load tg rss providers from options                        | 30min |
 | [ ]  | Bug: add new chanel: backend error not shown until reload | 30min |
 | [ ]  | Replace "Back to digests" with "Back"                     | 30min |
 | [ ]  | Digest generation: queue monitor                          | 3h    |

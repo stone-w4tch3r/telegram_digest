@@ -1,7 +1,8 @@
 using System.Net.Mail;
 using FluentResults;
+using TelegramDigest.Backend.Models;
 
-namespace TelegramDigest.Backend.Core;
+namespace TelegramDigest.Backend.Features;
 
 [Obsolete("Will be removed before release")]
 internal interface IEmailSender

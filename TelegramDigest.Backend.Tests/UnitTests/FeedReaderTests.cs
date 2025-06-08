@@ -1,7 +1,8 @@
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
-using TelegramDigest.Backend.Core;
+using TelegramDigest.Backend.Features;
+using TelegramDigest.Backend.Models;
 
 namespace TelegramDigest.Backend.Tests.UnitTests;
 

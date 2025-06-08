@@ -1,7 +1,9 @@
 using FluentResults;
 using Microsoft.Extensions.DependencyInjection;
+using TelegramDigest.Backend.Features.DigestSteps;
+using TelegramDigest.Backend.Models;
 
-namespace TelegramDigest.Backend.Core;
+namespace TelegramDigest.Backend.Features.DigestParallelProcessing;
 
 internal interface IDigestProcessingOrchestrator
 {

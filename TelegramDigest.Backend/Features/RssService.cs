@@ -1,8 +1,9 @@
 using System.ServiceModel.Syndication;
 using System.Text;
 using FluentResults;
+using TelegramDigest.Backend.Models;
 
-namespace TelegramDigest.Backend.Core;
+namespace TelegramDigest.Backend.Features;
 
 internal interface IRssService
 {

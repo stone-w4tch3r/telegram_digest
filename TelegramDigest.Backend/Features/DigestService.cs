@@ -1,7 +1,9 @@
 using FluentResults;
 using TelegramDigest.Backend.Db;
+using TelegramDigest.Backend.Features.DigestSteps;
+using TelegramDigest.Backend.Models;
 
-namespace TelegramDigest.Backend.Core;
+namespace TelegramDigest.Backend.Features;
 
 internal interface IDigestService
 {

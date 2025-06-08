@@ -3,7 +3,7 @@ using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace TelegramDigest.Backend.Utils;
+namespace TelegramDigest.Backend.Serialization;
 
 internal sealed class ExceptionJsonConverter : JsonConverter<Exception>
 {

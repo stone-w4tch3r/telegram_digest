@@ -1,8 +1,9 @@
 using System.Diagnostics;
 using System.Text.Json;
 using FluentResults;
-using TelegramDigest.Backend.Core;
-using TelegramDigest.Backend.Utils;
+using TelegramDigest.Backend.Features.DigestSteps;
+using TelegramDigest.Backend.Models;
+using TelegramDigest.Backend.Serialization;
 
 namespace TelegramDigest.Backend.Db;
 

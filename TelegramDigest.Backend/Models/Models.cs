@@ -1,6 +1,6 @@
 using TelegramDigest.Types.Host;
 
-namespace TelegramDigest.Backend.Core;
+namespace TelegramDigest.Backend.Models;
 
 public sealed record FeedModel(FeedUrl FeedUrl, string Description, string Title, Uri ImageUrl);
 
@@ -32,7 +32,7 @@ public sealed record DigestSummaryModel(
 );
 
 /// <param name="SelectedFeeds">Null means all feeds</param>
-public record DigestFilterModel(
+public sealed record DigestFilterModel(
     DateOnly DateFrom,
     DateOnly DateTo,
     IReadOnlySet<FeedUrl>? SelectedFeeds = null

@@ -2,7 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using TelegramDigest.Backend.Db;
 
-namespace TelegramDigest.Backend.Core;
+namespace TelegramDigest.Backend.Features.DigestSteps;
 
 internal sealed class DigestStepsProcessor(
     IServiceScopeFactory scopeFactory,

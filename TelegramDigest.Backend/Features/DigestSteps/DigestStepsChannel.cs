@@ -1,6 +1,6 @@
 using System.Threading.Channels;
 
-namespace TelegramDigest.Backend.Core;
+namespace TelegramDigest.Backend.Features.DigestSteps;
 
 /// <summary>
 /// Singleton to share digest steps queue

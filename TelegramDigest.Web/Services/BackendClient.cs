@@ -1,7 +1,9 @@
 using System.Diagnostics;
 using System.ServiceModel.Syndication;
 using FluentResults;
-using TelegramDigest.Backend.Core;
+using TelegramDigest.Backend.Features;
+using TelegramDigest.Backend.Features.DigestSteps;
+using TelegramDigest.Backend.Models;
 using TelegramDigest.Web.Models.ViewModels;
 
 namespace TelegramDigest.Web.Services;

@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
-using TelegramDigest.Backend.Core;
+using TelegramDigest.Backend.Features.DigestParallelProcessing;
 
 namespace TelegramDigest.Backend.Tests.UnitTests;
 

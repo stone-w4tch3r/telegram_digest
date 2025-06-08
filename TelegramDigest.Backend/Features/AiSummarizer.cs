@@ -1,7 +1,8 @@
 using FluentResults;
 using OpenAI.Chat;
+using TelegramDigest.Backend.Models;
 
-namespace TelegramDigest.Backend.Core;
+namespace TelegramDigest.Backend.Features;
 
 internal interface IAiSummarizer
 {

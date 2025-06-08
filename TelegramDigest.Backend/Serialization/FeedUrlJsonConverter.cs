@@ -1,8 +1,8 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using TelegramDigest.Backend.Core;
+using TelegramDigest.Backend.Models;
 
-namespace TelegramDigest.Backend.Utils
+namespace TelegramDigest.Backend.Serialization
 {
     public class FeedUrlJsonConverter : JsonConverter<FeedUrl>
     {

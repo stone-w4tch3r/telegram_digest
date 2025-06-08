@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-namespace TelegramDigest.Backend.Utils;
+namespace TelegramDigest.Backend.Serialization;
 
 internal static class SerializationOptions
 {

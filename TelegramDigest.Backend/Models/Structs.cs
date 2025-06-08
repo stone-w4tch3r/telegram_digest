@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using FluentResults;
 
-namespace TelegramDigest.Backend.Core;
+namespace TelegramDigest.Backend.Models;
 
 public readonly record struct DigestId(Guid Guid = new())
 {
@@ -52,7 +52,11 @@ public readonly record struct FeedUrl
     {
         if (
             !Uri.TryCreate(url, UriKind.Absolute, out var uri)
-            || (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps && uri.Scheme != Uri.UriSchemeFile)
+            || (
+                uri.Scheme != Uri.UriSchemeHttp
+                && uri.Scheme != Uri.UriSchemeHttps
+                && uri.Scheme != Uri.UriSchemeFile
+            )
         )
         {
             throw new ArgumentException($"Invalid feed URL: {url}", nameof(url));

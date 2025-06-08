@@ -1,9 +1,12 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using TelegramDigest.Backend.Core;
 using TelegramDigest.Backend.Db;
+using TelegramDigest.Backend.Features;
+using TelegramDigest.Backend.Features.DigestParallelProcessing;
+using TelegramDigest.Backend.Features.DigestSteps;
 using TelegramDigest.Backend.Infrastructure;
+using TelegramDigest.Backend.Models;
 
 namespace TelegramDigest.Backend;
 

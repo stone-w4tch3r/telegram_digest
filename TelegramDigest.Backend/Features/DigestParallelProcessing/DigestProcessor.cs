@@ -3,8 +3,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using TelegramDigest.Backend.Infrastructure;
+using TelegramDigest.Backend.Models;
 
-namespace TelegramDigest.Backend.Core;
+namespace TelegramDigest.Backend.Features.DigestParallelProcessing;
 
 [UsedImplicitly]
 internal sealed class DigestProcessor(

@@ -3,8 +3,9 @@ using System.Text.Json.Serialization;
 using FluentResults;
 using Microsoft.Extensions.Options;
 using TelegramDigest.Backend.Infrastructure;
+using TelegramDigest.Backend.Models;
 
-namespace TelegramDigest.Backend.Core;
+namespace TelegramDigest.Backend.Features;
 
 internal interface ISettingsManager
 {
@@ -158,7 +159,7 @@ internal sealed class FileSettingsManager(
             )
         );
 
-    private record SettingsJson(
+    private sealed record SettingsJson(
         [property: JsonRequired] string EmailRecipient,
         [property: JsonRequired] TimeOnly DigestTime,
         [property: JsonRequired] SmtpSettingsJson SmtpSettings,
@@ -166,7 +167,7 @@ internal sealed class FileSettingsManager(
         [property: JsonRequired] PromptSettingsJson PromptSettings
     );
 
-    private record PromptSettingsJson(
+    private sealed record PromptSettingsJson(
         [property: JsonRequired] string PostSummarySystemPrompt,
         [property: JsonRequired] string PostSummaryUserPrompt,
         [property: JsonRequired] string PostImportanceSystemPrompt,
@@ -175,7 +176,7 @@ internal sealed class FileSettingsManager(
         [property: JsonRequired] string DigestSummaryUserPrompt
     );
 
-    private record SmtpSettingsJson(
+    private sealed record SmtpSettingsJson(
         [property: JsonRequired] string Host,
         [property: JsonRequired] int Port,
         [property: JsonRequired] string Username,
@@ -183,7 +184,7 @@ internal sealed class FileSettingsManager(
         [property: JsonRequired] bool UseSsl
     );
 
-    private record OpenAiSettingsJson(
+    private sealed record OpenAiSettingsJson(
         [property: JsonRequired] string ApiKey,
         [property: JsonRequired] string Model,
         [property: JsonRequired] int MaxTokens,

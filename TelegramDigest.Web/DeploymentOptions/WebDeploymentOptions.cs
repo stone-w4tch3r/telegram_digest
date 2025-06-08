@@ -5,7 +5,7 @@ using TelegramDigest.Web.Models;
 
 namespace TelegramDigest.Web.DeploymentOptions;
 
-public record WebDeploymentOptions
+public sealed record WebDeploymentOptions
 {
     public const string BASEPATH_KEY = "BASEPATH";
     public const string HOSTNAME_KEY = "HOSTNAME";

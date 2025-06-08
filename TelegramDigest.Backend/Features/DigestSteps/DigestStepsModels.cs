@@ -1,6 +1,7 @@
 using FluentResults;
+using TelegramDigest.Backend.Models;
 
-namespace TelegramDigest.Backend.Core;
+namespace TelegramDigest.Backend.Features.DigestSteps;
 
 public enum DigestStepTypeModelEnum
 {

@@ -2,7 +2,7 @@ using System.Diagnostics;
 using System.Text.Json;
 using FluentResults;
 
-namespace TelegramDigest.Backend.Utils;
+namespace TelegramDigest.Backend.Serialization;
 
 public sealed record FluentErrorSerializationDto
 {

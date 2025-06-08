@@ -2,7 +2,7 @@ using System.Collections.Concurrent;
 using System.Threading.Channels;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace TelegramDigest.Backend.Core;
+namespace TelegramDigest.Backend.Features.DigestParallelProcessing;
 
 internal interface ITaskScheduler<TKey> : IDisposable
     where TKey : IEquatable<TKey>

@@ -52,7 +52,7 @@ public readonly record struct FeedUrl
     {
         if (
             !Uri.TryCreate(url, UriKind.Absolute, out var uri)
-            || (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps)
+            || (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps && uri.Scheme != Uri.UriSchemeFile)
         )
         {
             throw new ArgumentException($"Invalid feed URL: {url}", nameof(url));

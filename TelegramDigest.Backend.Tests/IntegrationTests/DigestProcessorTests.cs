@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -6,7 +7,7 @@ using Moq;
 using TelegramDigest.Backend.Core;
 using TelegramDigest.Backend.DeploymentOptions;
 
-namespace TelegramDigest.Application.Tests.IntegrationTests;
+namespace TelegramDigest.Backend.Tests.IntegrationTests;
 
 [TestFixture]
 [SuppressMessage("ReSharper", "MethodSupportsCancellation")]
@@ -50,14 +51,14 @@ public class DigestProcessorTests
 
         // Verify a task moved to in-progress
         await Task.Delay(100);
-        Assert.That(tracker.GetInProgressTasks(), Has.Exactly(1).EqualTo(digestId));
+        tracker.GetInProgressTasks().Should().ContainSingle().And.Contain(digestId);
 
         // Complete task
         tcs.SetResult();
         await Task.Delay(100);
 
         // Assert
-        Assert.That(tracker.GetInProgressTasks(), Is.Empty);
+        tracker.GetInProgressTasks().Should().BeEmpty();
 
         // Cleanup
         cts.Dispose();
@@ -97,8 +98,8 @@ public class DigestProcessorTests
 
         // Verify both tasks start immediately
         await Task.Delay(100);
-        Assert.That(tracker.GetInProgressTasks(), Has.Exactly(2).Items);
-        Assert.That(tracker.GetWaitingTasks(), Has.Exactly(1).Items);
+        tracker.GetInProgressTasks().Should().HaveCount(2).And.Contain(digestId1, digestId2);
+        tracker.GetWaitingTasks().Should().ContainSingle().And.Contain(digestId3);
 
         // Cleanup
         tcs1.SetResult();
@@ -140,7 +141,7 @@ public class DigestProcessorTests
         await Task.Delay(100); // Let the task complete
 
         // Assert
-        Assert.That(cancellationCalled);
+        cancellationCalled.Should().BeTrue();
 
         // Cleanup
         service.Dispose();
@@ -182,11 +183,8 @@ public class DigestProcessorTests
         await Task.Delay(1000);
 
         // Assert
-        Assert.Multiple(() =>
-        {
-            Assert.That(workItemExecuted, Is.True, "Work item should execute");
-            Assert.That(handlerExecuted, Is.True, "Exception handler should execute");
-        });
+        workItemExecuted.Should().BeTrue("Work item should execute");
+        handlerExecuted.Should().BeTrue("Exception handler should execute");
 
         _mockLogger.Verify(
             x =>
@@ -243,15 +241,8 @@ public class DigestProcessorTests
         await Task.Delay(1000);
 
         // Assert
-        Assert.Multiple(() =>
-        {
-            Assert.That(taskCancelled, Is.True, "Task should be cancelled during shutdown");
-            Assert.That(
-                tracker.GetInProgressTasks(),
-                Is.Empty,
-                "No tasks should remain in progress"
-            );
-        });
+        taskCancelled.Should().BeTrue("Task should be cancelled during shutdown");
+        tracker.GetInProgressTasks().Should().BeEmpty("No tasks should remain in progress");
 
         service.Dispose();
     }
@@ -295,15 +286,8 @@ public class DigestProcessorTests
         await Task.Delay(100);
 
         // Assert
-        Assert.Multiple(() =>
-        {
-            Assert.That(taskCancelled, Is.True, "Task should be cancelled");
-            Assert.That(
-                tracker.GetInProgressTasks(),
-                Is.Empty,
-                "No tasks should remain in progress"
-            );
-        });
+        taskCancelled.Should().BeTrue("Task should be cancelled");
+        tracker.GetInProgressTasks().Should().BeEmpty("No tasks should remain in progress");
 
         service.Dispose();
     }

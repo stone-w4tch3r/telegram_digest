@@ -4,3 +4,7 @@
 # ReSharper properties
 resharper_braces_for_ifelse = required
 resharper_enforce_if_statement_braces_highlighting = hint
+
+# Ban classic assertions, use fluent instead
+[*.cs]
+dotnet_diagnostic.FAA0004.severity = error

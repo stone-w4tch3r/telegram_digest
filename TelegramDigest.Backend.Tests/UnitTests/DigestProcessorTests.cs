@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -6,7 +7,7 @@ using Moq;
 using TelegramDigest.Backend.Core;
 using TelegramDigest.Backend.DeploymentOptions;
 
-namespace TelegramDigest.Application.Tests.UnitTests;
+namespace TelegramDigest.Backend.Tests.UnitTests;
 
 [TestFixture]
 [SuppressMessage("ReSharper", "MethodSupportsCancellation")]
@@ -231,10 +232,8 @@ public class DigestProcessorTests
         await cts.CancelAsync();
 
         // Assert
-        Assert.That(
-            async () => await taskCancelled.Task.WaitAsync(TimeSpan.FromSeconds(1)),
-            Throws.Nothing
-        );
+        var act = async () => await taskCancelled.Task.WaitAsync(TimeSpan.FromSeconds(1));
+        await act.Should().NotThrowAsync();
     }
 
     [Test]
@@ -277,10 +276,8 @@ public class DigestProcessorTests
 
         // Assert
         _mockTaskTracker.Verify(x => x.CancelAllTasksInProgress(), Times.Once);
-        Assert.That(
-            async () => await taskCancelled.Task.WaitAsync(TimeSpan.FromSeconds(1)),
-            Throws.Nothing
-        );
+        var act = async () => await taskCancelled.Task.WaitAsync(TimeSpan.FromSeconds(1));
+        await act.Should().NotThrowAsync();
     }
 
     [Test]
@@ -314,7 +311,7 @@ public class DigestProcessorTests
         var handledException = await exceptionHandled.Task.WaitAsync(TimeSpan.FromSeconds(1));
 
         // Assert
-        Assert.That(handledException, Is.SameAs(exception));
+        handledException.Should().BeSameAs(exception);
         await cts.CancelAsync();
     }
 }

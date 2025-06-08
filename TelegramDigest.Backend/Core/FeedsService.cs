@@ -36,9 +36,7 @@ internal sealed class FeedsService(
         {
             return Result.Fail(feedResult.Errors);
         }
-        var feed = feedResult.Value;
-        var feedModel = new FeedModel(feed.FeedUrl, feed.Description, feed.Title, feed.ImageUrl);
-        return await feedsRepository.SaveFeed(feedModel, ct);
+        return await feedsRepository.SaveFeed(feedResult.Value, ct);
     }
 
     public async Task<Result<List<FeedModel>>> GetFeeds(CancellationToken ct)
@@ -49,10 +47,7 @@ internal sealed class FeedsService(
             return Result.Fail(result.Errors);
         }
 
-        var feeds = result
-            .Value.Select(f => new FeedModel(f.FeedUrl, f.Description, f.Title, f.ImageUrl))
-            .ToList();
-        return Result.Ok(feeds);
+        return Result.Ok(result.Value.ToList());
     }
 
     public async Task<Result> RemoveFeed(FeedUrl feedUrl, CancellationToken ct)

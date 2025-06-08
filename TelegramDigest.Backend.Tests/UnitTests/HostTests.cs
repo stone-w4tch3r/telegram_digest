@@ -1,6 +1,7 @@
+using FluentAssertions;
 using TelegramDigest.Types.Host;
 
-namespace TelegramDigest.Application.Tests.UnitTests;
+namespace TelegramDigest.Backend.Tests.UnitTests;
 
 [TestFixture]
 public sealed class HostTests
@@ -24,7 +25,7 @@ public sealed class HostTests
     )
     {
         var actualType = Host.DetermineHostType(input);
-        Assert.That(actualType, Is.EqualTo(expectedType));
+        actualType.Should().Be(expectedType);
     }
 
     [TestCase("example.com", "example.com", null)]
@@ -40,8 +41,8 @@ public sealed class HostTests
     )
     {
         var host = new Host(input);
-        Assert.That(expectedHost, Is.EqualTo(host.HostPart));
-        Assert.That(expectedPort, Is.EqualTo(host.Port));
+        host.HostPart.Should().Be(expectedHost);
+        host.Port.Should().Be(expectedPort);
     }
 
     [TestCase("https://example.com")]
@@ -56,7 +57,8 @@ public sealed class HostTests
     [TestCase("example.com:")]
     public void Constructor_InvalidInput_ThrowsArgumentException(string input)
     {
-        Assert.Throws<ArgumentException>(() => _ = new Host(input));
+        var act = () => new Host(input);
+        act.Should().Throw<ArgumentException>();
     }
 
     [TestCase("example.com", true, "example.com", null)]
@@ -72,15 +74,16 @@ public sealed class HostTests
     )
     {
         var result = Host.TryParseHost(input, out var host);
-        Assert.That(expectedSuccess, Is.EqualTo(result));
+        result.Should().Be(expectedSuccess);
         if (expectedSuccess)
         {
-            Assert.That(expectedHost, Is.EqualTo(host?.HostPart));
-            Assert.That(expectedPort, Is.EqualTo(host?.Port));
+            host.Should().NotBeNull();
+            host.Value.HostPart.Should().Be(expectedHost);
+            host.Value.Port.Should().Be(expectedPort);
         }
         else
         {
-            Assert.That(host, Is.Null);
+            host.Should().BeNull();
         }
     }
 
@@ -93,6 +96,6 @@ public sealed class HostTests
     public void ToString_ValidHost_ReturnsExpectedString(string input, string expected)
     {
         var host = new Host(input);
-        Assert.That(expected, Is.EqualTo(host.ToString()));
+        host.ToString().Should().Be(expected);
     }
 }

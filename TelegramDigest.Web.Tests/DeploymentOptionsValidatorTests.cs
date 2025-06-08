@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using FluentAssertions;
 using TelegramDigest.Web.DeploymentOptions;
 
 namespace TelegramDigest.Web.Tests
@@ -24,7 +25,7 @@ namespace TelegramDigest.Web.Tests
         {
             var attribute = new UrlBasePathAttribute("");
             var result = attribute.GetValidationResult(value, new(new()));
-            Assert.That(result, Is.EqualTo(ValidationResult.Success));
+            result.Should().Be(ValidationResult.Success);
         }
 
         [TestCase("/invalid/path/", NOT_END_WITH_SLASH)]
@@ -50,10 +51,7 @@ namespace TelegramDigest.Web.Tests
         public void TestInvalidPaths(string value, string message)
         {
             var attribute = new UrlBasePathAttribute("");
-            Assert.That(
-                attribute.GetValidationResult(value, new(new()))?.ErrorMessage,
-                Is.EqualTo(message)
-            );
+            (attribute.GetValidationResult(value, new(new()))?.ErrorMessage).Should().Be(message);
         }
 
         private const string START_WITH_SLASH = "Path must start with '/'";

@@ -9,11 +9,11 @@ internal interface IDigestProcessingOrchestrator
 {
     Task<Result<DigestGenerationResultModelEnum>> ProcessDigest(
         DigestId digestId,
-        DigestFilterModel filter,
+        DigestParametersModel parameters,
         CancellationToken ct
     );
 
-    void QueueDigest(DigestId digestId, DigestFilterModel filter, CancellationToken ct);
+    void QueueDigest(DigestId digestId, DigestParametersModel parameters, CancellationToken ct);
 }
 
 internal sealed class DigestProcessingOrchestrator(
@@ -25,7 +25,7 @@ internal sealed class DigestProcessingOrchestrator(
 {
     public async Task<Result<DigestGenerationResultModelEnum>> ProcessDigest(
         DigestId digestId,
-        DigestFilterModel filter,
+        DigestParametersModel parameters,
         CancellationToken ct
     )
     {
@@ -37,7 +37,7 @@ internal sealed class DigestProcessingOrchestrator(
             }
         );
 
-        var generationResult = await digestService.GenerateDigest(digestId, filter, ct);
+        var generationResult = await digestService.GenerateDigest(digestId, parameters, ct);
         if (generationResult.IsFailed)
         {
             logger.LogError(
@@ -51,7 +51,11 @@ internal sealed class DigestProcessingOrchestrator(
         return Result.Ok(generationResult.Value);
     }
 
-    public void QueueDigest(DigestId digestId, DigestFilterModel filter, CancellationToken ct)
+    public void QueueDigest(
+        DigestId digestId,
+        DigestParametersModel parameters,
+        CancellationToken ct
+    )
     {
         digestStepsService.AddStep(
             new SimpleStepModel { DigestId = digestId, Type = DigestStepTypeModelEnum.Queued }
@@ -63,7 +67,7 @@ internal sealed class DigestProcessingOrchestrator(
                 // use own scope and services to avoid issues with disposing of captured scope
                 var mainService = scope.ServiceProvider.GetRequiredService<IMainService>();
                 var mergedCt = CancellationTokenSource.CreateLinkedTokenSource(ct, localCt).Token;
-                await mainService.ProcessDigest(digestId, filter, mergedCt);
+                await mainService.ProcessDigest(digestId, parameters, mergedCt);
             },
             digestId,
             ex =>

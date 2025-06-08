@@ -8,11 +8,11 @@ namespace TelegramDigest.Backend.Features;
 internal interface IDigestService
 {
     /// <summary>
-    /// Generate new digest based on filter parameters
+    /// Generate new digest based on parameters
     /// </summary>
     Task<Result<DigestGenerationResultModelEnum>> GenerateDigest(
         DigestId digestId,
-        DigestFilterModel filter,
+        DigestParametersModel parameters,
         CancellationToken ct
     );
 
@@ -52,7 +52,7 @@ internal sealed class DigestService(
     /// <returns>Type of digest generation result or error if generation failed</returns>
     public async Task<Result<DigestGenerationResultModelEnum>> GenerateDigest(
         DigestId digestId,
-        DigestFilterModel filter,
+        DigestParametersModel parameters,
         CancellationToken ct
     )
     {
@@ -65,7 +65,7 @@ internal sealed class DigestService(
             return Result.Fail(feedsResult.Errors);
         }
 
-        if (filter.SelectedFeeds is { Count: 0 })
+        if (parameters.SelectedFeeds is { Count: 0 })
         {
             const string Message = "No feeds selected for digest generation";
             logger.LogError(Message);
@@ -81,8 +81,8 @@ internal sealed class DigestService(
         }
 
         var feeds =
-            filter.SelectedFeeds != null
-                ? [.. feedsResult.Value.Where(f => filter.SelectedFeeds.Contains(f.FeedUrl))]
+            parameters.SelectedFeeds != null
+                ? [.. feedsResult.Value.Where(f => parameters.SelectedFeeds.Contains(f.FeedUrl))]
                 : feedsResult.Value;
 
         digestStepsService.AddStep(
@@ -101,8 +101,8 @@ internal sealed class DigestService(
             ct.ThrowIfCancellationRequested();
             var postsResult = await feedReader.FetchPosts(
                 feed.FeedUrl,
-                filter.DateFrom,
-                filter.DateTo,
+                parameters.DateFrom,
+                parameters.DateTo,
                 ct
             );
             if (postsResult.IsSuccess)
@@ -136,8 +136,8 @@ internal sealed class DigestService(
         {
             logger.LogWarning(
                 "No posts found from [{from}] to [{to}] in any feed",
-                filter.DateFrom,
-                filter.DateTo
+                parameters.DateFrom,
+                parameters.DateTo
             );
             digestStepsService.AddStep(
                 new SimpleStepModel

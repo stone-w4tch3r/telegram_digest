@@ -91,7 +91,7 @@ public sealed class BackendClient(IMainService mainService, ILogger<BackendClien
     )
     {
         var digestId = Guid.NewGuid();
-        var filter = new DigestFilterModel(
+        var parameters = new DigestParametersModel(
             DateFrom: DateOnly.FromDateTime(dateFrom),
             DateTo: DateOnly.FromDateTime(dateTo),
             SelectedFeeds: selectedFeeds.Select(f => new FeedUrl(f)).ToHashSet()
@@ -99,7 +99,7 @@ public sealed class BackendClient(IMainService mainService, ILogger<BackendClien
 
         var digestResult = await mainService.QueueDigest(
             new(digestId),
-            filter,
+            parameters,
             CancellationToken.None
         );
 

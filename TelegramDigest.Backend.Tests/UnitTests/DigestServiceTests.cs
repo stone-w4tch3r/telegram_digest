@@ -51,7 +51,7 @@ public sealed class DigestServiceTests
     {
         // Arrange
         var digestId = new DigestId(Guid.NewGuid());
-        var filter = new DigestFilterModel(_dateFrom, _dateTo);
+        var parameters = new DigestParametersModel(_dateFrom, _dateTo);
         var feedUrl = new FeedUrl("https://example.com/feed");
         var feeds = new List<FeedModel>
         {
@@ -107,7 +107,11 @@ public sealed class DigestServiceTests
             .Callback<DigestModel, CancellationToken>((digest, ct) => savedDigest = digest);
 
         // Act
-        var result = await _digestService.GenerateDigest(digestId, filter, CancellationToken.None);
+        var result = await _digestService.GenerateDigest(
+            digestId,
+            parameters,
+            CancellationToken.None
+        );
 
         // Assert
         result.IsSuccess.Should().BeTrue();
@@ -135,7 +139,7 @@ public sealed class DigestServiceTests
     {
         // Arrange
         var digestId = new DigestId(Guid.NewGuid());
-        var filter = new DigestFilterModel(_dateFrom, _dateTo);
+        var parameters = new DigestParametersModel(_dateFrom, _dateTo);
         var feedUrl = new FeedUrl("https://example.com/feed");
         var feeds = new List<FeedModel>
         {
@@ -157,7 +161,11 @@ public sealed class DigestServiceTests
             .ReturnsAsync(Result.Ok(new List<PostModel>()));
 
         // Act
-        var result = await _digestService.GenerateDigest(digestId, filter, CancellationToken.None);
+        var result = await _digestService.GenerateDigest(
+            digestId,
+            parameters,
+            CancellationToken.None
+        );
 
         // Assert
         result.IsSuccess.Should().BeTrue();
@@ -184,7 +192,7 @@ public sealed class DigestServiceTests
     {
         // Arrange
         var digestId = new DigestId(Guid.NewGuid());
-        var filter = new DigestFilterModel(_dateFrom, _dateTo);
+        var parameters = new DigestParametersModel(_dateFrom, _dateTo);
         var successFeedUrl = new FeedUrl("https://success.com/feed");
         var failFeedUrl = new FeedUrl("https://fail.com/feed");
         var feeds = new List<FeedModel>
@@ -252,7 +260,11 @@ public sealed class DigestServiceTests
             .Callback<DigestModel, CancellationToken>((digest, ct) => savedDigest = digest);
 
         // Act
-        var result = await _digestService.GenerateDigest(digestId, filter, CancellationToken.None);
+        var result = await _digestService.GenerateDigest(
+            digestId,
+            parameters,
+            CancellationToken.None
+        );
 
         // Assert
         result.IsSuccess.Should().BeTrue();
@@ -270,7 +282,7 @@ public sealed class DigestServiceTests
         var digestId = new DigestId(Guid.NewGuid());
         var selectedFeedUrl = new FeedUrl("https://selected.com/feed");
         var notSelectedFeedUrl = new FeedUrl("https://not-selected.com/feed");
-        var filter = new DigestFilterModel(
+        var parameters = new DigestParametersModel(
             _dateFrom,
             _dateTo,
             new[] { selectedFeedUrl }.ToHashSet()
@@ -335,7 +347,11 @@ public sealed class DigestServiceTests
             .Callback<DigestModel, CancellationToken>((digest, ct) => savedDigest = digest);
 
         // Act
-        var result = await _digestService.GenerateDigest(digestId, filter, CancellationToken.None);
+        var result = await _digestService.GenerateDigest(
+            digestId,
+            parameters,
+            CancellationToken.None
+        );
 
         // Assert
         result.IsSuccess.Should().BeTrue();
@@ -373,14 +389,18 @@ public sealed class DigestServiceTests
     {
         // Arrange
         var digestId = new DigestId(Guid.NewGuid());
-        var filter = new DigestFilterModel(_dateFrom, _dateTo);
+        var parameters = new DigestParametersModel(_dateFrom, _dateTo);
 
         _feedsRepositoryMock
             .Setup(x => x.LoadFeeds(It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Fail<List<FeedModel>>("Failed to load feeds"));
 
         // Act
-        var result = await _digestService.GenerateDigest(digestId, filter, CancellationToken.None);
+        var result = await _digestService.GenerateDigest(
+            digestId,
+            parameters,
+            CancellationToken.None
+        );
 
         // Assert
         result.IsFailed.Should().BeTrue();
@@ -392,7 +412,7 @@ public sealed class DigestServiceTests
     {
         // Arrange
         var digestId = new DigestId(Guid.NewGuid());
-        var filter = new DigestFilterModel(_dateFrom, _dateTo, new HashSet<FeedUrl>());
+        var parameters = new DigestParametersModel(_dateFrom, _dateTo, new HashSet<FeedUrl>());
         var feeds = new List<FeedModel>
         {
             new(
@@ -408,7 +428,11 @@ public sealed class DigestServiceTests
             .ReturnsAsync(Result.Ok(feeds));
 
         // Act
-        var result = await _digestService.GenerateDigest(digestId, filter, CancellationToken.None);
+        var result = await _digestService.GenerateDigest(
+            digestId,
+            parameters,
+            CancellationToken.None
+        );
 
         // Assert
         result.IsFailed.Should().BeTrue();
@@ -420,7 +444,7 @@ public sealed class DigestServiceTests
     {
         // Arrange
         var digestId = new DigestId(Guid.NewGuid());
-        var filter = new DigestFilterModel(_dateFrom, _dateTo);
+        var parameters = new DigestParametersModel(_dateFrom, _dateTo);
         var feeds = new List<FeedModel>
         {
             new(
@@ -452,7 +476,11 @@ public sealed class DigestServiceTests
             .ReturnsAsync(Result.Fail<List<PostModel>>("Failed to fetch"));
 
         // Act
-        var result = await _digestService.GenerateDigest(digestId, filter, CancellationToken.None);
+        var result = await _digestService.GenerateDigest(
+            digestId,
+            parameters,
+            CancellationToken.None
+        );
 
         // Assert
         result.IsFailed.Should().BeTrue();
@@ -464,7 +492,7 @@ public sealed class DigestServiceTests
     {
         // Arrange
         var digestId = new DigestId(Guid.NewGuid());
-        var filter = new DigestFilterModel(_dateFrom, _dateTo);
+        var parameters = new DigestParametersModel(_dateFrom, _dateTo);
         var feedUrl = new FeedUrl("https://example.com/feed");
         var feeds = new List<FeedModel>
         {
@@ -493,7 +521,11 @@ public sealed class DigestServiceTests
             .ReturnsAsync(Result.Fail<PostSummaryModel>("AI failure"));
 
         // Act
-        var result = await _digestService.GenerateDigest(digestId, filter, CancellationToken.None);
+        var result = await _digestService.GenerateDigest(
+            digestId,
+            parameters,
+            CancellationToken.None
+        );
 
         // Assert
         result.IsFailed.Should().BeTrue();
@@ -505,7 +537,7 @@ public sealed class DigestServiceTests
     {
         // Arrange
         var digestId = new DigestId(Guid.NewGuid());
-        var filter = new DigestFilterModel(_dateFrom, _dateTo);
+        var parameters = new DigestParametersModel(_dateFrom, _dateTo);
         var feedUrl = new FeedUrl("https://example.com/feed");
         var feeds = new List<FeedModel>
         {
@@ -546,7 +578,11 @@ public sealed class DigestServiceTests
             .ReturnsAsync(Result.Fail<DigestSummaryModel>("AI failure"));
 
         // Act
-        var result = await _digestService.GenerateDigest(digestId, filter, CancellationToken.None);
+        var result = await _digestService.GenerateDigest(
+            digestId,
+            parameters,
+            CancellationToken.None
+        );
 
         // Assert
         result.IsFailed.Should().BeTrue();
@@ -558,7 +594,7 @@ public sealed class DigestServiceTests
     {
         // Arrange
         var digestId = new DigestId(Guid.NewGuid());
-        var filter = new DigestFilterModel(_dateFrom, _dateTo);
+        var parameters = new DigestParametersModel(_dateFrom, _dateTo);
         var feedUrl = new FeedUrl("https://example.com/feed");
         var feeds = new List<FeedModel>
         {
@@ -612,7 +648,11 @@ public sealed class DigestServiceTests
             .ReturnsAsync(Result.Fail("DB error"));
 
         // Act
-        var result = await _digestService.GenerateDigest(digestId, filter, CancellationToken.None);
+        var result = await _digestService.GenerateDigest(
+            digestId,
+            parameters,
+            CancellationToken.None
+        );
 
         // Assert
         result.IsFailed.Should().BeTrue();

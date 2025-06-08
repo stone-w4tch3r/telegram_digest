@@ -130,12 +130,12 @@ internal sealed class SchedulerBackgroundService(
             logger.LogInformation("Starting scheduled digest generation, id {id}", digestId);
 
             var now = DateTime.UtcNow;
-            var filter = new DigestFilterModel(
+            var parameters = new DigestParametersModel(
                 DateFrom: DateOnly.FromDateTime(now.Date.AddDays(-1)),
                 DateTo: DateOnly.FromDateTime(now.Date)
             );
 
-            var queueResult = await mainService.QueueDigest(digestId, filter, ct);
+            var queueResult = await mainService.QueueDigest(digestId, parameters, ct);
             if (queueResult.IsFailed)
             {
                 logger.LogError(

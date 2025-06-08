@@ -32,7 +32,7 @@ public sealed record DigestSummaryModel(
 );
 
 /// <param name="SelectedFeeds">Null means all feeds</param>
-public sealed record DigestFilterModel(
+public sealed record DigestParametersModel(
     DateOnly DateFrom,
     DateOnly DateTo,
     IReadOnlySet<FeedUrl>? SelectedFeeds = null

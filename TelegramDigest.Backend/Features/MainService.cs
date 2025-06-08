@@ -9,18 +9,22 @@ namespace TelegramDigest.Backend.Features;
 public interface IMainService
 {
     /// <summary>
-    /// Generates digest based on provided filter parameters
+    /// Generates digest based on provided parameters
     /// </summary>
     Task<Result<DigestGenerationResultModelEnum>> ProcessDigest(
         DigestId digestId,
-        DigestFilterModel filter,
+        DigestParametersModel parameters,
         CancellationToken ct
     );
 
     /// <summary>
-    /// Queues the generation of a digest with specified filter parameters
+    /// Queues the generation of a digest with specified parameters
     /// </summary>
-    Task<Result> QueueDigest(DigestId digestId, DigestFilterModel filter, CancellationToken ct);
+    Task<Result> QueueDigest(
+        DigestId digestId,
+        DigestParametersModel parameters,
+        CancellationToken ct
+    );
 
     /// <summary>
     /// Returns all non-deleted feeds
@@ -121,21 +125,21 @@ internal sealed class MainService(
 {
     public async Task<Result<DigestGenerationResultModelEnum>> ProcessDigest(
         DigestId digestId,
-        DigestFilterModel filter,
+        DigestParametersModel parameters,
         CancellationToken ct
     )
     {
-        return await digestProcessingOrchestrator.ProcessDigest(digestId, filter, ct);
+        return await digestProcessingOrchestrator.ProcessDigest(digestId, parameters, ct);
     }
 
     public Task<Result> QueueDigest(
         DigestId digestId,
-        DigestFilterModel filter,
+        DigestParametersModel parameters,
         CancellationToken ct
     )
     {
         return Task.FromResult(
-            Result.Try(() => digestProcessingOrchestrator.QueueDigest(digestId, filter, ct))
+            Result.Try(() => digestProcessingOrchestrator.QueueDigest(digestId, parameters, ct))
         );
     }
 

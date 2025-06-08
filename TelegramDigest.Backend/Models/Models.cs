@@ -2,6 +2,8 @@ using TelegramDigest.Types.Host;
 
 namespace TelegramDigest.Backend.Models;
 
+public sealed record TgRssProviderModel(string Name, string BaseUrl);
+
 public sealed record FeedModel(FeedUrl FeedUrl, string Description, string Title, Uri ImageUrl);
 
 public sealed record PostModel(FeedUrl FeedUrl, Html HtmlContent, Uri Url, DateTime PublishedAt);

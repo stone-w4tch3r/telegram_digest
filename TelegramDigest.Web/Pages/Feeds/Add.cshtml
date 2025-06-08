@@ -23,7 +23,7 @@
                     <div class="mb-3">
                         <label asp-for="Type" class="form-label required"></label>
                         <select asp-for="Type" class="form-select"
-                            asp-items="Html.GetEnumSelectList<AddModel.FeedType>()">
+                                asp-items="Html.GetEnumSelectList<AddModel.FeedType>()">
                             <option value="">-- Select Feed Type --</option>
                         </select>
                         <span asp-validation-for="Type" class="text-danger"></span>
@@ -33,42 +33,50 @@
                     <div id="directRssFields">
                         <div class="mb-3">
                             <label asp-for="DirectRss!.FeedUrl" class="form-label"></label>
-                            <input asp-for="DirectRss!.FeedUrl" class="form-control" type="url" />
-                            <span asp-validation-for="DirectRss!.FeedUrl" class="text-danger"></span>
-                            <small class="form-text text-muted">Enter the full URL of the RSS feed</small>
+                            <input asp-for="DirectRss!.FeedUrl" class="form-control" type="url"/>
+                            <span asp-validation-for="DirectRss!.FeedUrl"
+                                  class="text-danger"></span>
+                            <small class="form-text text-muted">Enter the full URL of the RSS
+                                feed</small>
                         </div>
                     </div>
 
                     <!-- Telegram Channel Fields -->
                     <div id="telegramFields">
                         <div class="mb-3">
-                            <label asp-for="Telegram!.ProviderId" class="form-label"></label>
+                            <label asp-for="Telegram!.ProviderName" class="form-label"></label>
                             <br/>
-                            <small class="form-text text-muted">This service will convert the Telegram
+                            <small class="form-text text-muted">This service will convert the
+                                Telegram
                                 channel to RSS</small>
-                            <select asp-for="Telegram!.ProviderId" class="form-select">
+                            <select asp-for="Telegram!.ProviderName" class="form-select">
                                 <option value="">-- Select RSS Provider --</option>
                                 @foreach (var provider in @Model.RssProviders)
                                 {
-                                    <option value="@provider.Id" data-base-url="@provider.BaseUrl">@provider.Name</option>
+                                    <option value="@provider.Name"
+                                            data-base-url="@provider.BaseUrl">@provider.Name</option>
                                 }
                             </select>
-                            <span asp-validation-for="Telegram!.ProviderId" class="text-danger"></span>
+                            <span asp-validation-for="Telegram!.ProviderName"
+                                  class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
                             <label asp-for="Telegram!.ChannelId" class="form-label"></label>
                             <div class="input-group">
                                 <span class="input-group-text">t.me/</span>
-                                <input asp-for="Telegram!.ChannelId" class="form-control" />
+                                <input asp-for="Telegram!.ChannelId" class="form-control"/>
                             </div>
-                            <span asp-validation-for="Telegram!.ChannelId" class="text-danger"></span>
+                            <span asp-validation-for="Telegram!.ChannelId"
+                                  class="text-danger"></span>
                         </div>
 
                         <div class="mb-3" id="resultingUrlGroup">
                             <label class="form-label">Resulting RSS Feed URL</label>
-                            <div class="p-2 bg-light border rounded text-break" id="resultingUrl"></div>
-                            <small class="form-text text-muted">This is the URL that will be used to fetch the RSS
+                            <div class="p-2 bg-light border rounded text-break"
+                                 id="resultingUrl"></div>
+                            <small class="form-text text-muted">This is the URL that will be used to
+                                fetch the RSS
                                 feed</small>
                         </div>
                     </div>
@@ -88,7 +96,7 @@
 </div>
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
+    <partial name="_ValidationScriptsPartial"/>
     <script>
         $(document).ready(function () {
             const feedTypeSelect = $("#Type");
@@ -105,8 +113,7 @@
 
                 if (feedType === "@((int)AddModel.FeedType.DirectRss)") {
                     directRssFields.show();
-                }
-                else if (feedType === "@((int)AddModel.FeedType.Telegram)") {
+                } else if (feedType === "@((int)AddModel.FeedType.Telegram)") {
                     telegramFields.show();
                 }
             }

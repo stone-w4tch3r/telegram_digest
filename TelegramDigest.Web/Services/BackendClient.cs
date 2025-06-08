@@ -143,7 +143,7 @@ public sealed class BackendClient(IMainService mainService, ILogger<BackendClien
         return await mainService.AddOrUpdateFeed(new(feed.FeedUrl), ct);
     }
 
-    public async Task<Result> DeleteFeedAsync(string feedUrl)
+    public async Task<Result> DeleteFeed(string feedUrl)
     {
         return await mainService.RemoveFeed(new(feedUrl), CancellationToken.None);
     }
@@ -306,33 +306,23 @@ public sealed class BackendClient(IMainService mainService, ILogger<BackendClien
         return Result.Ok();
     }
 
-    public Task<List<RssProvider>> GetRssProviders(CancellationToken ct)
+    public async Task<List<RssProvider>> GetRssProviders(CancellationToken ct)
     {
-        // Mock implementation - in real app this would come from backend configuration
-        var providers = new List<RssProvider>
+        var result = await mainService.GetTgRssProviders(ct);
+        if (result.IsFailed)
         {
-            new()
-            {
-                Id = "rsshub",
-                Name = "RSSHub (t.me)",
-                BaseUrl = "https://rsshub.app/telegram/channel/",
-            },
-            new()
-            {
-                Id = "rssbridge",
-                Name = "RSS Bridge",
-                BaseUrl =
-                    "https://rssbridge.org/bridge01/?action=display&bridge=Telegram&format=Atom&username=",
-            },
-            new()
-            {
-                Id = "telegramrss",
-                Name = "Telegram RSS Bot",
-                BaseUrl = "https://t.me/rss_bot?channel=",
-            },
-        };
+            logger.LogError("Failed to get RSS providers: {Errors}", result.Errors);
+            return [];
+        }
 
-        return Task.FromResult(providers);
+        return
+        [
+            .. result.Value.Select(opt => new RssProvider
+            {
+                Name = opt.Name,
+                BaseUrl = opt.BaseUrl,
+            }),
+        ];
     }
 }
 

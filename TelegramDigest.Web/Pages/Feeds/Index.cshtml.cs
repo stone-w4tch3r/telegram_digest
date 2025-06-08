@@ -31,7 +31,7 @@ public sealed class IndexModel(BackendClient backend) : BasePageModel
 
     public async Task<IActionResult> OnPostDeleteAsync(string feedUrl)
     {
-        var result = await backend.DeleteFeedAsync(feedUrl);
+        var result = await backend.DeleteFeed(feedUrl);
         if (result.IsFailed)
         {
             Errors = result.Errors;

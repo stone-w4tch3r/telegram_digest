@@ -43,7 +43,7 @@ public sealed class AddModel(BackendClient backend) : BasePageModel
         // Clear validation errors for the model that wasn't selected
         if (Type == FeedType.DirectRss)
         {
-            ModelState.Remove("Telegram.ProviderId");
+            ModelState.Remove("Telegram.ProviderName");
             ModelState.Remove("Telegram.ChannelId");
         }
         else if (Type == FeedType.Telegram)
@@ -62,7 +62,7 @@ public sealed class AddModel(BackendClient backend) : BasePageModel
         {
             FeedType.DirectRss when DirectRss != null => DirectRss.FeedUrl,
             FeedType.Telegram when Telegram != null => RssProviders
-                .Single(p => p.Id == Telegram.ProviderId)
+                .Single(p => p.Name == Telegram.ProviderName)
                 .BaseUrl + Telegram.ChannelId,
             _ => throw new UnreachableException("Invalid form state"),
         };
@@ -73,8 +73,9 @@ public sealed class AddModel(BackendClient backend) : BasePageModel
             Errors = result.Errors;
             return Page();
         }
+
         SuccessMessage = $"Feed '{feedUrl}' added successfully";
-        return RedirectToPage("/Channels/Index");
+        return RedirectToPage("/Feeds/Index");
     }
 }
 
@@ -90,7 +91,7 @@ public sealed record DirectRssFeedModel
 public sealed record TelegramFeedModel
 {
     [Display(Name = "RSS Provider")]
-    public required string ProviderId { get; init; }
+    public required string ProviderName { get; init; }
 
     [Display(Name = "Channel ID")]
     [RegularExpression(

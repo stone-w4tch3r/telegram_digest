@@ -107,6 +107,11 @@ public interface IMainService
     /// Returns list of digests as RSS feed
     /// </summary>
     Task<Result<SyndicationFeed>> GetRssFeed(CancellationToken ct);
+
+    /// <summary>
+    /// Returns the configured RSS providers
+    /// </summary>
+    Task<Result<List<TgRssProviderModel>>> GetTgRssProviders(CancellationToken ct);
 }
 
 /// <summary>
@@ -120,7 +125,8 @@ internal sealed class MainService(
     ISettingsManager settingsManager,
     IRssService rssService,
     ITaskScheduler<DigestId> taskScheduler,
-    IDigestStepsService digestStepsService
+    IDigestStepsService digestStepsService,
+    IRssProvidersService rssProvidersService
 ) : IMainService
 {
     public async Task<Result<DigestGenerationResultModelEnum>> ProcessDigest(
@@ -186,6 +192,11 @@ internal sealed class MainService(
     public async Task<Result<DigestSummaryModel[]>> GetDigestSummaries(CancellationToken ct)
     {
         return await digestService.GetDigestSummaries(ct);
+    }
+
+    public async Task<Result<List<TgRssProviderModel>>> GetTgRssProviders(CancellationToken ct)
+    {
+        return await rssProvidersService.GetProviders(ct);
     }
 
     public async Task<Result<DigestModel?>> GetDigest(DigestId digestId, CancellationToken ct)

@@ -6,7 +6,6 @@ namespace TelegramDigest.Web.Models.ViewModels;
 [NullChecks(false)]
 public sealed record RssProvider
 {
-    public required string Id { get; init; }
     public required string Name { get; init; }
     public required string BaseUrl { get; init; }
 }

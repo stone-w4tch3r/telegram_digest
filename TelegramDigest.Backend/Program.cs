@@ -28,6 +28,13 @@ public static class ServiceCollectionExtensions
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
+        // RSS Providers options
+        builder
+            .Services.AddOptions<TgRssProvidersOptions>()
+            .Bind(builder.Configuration)
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
         // Application services
         builder.Services.AddHostedService<DigestProcessor>();
         builder.Services.AddHostedService<SchedulerBackgroundService>();
@@ -48,6 +55,7 @@ public static class ServiceCollectionExtensions
         builder.Services.AddScoped<IMainService, MainService>();
         builder.Services.AddScoped<IRssService, RssService>();
         builder.Services.AddScoped<IDigestProcessingOrchestrator, DigestProcessingOrchestrator>();
+        builder.Services.AddScoped<IRssProvidersService, TgRssProvidersService>();
 
         // Singletons
         builder.Services.AddSingleton<IDigestStepsChannel, DigestStepsChannel>();

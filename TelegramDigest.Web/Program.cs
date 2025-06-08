@@ -6,7 +6,7 @@ using TelegramDigest.Web.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 // Setup options
-builder.Configuration.AddJsonFile("appsettings.ai.json");
+builder.Configuration.AddJsonFile("appsettings.options.json");
 builder.Configuration.AddEnvironmentVariables();
 builder.Services.AddOptions<WebDeploymentOptions>().Bind(builder.Configuration).ValidateOnStart();
 

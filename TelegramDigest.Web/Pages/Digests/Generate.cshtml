@@ -107,6 +107,69 @@
                             </div>
                         </div>
 
+                        <!-- Prompt Overrides Section -->
+                        <div class="card mb-4">
+                            <div
+                                class="card-header bg-light d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i class="bi bi-pencil-square me-2"></i>Optional: Override
+                                    AI Prompts
+                                </div>
+                                <button class="btn btn-sm btn-outline-secondary collapsed"
+                                        type="button"
+                                        data-bs-toggle="collapse"
+                                        data-bs-target="#promptsCollapse"
+                                        aria-expanded="false"
+                                        aria-controls="promptsCollapse">
+                                        <span class="d-inline" data-bs-toggle="collapse"
+                                              data-bs-target="#promptsCollapse"
+                                              aria-expanded="false">Show</span>
+                                    <span class="d-none" data-bs-toggle="collapse"
+                                          data-bs-target="#promptsCollapse"
+                                          aria-expanded="true">Hide</span> Prompts
+                                </button>
+                            </div>
+                            <div class="collapse" id="promptsCollapse">
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label
+                                            asp-for="@Model.Form.PostSummaryUserPromptOverride"
+                                            class="form-label">Post Summary User Prompt</label>
+                                        <textarea
+                                            asp-for="@Model.Form.PostSummaryUserPromptOverride"
+                                            class="form-control input-multiline"></textarea>
+                                        <span
+                                            asp-validation-for="@Model.Form.PostSummaryUserPromptOverride"
+                                            class="text-danger"></span>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label
+                                            asp-for="@Model.Form.PostImportanceUserPromptOverride"
+                                            class="form-label">Post Importance User
+                                            Prompt</label>
+                                        <textarea
+                                            asp-for="@Model.Form.PostImportanceUserPromptOverride"
+                                            class="form-control input-multiline"></textarea>
+                                        <span
+                                            asp-validation-for="@Model.Form.PostImportanceUserPromptOverride"
+                                            class="text-danger"></span>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label
+                                            asp-for="@Model.Form.DigestSummaryUserPromptOverride"
+                                            class="form-label">Digest Summary User
+                                            Prompt</label>
+                                        <textarea
+                                            asp-for="@Model.Form.DigestSummaryUserPromptOverride"
+                                            class="form-control input-multiline"></textarea>
+                                        <span
+                                            asp-validation-for="@Model.Form.DigestSummaryUserPromptOverride"
+                                            class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="d-flex justify-content-end">
                             <button type="submit" class="btn btn-primary btn-lg">
                                 <i class="bi bi-play-circle me-2"></i> Generate Digest
@@ -132,6 +195,11 @@
 </style>
 
 @section Scripts {
+    <script type="text/javascript">
+        $('.collapse').on('shown.bs.collapse', function () {
+            autosize($(".input-multiline"));
+        });
+    </script>
     <script>
         const $selectAllCheckbox = $('#selectAllFeeds');
         const $feedCheckboxes = $('.feed-checkbox');

@@ -157,7 +157,12 @@ internal sealed class DigestService(
         foreach (var (post, i) in posts.Zip(Enumerable.Range(0, posts.Count)))
         {
             ct.ThrowIfCancellationRequested();
-            var summaryResult = await aiSummarizer.GenerateSummary(post, ct);
+            var summaryResult = await aiSummarizer.GenerateSummary(
+                post,
+                parameters.PostSummaryUserPromptOverride,
+                parameters.PostImportanceUserPromptOverride,
+                ct
+            );
             if (summaryResult.IsSuccess)
             {
                 digestStepsService.AddStep(
@@ -179,7 +184,12 @@ internal sealed class DigestService(
         }
 
         ct.ThrowIfCancellationRequested();
-        var digestSummaryResult = await aiSummarizer.GeneratePostsSummary(posts, ct);
+        var digestSummaryResult = await aiSummarizer.GeneratePostsSummary(
+            posts,
+            parameters.DigestSummaryUserPromptOverride,
+            parameters.PostImportanceUserPromptOverride,
+            ct
+        );
         if (digestSummaryResult.IsFailed)
         {
             digestStepsService.AddStep(

@@ -35,7 +35,10 @@ public sealed record DigestSummaryModel(
 public sealed record DigestParametersModel(
     DateOnly DateFrom,
     DateOnly DateTo,
-    IReadOnlySet<FeedUrl>? SelectedFeeds = null
+    IReadOnlySet<FeedUrl>? SelectedFeeds = null,
+    TemplateWithContent? PostSummaryUserPromptOverride = null,
+    TemplateWithContent? PostImportanceUserPromptOverride = null,
+    TemplateWithContent? DigestSummaryUserPromptOverride = null
 );
 
 public enum DigestGenerationResultModelEnum

@@ -55,9 +55,10 @@
 | [ ]  | Bug: hanging on feed addition, timeout?                   | 30min |
 | [ ]  | Bug: generation cancels for unknown reason                | 30min |
 | [ ]  | Bug: spawn multiple generations and see strange stuff     | 30min |
+| [ ]  | Bug: use PostSummaries to calculate average importance    | 30min |
+| [ ]  | Bug: add new chanel: backend error not shown until reload | 30min |
 | [ ]  | Support reading complex media or links from RSS           | 30min |
 | [ ]  | Load tg rss providers from options                        | 30min |
-| [ ]  | Bug: add new chanel: backend error not shown until reload | 30min |
 | [ ]  | Digest generation: queue monitor                          | 3h    |
 | [ ]  | Digest generation: cancellation                           | 1h    |
 | [ ]  | Reimplement and test email sending?                       | 2h    |

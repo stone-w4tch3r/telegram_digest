@@ -1,11 +1,25 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc;
 using RuntimeNullables;
+using TelegramDigest.Backend.Models;
 
 namespace TelegramDigest.Web.Models.ViewModels;
 
 [NullChecks(false)]
 public sealed class DigestGenerationViewModel : IValidatableObject
 {
+    [Display(Name = "Post Summary User Prompt Override")]
+    [ModelBinder(typeof(TemplateWithContentModelBinder))]
+    public TemplateWithContent? PostSummaryUserPromptOverride { get; init; }
+
+    [Display(Name = "Post Importance User Prompt Override")]
+    [ModelBinder(typeof(TemplateWithContentModelBinder))]
+    public TemplateWithContent? PostImportanceUserPromptOverride { get; init; }
+
+    [Display(Name = "Digest Summary User Prompt Override")]
+    [ModelBinder(typeof(TemplateWithContentModelBinder))]
+    public TemplateWithContent? DigestSummaryUserPromptOverride { get; init; }
+
     [Display(Name = "From Date")]
     public required DateTime DateFrom { get; init; }
 

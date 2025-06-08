@@ -87,14 +87,20 @@ public sealed class BackendClient(IMainService mainService, ILogger<BackendClien
     public async Task<Result<Guid>> QueueDigest(
         DateTime dateFrom,
         DateTime dateTo,
-        string[] selectedFeeds
+        string[] selectedFeeds,
+        TemplateWithContent? postSummaryUserPromptOverride,
+        TemplateWithContent? postImportanceUserPromptOverride,
+        TemplateWithContent? digestSummaryUserPromptOverride
     )
     {
         var digestId = Guid.NewGuid();
         var parameters = new DigestParametersModel(
             DateFrom: DateOnly.FromDateTime(dateFrom),
             DateTo: DateOnly.FromDateTime(dateTo),
-            SelectedFeeds: selectedFeeds.Select(f => new FeedUrl(f)).ToHashSet()
+            SelectedFeeds: selectedFeeds.Select(f => new FeedUrl(f)).ToHashSet(),
+            PostSummaryUserPromptOverride: postSummaryUserPromptOverride,
+            PostImportanceUserPromptOverride: postImportanceUserPromptOverride,
+            DigestSummaryUserPromptOverride: digestSummaryUserPromptOverride
         );
 
         var digestResult = await mainService.QueueDigest(

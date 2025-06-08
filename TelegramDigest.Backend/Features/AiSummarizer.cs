@@ -8,9 +8,17 @@ namespace TelegramDigest.Backend.Features;
 
 internal interface IAiSummarizer
 {
-    public Task<Result<PostSummaryModel>> GenerateSummary(PostModel post, CancellationToken ct);
-    public Task<Result<DigestSummaryModel>> GeneratePostsSummary(
+    Task<Result<PostSummaryModel>> GenerateSummary(
+        PostModel post,
+        TemplateWithContent? postSummaryUserPromptOverride,
+        TemplateWithContent? postImportanceUserPromptOverride,
+        CancellationToken ct
+    );
+
+    Task<Result<DigestSummaryModel>> GeneratePostsSummary(
         List<PostModel> posts,
+        TemplateWithContent? digestSummaryUserPromptOverride,
+        TemplateWithContent? postImportanceUserPromptOverride,
         CancellationToken ct
     );
 }
@@ -61,6 +69,8 @@ internal sealed class AiSummarizer(
 
     public async Task<Result<PostSummaryModel>> GenerateSummary(
         PostModel post,
+        TemplateWithContent? postSummaryUserPromptOverride,
+        TemplateWithContent? postImportanceUserPromptOverride,
         CancellationToken ct
     )
     {
@@ -73,6 +83,13 @@ internal sealed class AiSummarizer(
             }
 
             var prompts = settingsResult.Value.PromptSettings;
+            prompts = prompts with
+            {
+                PostSummaryUserPrompt =
+                    postSummaryUserPromptOverride ?? prompts.PostSummaryUserPrompt,
+                PostImportanceUserPrompt =
+                    postImportanceUserPromptOverride ?? prompts.PostImportanceUserPrompt,
+            };
 
             var clientResult = await GetChatClient(ct);
             if (clientResult.IsFailed)
@@ -95,7 +112,7 @@ internal sealed class AiSummarizer(
                 cancellationToken: ct
             );
 
-            var importance = await EvaluatePostImportance(post, ct);
+            var importance = await EvaluatePostImportance(post, prompts, ct);
             if (importance.IsFailed)
             {
                 return Result.Fail(importance.Errors);
@@ -122,6 +139,7 @@ internal sealed class AiSummarizer(
 
     private async Task<Result<Importance>> EvaluatePostImportance(
         PostModel post,
+        PromptSettingsModel prompts,
         CancellationToken ct
     )
     {
@@ -132,8 +150,6 @@ internal sealed class AiSummarizer(
             {
                 return Result.Fail(settingsResult.Errors);
             }
-
-            var prompts = settingsResult.Value.PromptSettings;
 
             var clientResult = await GetChatClient(ct);
             if (clientResult.IsFailed)
@@ -170,6 +186,8 @@ internal sealed class AiSummarizer(
 
     public async Task<Result<DigestSummaryModel>> GeneratePostsSummary(
         List<PostModel> posts,
+        TemplateWithContent? digestSummaryUserPromptOverride,
+        TemplateWithContent? postImportanceUserPromptOverride,
         CancellationToken ct
     )
     {
@@ -182,6 +200,13 @@ internal sealed class AiSummarizer(
             }
 
             var prompts = settingsResult.Value.PromptSettings;
+            prompts = prompts with
+            {
+                DigestSummaryUserPrompt =
+                    digestSummaryUserPromptOverride ?? prompts.DigestSummaryUserPrompt,
+                PostImportanceUserPrompt =
+                    postImportanceUserPromptOverride ?? prompts.PostImportanceUserPrompt,
+            };
 
             var clientResult = await GetChatClient(ct);
             if (clientResult.IsFailed)
@@ -211,7 +236,7 @@ internal sealed class AiSummarizer(
                     PostsSummary: completion.Value.Content[0].Text.Trim(),
                     PostsCount: posts.Count,
                     AverageImportance: posts.Count > 0
-                        ? await CalculateAverageImportance(posts, ct)
+                        ? await CalculateAverageImportance(posts, prompts, ct)
                         : 0,
                     CreatedAt: DateTime.UtcNow,
                     DateFrom: posts.Min(p => p.PublishedAt),
@@ -228,11 +253,12 @@ internal sealed class AiSummarizer(
 
     private async Task<double> CalculateAverageImportance(
         List<PostModel> posts,
+        PromptSettingsModel prompts,
         CancellationToken ct
     )
     {
         var importanceResults = await Task.WhenAll(
-            posts.Select(p => EvaluatePostImportance(p, ct))
+            posts.Select(p => EvaluatePostImportance(p, prompts, ct))
         );
 
         var successfulResults = importanceResults

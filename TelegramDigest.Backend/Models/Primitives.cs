@@ -53,7 +53,7 @@ public sealed record FeedUrl
         Url = uri;
     }
 
-    public Uri Url { get; } = new("");
+    public Uri Url { get; }
 
     public override string ToString() => Url.ToString();
 
@@ -124,7 +124,7 @@ internal sealed partial record Template
         Text = text;
     }
 
-    public string Text { get; } = string.Empty;
+    public string Text { get; }
 
     public override string ToString() => Text;
 

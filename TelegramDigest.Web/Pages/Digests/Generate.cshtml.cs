@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using TelegramDigest.Backend.Models;
 using TelegramDigest.Web.Models.ViewModels;
 using TelegramDigest.Web.Pages.Shared;
 using TelegramDigest.Web.Services;
@@ -13,6 +14,10 @@ public sealed class GenerateModel(BackendClient backend) : BasePageModel
 
     public List<FeedViewModel> Feeds { get; private set; } = [];
 
+    public TemplateWithContent? DefaultPostSummaryUserPrompt { get; private set; }
+    public TemplateWithContent? DefaultPostImportanceUserPrompt { get; private set; }
+    public TemplateWithContent? DefaultDigestSummaryUserPrompt { get; private set; }
+
     public async Task OnGetAsync()
     {
         var settingsResult = await backend.GetSettings();
@@ -21,7 +26,12 @@ public sealed class GenerateModel(BackendClient backend) : BasePageModel
             Errors = settingsResult.Errors;
             return;
         }
+
         var settings = settingsResult.Value;
+        DefaultPostSummaryUserPrompt = settings.PromptPostSummaryUser;
+        DefaultPostImportanceUserPrompt = settings.PromptPostImportanceUser;
+        DefaultDigestSummaryUserPrompt = settings.PromptDigestSummaryUser;
+
         var currentUtc = DateTime.UtcNow;
         var digestTimeToday = currentUtc.Date.Add(settings.DigestTimeUtc.ToTimeSpan());
 
@@ -31,6 +41,7 @@ public sealed class GenerateModel(BackendClient backend) : BasePageModel
             Errors = feedsResult.Errors;
             return;
         }
+
         Feeds = feedsResult.Value;
 
         // If digest time hasn't passed today, set range to previous day
@@ -42,6 +53,9 @@ public sealed class GenerateModel(BackendClient backend) : BasePageModel
             DateFrom =
                 currentUtc >= digestTimeToday ? currentUtc.Date : currentUtc.Date.AddDays(-1),
             SelectedFeedUrls = allFeedUrls,
+            PostSummaryUserPromptOverride = settings.PromptPostSummaryUser,
+            PostImportanceUserPromptOverride = settings.PromptPostImportanceUser,
+            DigestSummaryUserPromptOverride = settings.PromptDigestSummaryUser,
         };
     }
 
@@ -63,7 +77,14 @@ public sealed class GenerateModel(BackendClient backend) : BasePageModel
             throw new UnreachableException("Form is null. Error in frontend!");
         }
 
-        var result = await backend.QueueDigest(Form.DateFrom, Form.DateTo, Form.SelectedFeedUrls);
+        var result = await backend.QueueDigest(
+            Form.DateFrom,
+            Form.DateTo,
+            Form.SelectedFeedUrls,
+            Form.PostSummaryUserPromptOverride,
+            Form.PostImportanceUserPromptOverride,
+            Form.DigestSummaryUserPromptOverride
+        );
         if (result.IsFailed)
         {
             Errors = result.Errors;
@@ -75,6 +96,7 @@ public sealed class GenerateModel(BackendClient backend) : BasePageModel
 
             return Page();
         }
+
         SuccessMessage = "Digest generation queued successfully";
         return RedirectToPage("/Digest/Progress", new { id = result.Value });
     }

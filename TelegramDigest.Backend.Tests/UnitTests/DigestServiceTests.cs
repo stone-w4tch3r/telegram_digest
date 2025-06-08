@@ -94,11 +94,23 @@ public sealed class DigestServiceTests
             )
             .ReturnsAsync(Result.Ok(posts));
         _aiSummarizerMock
-            .Setup(x => x.GenerateSummary(It.IsAny<PostModel>(), It.IsAny<CancellationToken>()))
+            .Setup(x =>
+                x.GenerateSummary(
+                    It.IsAny<PostModel>(),
+                    It.IsAny<TemplateWithContent>(),
+                    It.IsAny<TemplateWithContent>(),
+                    It.IsAny<CancellationToken>()
+                )
+            )
             .ReturnsAsync(Result.Ok(postSummary));
         _aiSummarizerMock
             .Setup(x =>
-                x.GeneratePostsSummary(It.IsAny<List<PostModel>>(), It.IsAny<CancellationToken>())
+                x.GeneratePostsSummary(
+                    It.IsAny<List<PostModel>>(),
+                    It.IsAny<TemplateWithContent>(),
+                    It.IsAny<TemplateWithContent>(),
+                    It.IsAny<CancellationToken>()
+                )
             )
             .ReturnsAsync(Result.Ok(digestSummary));
         _digestRepositoryMock
@@ -247,11 +259,23 @@ public sealed class DigestServiceTests
             )
             .ReturnsAsync(Result.Fail<List<PostModel>>("Failed to fetch"));
         _aiSummarizerMock
-            .Setup(x => x.GenerateSummary(It.IsAny<PostModel>(), It.IsAny<CancellationToken>()))
+            .Setup(x =>
+                x.GenerateSummary(
+                    It.IsAny<PostModel>(),
+                    It.IsAny<TemplateWithContent>(),
+                    It.IsAny<TemplateWithContent>(),
+                    It.IsAny<CancellationToken>()
+                )
+            )
             .ReturnsAsync(Result.Ok(postSummary));
         _aiSummarizerMock
             .Setup(x =>
-                x.GeneratePostsSummary(It.IsAny<List<PostModel>>(), It.IsAny<CancellationToken>())
+                x.GeneratePostsSummary(
+                    It.IsAny<List<PostModel>>(),
+                    It.IsAny<TemplateWithContent>(),
+                    It.IsAny<TemplateWithContent>(),
+                    It.IsAny<CancellationToken>()
+                )
             )
             .ReturnsAsync(Result.Ok(digestSummary));
         _digestRepositoryMock
@@ -334,11 +358,23 @@ public sealed class DigestServiceTests
             )
             .ReturnsAsync(Result.Ok(posts));
         _aiSummarizerMock
-            .Setup(x => x.GenerateSummary(It.IsAny<PostModel>(), It.IsAny<CancellationToken>()))
+            .Setup(x =>
+                x.GenerateSummary(
+                    It.IsAny<PostModel>(),
+                    It.IsAny<TemplateWithContent>(),
+                    It.IsAny<TemplateWithContent>(),
+                    It.IsAny<CancellationToken>()
+                )
+            )
             .ReturnsAsync(Result.Ok(postSummary));
         _aiSummarizerMock
             .Setup(x =>
-                x.GeneratePostsSummary(It.IsAny<List<PostModel>>(), It.IsAny<CancellationToken>())
+                x.GeneratePostsSummary(
+                    It.IsAny<List<PostModel>>(),
+                    It.IsAny<TemplateWithContent>(),
+                    It.IsAny<TemplateWithContent>(),
+                    It.IsAny<CancellationToken>()
+                )
             )
             .ReturnsAsync(Result.Ok(digestSummary));
         _digestRepositoryMock
@@ -517,7 +553,14 @@ public sealed class DigestServiceTests
             )
             .ReturnsAsync(Result.Ok(posts));
         _aiSummarizerMock
-            .Setup(x => x.GenerateSummary(It.IsAny<PostModel>(), It.IsAny<CancellationToken>()))
+            .Setup(x =>
+                x.GenerateSummary(
+                    It.IsAny<PostModel>(),
+                    It.IsAny<TemplateWithContent>(),
+                    It.IsAny<TemplateWithContent>(),
+                    It.IsAny<CancellationToken>()
+                )
+            )
             .ReturnsAsync(Result.Fail<PostSummaryModel>("AI failure"));
 
         // Act
@@ -569,11 +612,23 @@ public sealed class DigestServiceTests
             )
             .ReturnsAsync(Result.Ok(posts));
         _aiSummarizerMock
-            .Setup(x => x.GenerateSummary(It.IsAny<PostModel>(), It.IsAny<CancellationToken>()))
+            .Setup(x =>
+                x.GenerateSummary(
+                    It.IsAny<PostModel>(),
+                    It.IsAny<TemplateWithContent>(),
+                    It.IsAny<TemplateWithContent>(),
+                    It.IsAny<CancellationToken>()
+                )
+            )
             .ReturnsAsync(Result.Ok(postSummary));
         _aiSummarizerMock
             .Setup(x =>
-                x.GeneratePostsSummary(It.IsAny<List<PostModel>>(), It.IsAny<CancellationToken>())
+                x.GeneratePostsSummary(
+                    It.IsAny<List<PostModel>>(),
+                    It.IsAny<TemplateWithContent>(),
+                    It.IsAny<TemplateWithContent>(),
+                    It.IsAny<CancellationToken>()
+                )
             )
             .ReturnsAsync(Result.Fail<DigestSummaryModel>("AI failure"));
 
@@ -636,11 +691,23 @@ public sealed class DigestServiceTests
             )
             .ReturnsAsync(Result.Ok(posts));
         _aiSummarizerMock
-            .Setup(x => x.GenerateSummary(It.IsAny<PostModel>(), It.IsAny<CancellationToken>()))
+            .Setup(x =>
+                x.GenerateSummary(
+                    It.IsAny<PostModel>(),
+                    It.IsAny<TemplateWithContent>(),
+                    It.IsAny<TemplateWithContent>(),
+                    It.IsAny<CancellationToken>()
+                )
+            )
             .ReturnsAsync(Result.Ok(postSummary));
         _aiSummarizerMock
             .Setup(x =>
-                x.GeneratePostsSummary(It.IsAny<List<PostModel>>(), It.IsAny<CancellationToken>())
+                x.GeneratePostsSummary(
+                    It.IsAny<List<PostModel>>(),
+                    It.IsAny<TemplateWithContent>(),
+                    It.IsAny<TemplateWithContent>(),
+                    It.IsAny<CancellationToken>()
+                )
             )
             .ReturnsAsync(Result.Ok(digestSummary));
         _digestRepositoryMock

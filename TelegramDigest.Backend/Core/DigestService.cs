@@ -63,6 +63,21 @@ internal sealed class DigestService(
             return Result.Fail(feedsResult.Errors);
         }
 
+        if (filter.SelectedFeeds is { Count: 0 })
+        {
+            const string Message = "No feeds selected for digest generation";
+            logger.LogError(Message);
+            digestStepsService.AddStep(
+                new ErrorStepModel
+                {
+                    DigestId = digestId,
+                    Errors = [new Error(Message)],
+                    Message = Message,
+                }
+            );
+            return Result.Fail(new Error(Message));
+        }
+
         var feeds =
             filter.SelectedFeeds != null
                 ? [.. feedsResult.Value.Where(f => filter.SelectedFeeds.Contains(f.FeedUrl))]
@@ -75,21 +90,6 @@ internal sealed class DigestService(
                 Feeds = feeds.Select(x => x.FeedUrl).ToArray(),
             }
         );
-
-        if (!feeds.Any())
-        {
-            const string Message = "No feeds selected";
-            logger.LogError(Message);
-            digestStepsService.AddStep(
-                new ErrorStepModel
-                {
-                    DigestId = digestId,
-                    Errors = [new Error(Message)],
-                    Message = Message,
-                }
-            );
-            return Result.Fail(new Error(Message));
-        }
 
         var posts = new List<PostModel>();
         var errorsByFeed = new Dictionary<FeedUrl, List<IError>>();

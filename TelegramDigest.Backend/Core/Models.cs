@@ -31,6 +31,7 @@ public sealed record DigestSummaryModel(
     DateTime DateTo
 );
 
+/// <param name="SelectedFeeds">Null means all feeds</param>
 public record DigestFilterModel(
     DateOnly DateFrom,
     DateOnly DateTo,

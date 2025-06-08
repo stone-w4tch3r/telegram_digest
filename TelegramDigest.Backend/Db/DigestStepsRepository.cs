@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Text.Json;
 using FluentResults;
 using TelegramDigest.Backend.Core;
+using TelegramDigest.Backend.Utils;
 
 namespace TelegramDigest.Backend.Db;
 
@@ -11,7 +12,7 @@ internal interface IDigestStepsRepository
     Task<Result> SaveStepAsync(IDigestStepModel step, CancellationToken ct);
 }
 
-internal sealed partial class DigestStepsRepository(
+internal sealed class DigestStepsRepository(
     ApplicationDbContext context,
     ILogger<DigestStepsRepository> logger
 ) : IDigestStepsRepository
@@ -79,7 +80,10 @@ internal sealed partial class DigestStepsRepository(
                 DigestId = digestId,
                 Feeds =
                     e.FeedsJson != null
-                        ? JsonSerializer.Deserialize<FeedUrl[]>(e.FeedsJson) ?? []
+                        ? JsonSerializer.Deserialize<FeedUrl[]>(
+                            e.FeedsJson,
+                            SerializationOptions.FeedUrlSerializerOptions
+                        ) ?? []
                         : [],
                 Message = entity.Message,
                 Timestamp = entity.Timestamp,
@@ -98,12 +102,12 @@ internal sealed partial class DigestStepsRepository(
                     e.ExceptionJsonSerialized != null
                         ? JsonSerializer.Deserialize<Exception>(
                             e.ExceptionJsonSerialized,
-                            ExceptionSerializerOptions
+                            SerializationOptions.ExceptionSerializerOptions
                         )
                         : null,
                 Errors =
                     e.ErrorsJsonSerialized != null
-                        ? ErrorSerializationHelper.DeserializeErrors(e.ErrorsJsonSerialized)
+                        ? FluentErrorSerializationHelper.DeserializeErrors(e.ErrorsJsonSerialized)
                         : null,
                 Message = entity.Message,
                 Timestamp = entity.Timestamp,
@@ -134,7 +138,10 @@ internal sealed partial class DigestStepsRepository(
                 DigestId = model.DigestId.Guid,
                 Type = type,
                 Message = model.Message,
-                FeedsJson = JsonSerializer.Serialize(m.Feeds),
+                FeedsJson = JsonSerializer.Serialize(
+                    m.Feeds,
+                    SerializationOptions.FeedUrlSerializerOptions
+                ),
                 Timestamp = model.Timestamp,
             },
             RssReadingFinishedStepModel m => new RssReadingFinishedStepEntity
@@ -154,10 +161,15 @@ internal sealed partial class DigestStepsRepository(
                 Message = model.Message,
                 ExceptionJsonSerialized =
                     m.Exception != null
-                        ? JsonSerializer.Serialize(m.Exception, ExceptionSerializerOptions)
+                        ? JsonSerializer.Serialize(
+                            m.Exception,
+                            SerializationOptions.ExceptionSerializerOptions
+                        )
                         : null,
                 ErrorsJsonSerialized =
-                    m.Errors != null ? ErrorSerializationHelper.SerializeErrors(m.Errors) : null,
+                    m.Errors != null
+                        ? FluentErrorSerializationHelper.SerializeErrors(m.Errors)
+                        : null,
                 Timestamp = model.Timestamp,
             },
             SimpleStepModel => new SimpleStepEntity

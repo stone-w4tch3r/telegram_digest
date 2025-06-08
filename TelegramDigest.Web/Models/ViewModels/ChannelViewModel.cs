@@ -1,9 +1,9 @@
 using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Mvc;
-using TelegramDigest.Backend.Core;
+using RuntimeNullables;
 
 namespace TelegramDigest.Web.Models.ViewModels;
 
+[NullChecks(false)]
 public sealed record RssProvider
 {
     public required string Id { get; init; }
@@ -11,22 +11,21 @@ public sealed record RssProvider
     public required string BaseUrl { get; init; }
 }
 
+[NullChecks(false)]
 public sealed record FeedViewModel
 {
-    [Required]
     [Display(Name = "Feed Title")]
     public required string Title { get; init; }
 
-    [Required]
     [Display(Name = "Feed URL")]
     [Url]
     public required string Url { get; init; }
 }
 
+[NullChecks(false)]
 [Display(Name = "Feed")]
 public sealed record AddFeedViewModel
 {
-    [Required]
     [Display(Name = "Feed URL")]
     [Url]
     public required string FeedUrl { get; init; }

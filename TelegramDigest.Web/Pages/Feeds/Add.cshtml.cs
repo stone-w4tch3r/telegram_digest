@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using RuntimeNullables;
 using TelegramDigest.Web.Models.ViewModels;
 using TelegramDigest.Web.Pages.Shared;
 using TelegramDigest.Web.Services;
@@ -75,25 +76,24 @@ public sealed class AddModel(BackendClient backend) : BasePageModel
     }
 }
 
-public sealed class DirectRssFeedModel
+[NullChecks(false)]
+public sealed record DirectRssFeedModel
 {
-    [Required]
     [Url]
     [Display(Name = "RSS Feed URL")]
     public required string FeedUrl { get; init; }
 }
 
-public sealed class TelegramFeedModel
+[NullChecks(false)]
+public sealed record TelegramFeedModel
 {
-    [Required]
     [Display(Name = "RSS Provider")]
     public required string ProviderId { get; init; }
 
-    [Required]
     [Display(Name = "Channel ID")]
     [RegularExpression(
         "^[a-zA-Z][a-zA-Z0-9_]{4,31}$",
         ErrorMessage = "Channel ID must be 5-32 characters, only letters, numbers, and underscores, starting with a letter"
     )]
-    public string? ChannelId { get; init; }
+    public required string ChannelId { get; init; }
 }

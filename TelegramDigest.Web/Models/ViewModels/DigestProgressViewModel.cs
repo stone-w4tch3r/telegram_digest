@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using TelegramDigest.Backend.Core;
+using RuntimeNullables;
 
 namespace TelegramDigest.Web.Models.ViewModels;
 
@@ -16,6 +16,7 @@ public enum DigestStepViewModelEnum
     NoPostsFound,
 }
 
+[NullChecks(false)]
 public sealed record DigestProgressViewModel
 {
     public required Guid Id { get; init; }
@@ -31,10 +32,10 @@ public sealed record DigestProgressViewModel
 
     public required DateTime? CompletedAt { get; init; }
 
-    [Required]
     public required DigestStepViewModel[] Steps { get; init; }
 }
 
+[NullChecks(false)]
 public sealed record DigestStepViewModel
 {
     public DigestStepViewModel()

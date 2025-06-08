@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using RuntimeNullables;
 
 namespace TelegramDigest.Backend.Db;
 
@@ -15,15 +16,14 @@ internal enum DigestStepTypeEntityEnum
     NoPostsFound,
 }
 
-internal abstract class DigestStepEntity
+[NullChecks(false)]
+internal abstract record DigestStepEntity
 {
     [Key]
     public required Guid Id { get; init; }
 
-    [Required]
     public required Guid DigestId { get; init; }
 
-    [Required]
     public required DigestStepTypeEntityEnum Type { get; init; }
 
     [MaxLength(2048)]
@@ -32,28 +32,30 @@ internal abstract class DigestStepEntity
     public required DateTime Timestamp { get; init; }
 }
 
-internal sealed class SimpleStepEntity : DigestStepEntity { }
+internal sealed record SimpleStepEntity : DigestStepEntity { }
 
-internal sealed class AiProcessingStepEntity : DigestStepEntity
+[NullChecks(false)]
+internal sealed record AiProcessingStepEntity : DigestStepEntity
 {
-    [Required]
     [Range(0, 100)]
     public required int Percentage { get; init; }
 }
 
-internal sealed class RssReadingStartedStepEntity : DigestStepEntity
+[NullChecks(false)]
+internal sealed record RssReadingStartedStepEntity : DigestStepEntity
 {
     [Required]
     public required string? FeedsJson { get; init; }
 }
 
-internal sealed class RssReadingFinishedStepEntity : DigestStepEntity
+[NullChecks(false)]
+internal sealed record RssReadingFinishedStepEntity : DigestStepEntity
 {
-    [Required]
     public required int PostsFound { get; init; }
 }
 
-internal sealed class ErrorStepEntity : DigestStepEntity
+[NullChecks(false)]
+internal sealed record ErrorStepEntity : DigestStepEntity
 {
     public required string? ExceptionJsonSerialized { get; init; }
     public required string? ErrorsJsonSerialized { get; init; }

@@ -1,10 +1,12 @@
 using System.ComponentModel.DataAnnotations;
+using RuntimeNullables;
 
 namespace TelegramDigest.Backend.Db;
 
 /// <summary>
 /// Represents a RSS feed
 /// </summary>
+[NullChecks(false)]
 internal sealed class FeedEntity
 {
     /// <summary>
@@ -31,6 +33,7 @@ internal sealed class FeedEntity
 /// <summary>
 /// Digest that has multiple posts from different feeds
 /// </summary>
+[NullChecks(false)]
 internal sealed class DigestEntity
 {
     public required Guid Id { get; init; }
@@ -49,6 +52,7 @@ internal sealed class DigestEntity
 /// <summary>
 /// Metadata for a digest
 /// </summary>
+[NullChecks(false)]
 internal sealed class DigestSummaryEntity
 {
     /// <summary>
@@ -81,6 +85,7 @@ internal sealed class DigestSummaryEntity
 /// <summary>
 /// AI generated summary of a post and post info
 /// </summary>
+[NullChecks(false)]
 internal sealed class PostSummaryEntity
 {
     public required Guid Id { get; init; }

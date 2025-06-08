@@ -1,15 +1,14 @@
 using System.ComponentModel.DataAnnotations;
-using TelegramDigest.Backend.Core;
+using RuntimeNullables;
 
 namespace TelegramDigest.Web.Models.ViewModels;
 
+[NullChecks(false)]
 public sealed class DigestGenerationViewModel : IValidatableObject
 {
-    [Required]
     [Display(Name = "From Date")]
     public required DateTime DateFrom { get; init; }
 
-    [Required]
     [Display(Name = "To Date")]
     public required DateTime DateTo { get; init; }
 

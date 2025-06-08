@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Options;
 using TelegramDigest.Backend;
-using TelegramDigest.Web.DeploymentOptions;
+using TelegramDigest.Web.Options;
 using TelegramDigest.Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);

@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 
-namespace TelegramDigest.Web.DeploymentOptions;
+namespace TelegramDigest.Web.Options;
 
 public sealed class UrlBasePathAttribute(string memberName) : ValidationAttribute
 {

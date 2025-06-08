@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using RuntimeNullables;
 
-namespace TelegramDigest.Backend.Infrastructure;
+namespace TelegramDigest.Backend.Options;
 
 [NullChecks(false)]
 internal sealed record BackendDeploymentOptions

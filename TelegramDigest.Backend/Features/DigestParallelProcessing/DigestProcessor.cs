@@ -2,8 +2,8 @@ using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using TelegramDigest.Backend.Infrastructure;
 using TelegramDigest.Backend.Models;
+using TelegramDigest.Backend.Options;
 
 namespace TelegramDigest.Backend.Features.DigestParallelProcessing;
 

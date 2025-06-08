@@ -5,8 +5,8 @@ using TelegramDigest.Backend.Db;
 using TelegramDigest.Backend.Features;
 using TelegramDigest.Backend.Features.DigestParallelProcessing;
 using TelegramDigest.Backend.Features.DigestSteps;
-using TelegramDigest.Backend.Infrastructure;
 using TelegramDigest.Backend.Models;
+using TelegramDigest.Backend.Options;
 
 namespace TelegramDigest.Backend;
 

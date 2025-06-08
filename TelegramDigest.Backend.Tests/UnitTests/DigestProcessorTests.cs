@@ -5,8 +5,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using TelegramDigest.Backend.Features.DigestParallelProcessing;
-using TelegramDigest.Backend.Infrastructure;
 using TelegramDigest.Backend.Models;
+using TelegramDigest.Backend.Options;
 
 namespace TelegramDigest.Backend.Tests.UnitTests;
 

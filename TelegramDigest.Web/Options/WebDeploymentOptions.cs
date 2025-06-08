@@ -4,7 +4,7 @@ using RuntimeNullables;
 using TelegramDigest.Web.Models;
 using Host = TelegramDigest.Types.Host.Host;
 
-namespace TelegramDigest.Web.DeploymentOptions;
+namespace TelegramDigest.Web.Options;
 
 [NullChecks(false)]
 public sealed record WebDeploymentOptions

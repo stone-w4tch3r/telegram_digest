@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using FluentAssertions;
-using TelegramDigest.Web.DeploymentOptions;
+using TelegramDigest.Web.Options;
 
 namespace TelegramDigest.Web.Tests
 {

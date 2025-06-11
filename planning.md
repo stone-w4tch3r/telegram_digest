@@ -82,6 +82,7 @@
 | [ ]  | Allow empty API key                                 | 1h    |
 | [ ]  | Faster docker build                                 | 1h    |
 | [ ]  | Support cancellation everywhere                     | 1h    |
+| [ ]  | LiveBDD                                             | 1h    |
 
 ### Future
 

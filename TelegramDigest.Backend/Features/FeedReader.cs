@@ -6,9 +6,11 @@ using TelegramDigest.Backend.Utils;
 
 namespace TelegramDigest.Backend.Features;
 
+internal record ReadPostModel(Html HtmlContent, Uri Url, DateTime PublishedAt);
+
 internal interface IFeedReader
 {
-    Task<Result<List<PostModel>>> FetchPosts(
+    Task<Result<List<ReadPostModel>>> FetchPosts(
         FeedUrl feedUrl,
         DateOnly from,
         DateOnly to,
@@ -19,7 +21,7 @@ internal interface IFeedReader
 
 internal sealed class FeedReader(ILogger<FeedReader> logger) : IFeedReader
 {
-    public Task<Result<List<PostModel>>> FetchPosts(
+    public Task<Result<List<ReadPostModel>>> FetchPosts(
         FeedUrl feedUrl,
         DateOnly from,
         DateOnly to,
@@ -49,8 +51,7 @@ internal sealed class FeedReader(ILogger<FeedReader> logger) : IFeedReader
                             DateOnly.FromDateTime(x.PublishDate.DateTime) >= from
                             && DateOnly.FromDateTime(x.PublishDate.DateTime) <= to
                         )
-                        .Select(x => new PostModel(
-                            FeedUrl: feedUrl,
+                        .Select(x => new ReadPostModel(
                             HtmlContent: new(x.Summary.Text),
                             Url: x.Links.Where(l => l.RelationshipType == "alternate")
                                 .SingleOrDefaultIfNotExactlyOne()

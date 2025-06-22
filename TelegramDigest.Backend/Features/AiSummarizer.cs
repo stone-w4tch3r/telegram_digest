@@ -108,7 +108,7 @@ internal sealed class AiSummarizer(
 
             return Result.Ok(
                 new PostSummaryModel(
-                    FeedUrl: post.FeedUrl,
+                    Feed: post.Feed,
                     Summary: completionResult.Value.Content[0].Text.Trim(),
                     Url: post.Url,
                     PublishedAt: post.PublishedAt,

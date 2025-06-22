@@ -108,7 +108,14 @@ internal sealed class DigestService(
             );
             if (postsResult.IsSuccess)
             {
-                posts.AddRange(postsResult.Value);
+                posts.AddRange(
+                    postsResult.Value.Select(readPost => new PostModel(
+                        Feed: feed,
+                        HtmlContent: readPost.HtmlContent,
+                        Url: readPost.Url,
+                        PublishedAt: readPost.PublishedAt
+                    ))
+                );
             }
             else
             {
@@ -196,7 +203,8 @@ internal sealed class DigestService(
                         Percentage = i * 100 / posts.Count,
                     }
                 );
-                summaries.Add(summaryResult.Value);
+                var summary = summaryResult.Value with { Feed = post.Feed };
+                summaries.Add(summary);
             }
             else
             {

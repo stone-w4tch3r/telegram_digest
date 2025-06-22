@@ -12,7 +12,8 @@ public interface IRssProvidersService
     Task<Result<List<TgRssProviderModel>>> GetProviders(CancellationToken ct);
 }
 
-internal class TgRssProvidersService(IOptions<TgRssProvidersOptions> options) : IRssProvidersService
+internal sealed class TgRssProvidersService(IOptions<TgRssProvidersOptions> options)
+    : IRssProvidersService
 {
     public Task<Result<List<TgRssProviderModel>>> GetProviders(CancellationToken ct)
     {

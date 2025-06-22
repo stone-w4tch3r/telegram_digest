@@ -171,17 +171,46 @@ internal sealed class DigestRepository(
             throw new ArgumentException("Digest entity is incomplete", nameof(entity));
         }
 
+        var allFeeds = entity.PostsNav.Select(p => (p.FeedNav, p.Id)).ToArray();
+        var firstPostWithNullFeed = allFeeds.FirstOrDefault(p => p.FeedNav == null);
+        if (firstPostWithNullFeed.FeedNav != null)
+        {
+            throw new InvalidOperationException(
+                $"In Digest entity {entity.Id}, Post {firstPostWithNullFeed.Id} FeedNav is null"
+            );
+        }
+
+        var feedCache = new Dictionary<string, FeedModel>();
         return new(
             DigestId: new(entity.Id),
             PostsSummaries:
             [
-                .. entity.PostsNav.Select(p => new PostSummaryModel(
-                    FeedUrl: new(new(p.FeedUrl)),
-                    Summary: p.Summary,
-                    Url: new(p.Url),
-                    PublishedAt: p.PublishedAt,
-                    Importance: new(p.Importance)
-                )),
+                .. entity.PostsNav.Select(p =>
+                {
+                    if (p.FeedNav == null)
+                    {
+                        throw new InvalidOperationException("FeedNav is null");
+                    }
+
+                    var feedUrl = p.FeedNav.RssUrl;
+                    if (!feedCache.TryGetValue(feedUrl, out var feedModel))
+                    {
+                        feedModel = new(
+                            new(p.FeedNav.RssUrl),
+                            p.FeedNav.Description,
+                            p.FeedNav.Title,
+                            new(p.FeedNav.ImageUrl)
+                        );
+                        feedCache[feedUrl] = feedModel;
+                    }
+                    return new PostSummaryModel(
+                        Feed: feedModel,
+                        Summary: p.Summary,
+                        Url: new(p.Url),
+                        PublishedAt: p.PublishedAt,
+                        Importance: new(p.Importance)
+                    );
+                }),
             ],
             DigestSummary: MapToSummaryModel(entity.SummaryNav),
             UsedPrompts: JsonSerializer.Deserialize<Dictionary<PromptTypeEnumModel, string>>(
@@ -215,7 +244,7 @@ internal sealed class DigestRepository(
                 .. model.PostsSummaries.Select(p => new PostSummaryEntity
                 {
                     Id = Guid.NewGuid(),
-                    FeedUrl = p.FeedUrl.Url.ToString(),
+                    FeedUrl = p.Feed.FeedUrl.Url.ToString(),
                     Summary = p.Summary,
                     Url = p.Url.ToString(),
                     PublishedAt = p.PublishedAt,

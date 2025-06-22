@@ -17,3 +17,6 @@ MA0053.exceptions_should_be_sealed = true
 
 [**/Migrations/*.cs]
 dotnet_diagnostic.MA0053.severity = none
+
+# Use Count/Length instead of Enumerable.Count()
+dotnet_diagnostic.CA1829.severity = none

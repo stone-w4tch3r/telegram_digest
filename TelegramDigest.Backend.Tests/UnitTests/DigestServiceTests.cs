@@ -57,16 +57,19 @@ public sealed class DigestServiceTests
         var digestId = new DigestId(Guid.NewGuid());
         var parameters = new DigestParametersModel(_dateFrom, _dateTo);
         var feedUrl = new FeedUrl("https://example.com/feed");
-        var feeds = new List<FeedModel>
+        var feedModel = new FeedModel(
+            feedUrl,
+            "desc",
+            "title",
+            new("https://example.com/image.png")
+        );
+        var feeds = new List<FeedModel> { feedModel };
+        var readPosts = new List<ReadPostModel>
         {
-            new(feedUrl, "desc", "title", new("https://example.com/image.png")),
-        };
-        var posts = new List<PostModel>
-        {
-            new(feedUrl, new("content"), new("https://example.com/post1"), DateTime.UtcNow),
+            new(new("content"), new("https://example.com/post1"), DateTime.UtcNow),
         };
         var postSummary = new PostSummaryModel(
-            feedUrl,
+            feedModel,
             "summary",
             new("https://example.com/post1"),
             DateTime.UtcNow,
@@ -93,13 +96,13 @@ public sealed class DigestServiceTests
         _feedReaderMock
             .Setup(x =>
                 x.FetchPosts(
-                    It.IsAny<FeedUrl>(),
+                    feedModel.FeedUrl,
                     It.IsAny<DateOnly>(),
                     It.IsAny<DateOnly>(),
                     It.IsAny<CancellationToken>()
                 )
             )
-            .ReturnsAsync(Result.Ok(posts));
+            .ReturnsAsync(Result.Ok(readPosts));
         _aiSummarizerMock
             .Setup(x =>
                 x.GenerateSummary(
@@ -162,10 +165,13 @@ public sealed class DigestServiceTests
         var digestId = new DigestId(Guid.NewGuid());
         var parameters = new DigestParametersModel(_dateFrom, _dateTo);
         var feedUrl = new FeedUrl("https://example.com/feed");
-        var feeds = new List<FeedModel>
-        {
-            new(feedUrl, "desc", "title", new("https://example.com/image.png")),
-        };
+        var feedModel = new FeedModel(
+            feedUrl,
+            "desc",
+            "title",
+            new("https://example.com/image.png")
+        );
+        var feeds = new List<FeedModel> { feedModel };
 
         _settingsManagerMock
             .Setup(x => x.LoadSettings(It.IsAny<CancellationToken>()))
@@ -176,13 +182,13 @@ public sealed class DigestServiceTests
         _feedReaderMock
             .Setup(x =>
                 x.FetchPosts(
-                    It.IsAny<FeedUrl>(),
+                    feedModel.FeedUrl,
                     It.IsAny<DateOnly>(),
                     It.IsAny<DateOnly>(),
                     It.IsAny<CancellationToken>()
                 )
             )
-            .ReturnsAsync(Result.Ok(new List<PostModel>()));
+            .ReturnsAsync(Result.Ok(new List<ReadPostModel>()));
 
         // Act
         var result = await _digestService.GenerateDigest(
@@ -219,17 +225,25 @@ public sealed class DigestServiceTests
         var parameters = new DigestParametersModel(_dateFrom, _dateTo);
         var successFeedUrl = new FeedUrl("https://success.com/feed");
         var failFeedUrl = new FeedUrl("https://fail.com/feed");
-        var feeds = new List<FeedModel>
+        var successFeedModel = new FeedModel(
+            successFeedUrl,
+            "desc",
+            "title",
+            new("https://example.com/image.png")
+        );
+        var failFeedModel = new FeedModel(
+            failFeedUrl,
+            "desc",
+            "title",
+            new("https://example.com/image.png")
+        );
+        var feeds = new List<FeedModel> { successFeedModel, failFeedModel };
+        var readPosts = new List<ReadPostModel>
         {
-            new(successFeedUrl, "desc", "title", new("https://example.com/image.png")),
-            new(failFeedUrl, "desc", "title", new("https://example.com/image.png")),
-        };
-        var posts = new List<PostModel>
-        {
-            new(successFeedUrl, new("content"), new("https://success.com/post1"), DateTime.UtcNow),
+            new(new("content"), new("https://success.com/post1"), DateTime.UtcNow),
         };
         var postSummary = new PostSummaryModel(
-            successFeedUrl,
+            successFeedModel,
             "summary",
             new("https://success.com/post1"),
             DateTime.UtcNow,
@@ -256,23 +270,23 @@ public sealed class DigestServiceTests
         _feedReaderMock
             .Setup(x =>
                 x.FetchPosts(
-                    successFeedUrl,
+                    successFeedModel.FeedUrl,
                     It.IsAny<DateOnly>(),
                     It.IsAny<DateOnly>(),
                     It.IsAny<CancellationToken>()
                 )
             )
-            .ReturnsAsync(Result.Ok(posts));
+            .ReturnsAsync(Result.Ok(readPosts));
         _feedReaderMock
             .Setup(x =>
                 x.FetchPosts(
-                    failFeedUrl,
+                    failFeedModel.FeedUrl,
                     It.IsAny<DateOnly>(),
                     It.IsAny<DateOnly>(),
                     It.IsAny<CancellationToken>()
                 )
             )
-            .ReturnsAsync(Result.Fail<List<PostModel>>("Failed to fetch"));
+            .ReturnsAsync(Result.Fail<List<ReadPostModel>>("Failed to fetch"));
         _aiSummarizerMock
             .Setup(x =>
                 x.GenerateSummary(
@@ -328,22 +342,25 @@ public sealed class DigestServiceTests
             _dateTo,
             new[] { selectedFeedUrl }.ToHashSet()
         );
-        var feeds = new List<FeedModel>
+        var selectedFeedModel = new FeedModel(
+            selectedFeedUrl,
+            "desc",
+            "title",
+            new("https://example.com/image.png")
+        );
+        var notSelectedFeedModel = new FeedModel(
+            notSelectedFeedUrl,
+            "desc",
+            "title",
+            new("https://example.com/image.png")
+        );
+        var feeds = new List<FeedModel> { selectedFeedModel, notSelectedFeedModel };
+        var readPosts = new List<ReadPostModel>
         {
-            new(selectedFeedUrl, "desc", "title", new("https://example.com/image.png")),
-            new(notSelectedFeedUrl, "desc", "title", new("https://example.com/image.png")),
-        };
-        var posts = new List<PostModel>
-        {
-            new(
-                selectedFeedUrl,
-                new("content"),
-                new("https://selected.com/post1"),
-                DateTime.UtcNow
-            ),
+            new(new("content"), new("https://selected.com/post1"), DateTime.UtcNow),
         };
         var postSummary = new PostSummaryModel(
-            selectedFeedUrl,
+            selectedFeedModel,
             "summary",
             new("https://selected.com/post1"),
             DateTime.UtcNow,
@@ -370,13 +387,13 @@ public sealed class DigestServiceTests
         _feedReaderMock
             .Setup(x =>
                 x.FetchPosts(
-                    selectedFeedUrl,
+                    selectedFeedModel.FeedUrl,
                     It.IsAny<DateOnly>(),
                     It.IsAny<DateOnly>(),
                     It.IsAny<CancellationToken>()
                 )
             )
-            .ReturnsAsync(Result.Ok(posts));
+            .ReturnsAsync(Result.Ok(readPosts));
         _aiSummarizerMock
             .Setup(x =>
                 x.GenerateSummary(
@@ -413,7 +430,7 @@ public sealed class DigestServiceTests
         _feedReaderMock.Verify(
             x =>
                 x.FetchPosts(
-                    selectedFeedUrl,
+                    selectedFeedModel.FeedUrl,
                     It.IsAny<DateOnly>(),
                     It.IsAny<DateOnly>(),
                     It.IsAny<CancellationToken>()
@@ -423,7 +440,7 @@ public sealed class DigestServiceTests
         _feedReaderMock.Verify(
             x =>
                 x.FetchPosts(
-                    notSelectedFeedUrl,
+                    notSelectedFeedModel.FeedUrl,
                     It.IsAny<DateOnly>(),
                     It.IsAny<DateOnly>(),
                     It.IsAny<CancellationToken>()
@@ -474,15 +491,14 @@ public sealed class DigestServiceTests
         // Arrange
         var digestId = new DigestId(Guid.NewGuid());
         var parameters = new DigestParametersModel(_dateFrom, _dateTo, new HashSet<FeedUrl>());
-        var feeds = new List<FeedModel>
-        {
-            new(
-                new("https://example.com/feed"),
-                "desc",
-                "title",
-                new("https://example.com/image.png")
-            ),
-        };
+        var feedUrl = new FeedUrl("https://example.com/feed");
+        var feedModel = new FeedModel(
+            feedUrl,
+            "desc",
+            "title",
+            new("https://example.com/image.png")
+        );
+        var feeds = new List<FeedModel> { feedModel };
 
         _settingsManagerMock
             .Setup(x => x.LoadSettings(It.IsAny<CancellationToken>()))
@@ -509,21 +525,21 @@ public sealed class DigestServiceTests
         // Arrange
         var digestId = new DigestId(Guid.NewGuid());
         var parameters = new DigestParametersModel(_dateFrom, _dateTo);
-        var feeds = new List<FeedModel>
-        {
-            new(
-                new("https://fail1.com/feed"),
-                "desc",
-                "title",
-                new("https://example.com/image.png")
-            ),
-            new(
-                new("https://fail2.com/feed"),
-                "desc",
-                "title",
-                new("https://example.com/image.png")
-            ),
-        };
+        var failFeedUrl1 = new FeedUrl("https://fail1.com/feed");
+        var failFeedUrl2 = new FeedUrl("https://fail2.com/feed");
+        var failFeedModel1 = new FeedModel(
+            failFeedUrl1,
+            "desc",
+            "title",
+            new("https://example.com/image.png")
+        );
+        var failFeedModel2 = new FeedModel(
+            failFeedUrl2,
+            "desc",
+            "title",
+            new("https://example.com/image.png")
+        );
+        var feeds = new List<FeedModel> { failFeedModel1, failFeedModel2 };
 
         _settingsManagerMock
             .Setup(x => x.LoadSettings(It.IsAny<CancellationToken>()))
@@ -540,7 +556,7 @@ public sealed class DigestServiceTests
                     It.IsAny<CancellationToken>()
                 )
             )
-            .ReturnsAsync(Result.Fail<List<PostModel>>("Failed to fetch"));
+            .ReturnsAsync(Result.Fail<List<ReadPostModel>>("Failed to fetch"));
 
         // Act
         var result = await _digestService.GenerateDigest(
@@ -561,13 +577,16 @@ public sealed class DigestServiceTests
         var digestId = new DigestId(Guid.NewGuid());
         var parameters = new DigestParametersModel(_dateFrom, _dateTo);
         var feedUrl = new FeedUrl("https://example.com/feed");
-        var feeds = new List<FeedModel>
+        var feedModel = new FeedModel(
+            feedUrl,
+            "desc",
+            "title",
+            new("https://example.com/image.png")
+        );
+        var feeds = new List<FeedModel> { feedModel };
+        var readPosts = new List<ReadPostModel>
         {
-            new(feedUrl, "desc", "title", new("https://example.com/image.png")),
-        };
-        var posts = new List<PostModel>
-        {
-            new(feedUrl, new("content"), new("https://example.com/post1"), DateTime.UtcNow),
+            new(new("content"), new("https://example.com/post1"), DateTime.UtcNow),
         };
 
         _settingsManagerMock
@@ -579,13 +598,13 @@ public sealed class DigestServiceTests
         _feedReaderMock
             .Setup(x =>
                 x.FetchPosts(
-                    It.IsAny<FeedUrl>(),
+                    feedModel.FeedUrl,
                     It.IsAny<DateOnly>(),
                     It.IsAny<DateOnly>(),
                     It.IsAny<CancellationToken>()
                 )
             )
-            .ReturnsAsync(Result.Ok(posts));
+            .ReturnsAsync(Result.Ok(readPosts));
         _aiSummarizerMock
             .Setup(x =>
                 x.GenerateSummary(
@@ -615,16 +634,19 @@ public sealed class DigestServiceTests
         var digestId = new DigestId(Guid.NewGuid());
         var parameters = new DigestParametersModel(_dateFrom, _dateTo);
         var feedUrl = new FeedUrl("https://example.com/feed");
-        var feeds = new List<FeedModel>
+        var feedModel = new FeedModel(
+            feedUrl,
+            "desc",
+            "title",
+            new("https://example.com/image.png")
+        );
+        var feeds = new List<FeedModel> { feedModel };
+        var readPosts = new List<ReadPostModel>
         {
-            new(feedUrl, "desc", "title", new("https://example.com/image.png")),
-        };
-        var posts = new List<PostModel>
-        {
-            new(feedUrl, new("content"), new("https://example.com/post1"), DateTime.UtcNow),
+            new(new("content"), new("https://example.com/post1"), DateTime.UtcNow),
         };
         var postSummary = new PostSummaryModel(
-            feedUrl,
+            feedModel,
             "summary",
             new("https://example.com/post1"),
             DateTime.UtcNow,
@@ -640,13 +662,13 @@ public sealed class DigestServiceTests
         _feedReaderMock
             .Setup(x =>
                 x.FetchPosts(
-                    It.IsAny<FeedUrl>(),
+                    feedModel.FeedUrl,
                     It.IsAny<DateOnly>(),
                     It.IsAny<DateOnly>(),
                     It.IsAny<CancellationToken>()
                 )
             )
-            .ReturnsAsync(Result.Ok(posts));
+            .ReturnsAsync(Result.Ok(readPosts));
         _aiSummarizerMock
             .Setup(x =>
                 x.GenerateSummary(
@@ -685,16 +707,19 @@ public sealed class DigestServiceTests
         var digestId = new DigestId(Guid.NewGuid());
         var parameters = new DigestParametersModel(_dateFrom, _dateTo);
         var feedUrl = new FeedUrl("https://example.com/feed");
-        var feeds = new List<FeedModel>
+        var feedModel = new FeedModel(
+            feedUrl,
+            "desc",
+            "title",
+            new("https://example.com/image.png")
+        );
+        var feeds = new List<FeedModel> { feedModel };
+        var readPosts = new List<ReadPostModel>
         {
-            new(feedUrl, "desc", "title", new("https://example.com/image.png")),
-        };
-        var posts = new List<PostModel>
-        {
-            new(feedUrl, new("content"), new("https://example.com/post1"), DateTime.UtcNow),
+            new(new("content"), new("https://example.com/post1"), DateTime.UtcNow),
         };
         var postSummary = new PostSummaryModel(
-            feedUrl,
+            feedModel,
             "summary",
             new("https://example.com/post1"),
             DateTime.UtcNow,
@@ -720,13 +745,13 @@ public sealed class DigestServiceTests
         _feedReaderMock
             .Setup(x =>
                 x.FetchPosts(
-                    It.IsAny<FeedUrl>(),
+                    feedModel.FeedUrl,
                     It.IsAny<DateOnly>(),
                     It.IsAny<DateOnly>(),
                     It.IsAny<CancellationToken>()
                 )
             )
-            .ReturnsAsync(Result.Ok(posts));
+            .ReturnsAsync(Result.Ok(readPosts));
         _aiSummarizerMock
             .Setup(x =>
                 x.GenerateSummary(

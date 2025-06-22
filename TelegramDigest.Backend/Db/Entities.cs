@@ -98,6 +98,9 @@ internal sealed class PostSummaryEntity
 {
     public required Guid Id { get; init; }
 
+    /// <summary>
+    /// Foreign key to Feed
+    /// </summary>
     [MaxLength(2048)]
     public required string FeedUrl { get; init; }
 

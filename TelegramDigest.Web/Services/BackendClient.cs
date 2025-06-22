@@ -68,7 +68,7 @@ public sealed class BackendClient(IMainService mainService, ILogger<BackendClien
                 result
                     .Value.PostsSummaries.Select(p => new PostSummaryViewModel
                     {
-                        FeedUrl = p.FeedUrl.ToString(),
+                        FeedUrl = p.Feed.FeedUrl.ToString(),
                         Summary = p.Summary,
                         Url = p.Url.ToString(),
                         PostedAt = p.PublishedAt,

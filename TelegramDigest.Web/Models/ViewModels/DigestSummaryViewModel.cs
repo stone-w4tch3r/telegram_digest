@@ -28,7 +28,7 @@ public sealed record DigestSummaryViewModel
 public sealed record PostSummaryViewModel
 {
     [Display(Name = "Feed Url")]
-    public required string FeedUrl { get; init; }
+    public required string FeedTitle { get; init; }
 
     public required string Summary { get; init; }
 

@@ -194,25 +194,23 @@ internal sealed class DigestService(
         {
             ct.ThrowIfCancellationRequested();
             var summaryResult = await aiSummarizer.GenerateSummary(post, prompts, ct);
-            if (summaryResult.IsSuccess)
-            {
-                digestStepsService.AddStep(
-                    new AiProcessingStepModel
-                    {
-                        DigestId = digestId,
-                        Percentage = i * 100 / posts.Count,
-                    }
-                );
-                var summary = summaryResult.Value with { Feed = post.Feed };
-                summaries.Add(summary);
-            }
-            else
+            if (!summaryResult.IsSuccess)
             {
                 digestStepsService.AddStep(
                     new ErrorStepModel { DigestId = digestId, Errors = summaryResult.Errors }
                 );
                 return Result.Fail(summaryResult.Errors);
             }
+
+            digestStepsService.AddStep(
+                new AiProcessingStepModel
+                {
+                    DigestId = digestId,
+                    Percentage = i * 100 / posts.Count,
+                }
+            );
+            var summary = summaryResult.Value;
+            summaries.Add(summary);
         }
 
         ct.ThrowIfCancellationRequested();

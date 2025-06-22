@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Text.Json;
 using FluentResults;
 using TelegramDigest.Backend.Models;
 
@@ -183,10 +184,12 @@ internal sealed class DigestRepository(
                 )),
             ],
             DigestSummary: MapToSummaryModel(entity.SummaryNav),
-            UsedPrompts: entity.UsedPrompts.ToDictionary(
-                kvp => MapPromptTypeToModel(kvp.Key),
-                kvp => kvp.Value
+            UsedPrompts: JsonSerializer.Deserialize<Dictionary<PromptTypeEnumModel, string>>(
+                entity.UsedPrompts
             )
+                ?? throw new InvalidOperationException(
+                    "Failed to deserialize UsedPrompts for unknow reason"
+                )
         );
     }
 
@@ -222,10 +225,7 @@ internal sealed class DigestRepository(
                     FeedNav = null, // Will be set by EF Core
                 }),
             ],
-            UsedPrompts = model.UsedPrompts.ToDictionary(
-                kvp => MapPromptTypeToEntity(kvp.Key),
-                kvp => kvp.Value
-            ),
+            UsedPrompts = JsonSerializer.Serialize(model.UsedPrompts),
         };
 
         return digestEntity;

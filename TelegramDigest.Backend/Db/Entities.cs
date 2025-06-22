@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using RuntimeNullables;
+using TelegramDigest.Backend.Options;
 
 namespace TelegramDigest.Backend.Db;
 
@@ -39,9 +40,11 @@ internal sealed class DigestEntity
     public required Guid Id { get; init; }
 
     /// <summary>
-    /// Stores used prompts for the digest
+    /// Stores used prompts for the digest as JSON
     /// </summary>
-    public required Dictionary<PromptTypeEnumEntity, string> UsedPrompts { get; init; }
+    [MaxLength(4096)]
+    [JsonString]
+    public required string UsedPrompts { get; init; }
 
     /// <summary>
     /// Navigation property to DigestSummaryEntity

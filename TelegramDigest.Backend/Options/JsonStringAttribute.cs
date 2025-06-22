@@ -23,7 +23,7 @@ internal sealed class JsonStringAttribute : ValidationAttribute
         }
         catch (JsonException ex)
         {
-            return new($"{DisplayName ?? ctx.DisplayName} must contain valid JSON. {ex.Message}");
+            return new($"{DisplayName ?? ctx.DisplayName} must contain a valid JSON. {ex.Message}");
         }
     }
 }

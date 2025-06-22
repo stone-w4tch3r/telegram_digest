@@ -6,6 +6,7 @@ using TelegramDigest.Backend.Db;
 using TelegramDigest.Backend.Features;
 using TelegramDigest.Backend.Features.DigestSteps;
 using TelegramDigest.Backend.Models;
+using TelegramDigest.Types.Host;
 
 namespace TelegramDigest.Backend.Tests.UnitTests;
 
@@ -81,8 +82,11 @@ public sealed class DigestServiceTests
             _dateFrom.ToDateTime(TimeOnly.MinValue),
             _dateTo.ToDateTime(TimeOnly.MinValue)
         );
-        var savedDigest = (DigestModel?)null;
+        DigestModel? savedDigest = null;
 
+        _settingsManagerMock
+            .Setup(x => x.LoadSettings(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Ok(GetMockSettings()));
         _feedsRepositoryMock
             .Setup(x => x.LoadFeeds(It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Ok(feeds));
@@ -117,7 +121,7 @@ public sealed class DigestServiceTests
         _digestRepositoryMock
             .Setup(x => x.SaveDigest(It.IsAny<DigestModel>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Ok())
-            .Callback<DigestModel, CancellationToken>((digest, ct) => savedDigest = digest);
+            .Callback<DigestModel, CancellationToken>((digest, _) => savedDigest = digest);
 
         // Act
         var result = await _digestService.GenerateDigest(
@@ -163,6 +167,9 @@ public sealed class DigestServiceTests
             new(feedUrl, "desc", "title", new("https://example.com/image.png")),
         };
 
+        _settingsManagerMock
+            .Setup(x => x.LoadSettings(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Ok(GetMockSettings()));
         _feedsRepositoryMock
             .Setup(x => x.LoadFeeds(It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Ok(feeds));
@@ -238,8 +245,11 @@ public sealed class DigestServiceTests
             _dateFrom.ToDateTime(TimeOnly.MinValue),
             _dateTo.ToDateTime(TimeOnly.MinValue)
         );
-        var savedDigest = (DigestModel?)null;
+        DigestModel? savedDigest = null;
 
+        _settingsManagerMock
+            .Setup(x => x.LoadSettings(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Ok(GetMockSettings()));
         _feedsRepositoryMock
             .Setup(x => x.LoadFeeds(It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Ok(feeds));
@@ -284,7 +294,7 @@ public sealed class DigestServiceTests
         _digestRepositoryMock
             .Setup(x => x.SaveDigest(It.IsAny<DigestModel>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Ok())
-            .Callback<DigestModel, CancellationToken>((digest, ct) => savedDigest = digest);
+            .Callback<DigestModel, CancellationToken>((digest, _) => savedDigest = digest);
 
         // Act
         var result = await _digestService.GenerateDigest(
@@ -349,8 +359,11 @@ public sealed class DigestServiceTests
             _dateFrom.ToDateTime(TimeOnly.MinValue),
             _dateTo.ToDateTime(TimeOnly.MinValue)
         );
-        var savedDigest = (DigestModel?)null;
+        DigestModel? savedDigest = null;
 
+        _settingsManagerMock
+            .Setup(x => x.LoadSettings(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Ok(GetMockSettings()));
         _feedsRepositoryMock
             .Setup(x => x.LoadFeeds(It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Ok(feeds));
@@ -385,7 +398,7 @@ public sealed class DigestServiceTests
         _digestRepositoryMock
             .Setup(x => x.SaveDigest(It.IsAny<DigestModel>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Ok())
-            .Callback<DigestModel, CancellationToken>((digest, ct) => savedDigest = digest);
+            .Callback<DigestModel, CancellationToken>((digest, _) => savedDigest = digest);
 
         // Act
         var result = await _digestService.GenerateDigest(
@@ -436,6 +449,9 @@ public sealed class DigestServiceTests
         var digestId = new DigestId(Guid.NewGuid());
         var parameters = new DigestParametersModel(_dateFrom, _dateTo);
 
+        _settingsManagerMock
+            .Setup(x => x.LoadSettings(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Ok(GetMockSettings()));
         _feedsRepositoryMock
             .Setup(x => x.LoadFeeds(It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Fail<List<FeedModel>>("Failed to load feeds"));
@@ -468,6 +484,9 @@ public sealed class DigestServiceTests
             ),
         };
 
+        _settingsManagerMock
+            .Setup(x => x.LoadSettings(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Ok(GetMockSettings()));
         _feedsRepositoryMock
             .Setup(x => x.LoadFeeds(It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Ok(feeds));
@@ -506,6 +525,9 @@ public sealed class DigestServiceTests
             ),
         };
 
+        _settingsManagerMock
+            .Setup(x => x.LoadSettings(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Ok(GetMockSettings()));
         _feedsRepositoryMock
             .Setup(x => x.LoadFeeds(It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Ok(feeds));
@@ -548,6 +570,9 @@ public sealed class DigestServiceTests
             new(feedUrl, new("content"), new("https://example.com/post1"), DateTime.UtcNow),
         };
 
+        _settingsManagerMock
+            .Setup(x => x.LoadSettings(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Ok(GetMockSettings()));
         _feedsRepositoryMock
             .Setup(x => x.LoadFeeds(It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Ok(feeds));
@@ -606,6 +631,9 @@ public sealed class DigestServiceTests
             new(5)
         );
 
+        _settingsManagerMock
+            .Setup(x => x.LoadSettings(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Ok(GetMockSettings()));
         _feedsRepositoryMock
             .Setup(x => x.LoadFeeds(It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Ok(feeds));
@@ -683,6 +711,9 @@ public sealed class DigestServiceTests
             _dateTo.ToDateTime(TimeOnly.MinValue)
         );
 
+        _settingsManagerMock
+            .Setup(x => x.LoadSettings(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Result.Ok(GetMockSettings()));
         _feedsRepositoryMock
             .Setup(x => x.LoadFeeds(It.IsAny<CancellationToken>()))
             .ReturnsAsync(Result.Ok(feeds));
@@ -729,4 +760,17 @@ public sealed class DigestServiceTests
         result.IsFailed.Should().BeTrue();
         result.Errors.First().Message.Should().Be("DB error");
     }
+
+    private static SettingsModel GetMockSettings() =>
+        new(
+            EmailRecipient: "test@example.com",
+            DigestTime: new(TimeOnly.MinValue),
+            SmtpSettings: new(new("smtp.example.com"), 25, "user", "pass", false),
+            OpenAiSettings: new("key", "model", 100, new("http://localhost")),
+            PromptSettings: new(
+                new("post summary {Content}"),
+                new("post importance {Content}"),
+                new("digest summary {Content}")
+            )
+        );
 }

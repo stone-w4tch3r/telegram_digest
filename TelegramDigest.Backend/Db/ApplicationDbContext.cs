@@ -45,6 +45,23 @@ internal sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext
             builder.ToTable("Digests");
             builder.HasKey(e => e.Id);
 
+            // Store UsedPrompts as JSON
+            builder
+                .Property(e => e.UsedPrompts)
+                .HasConversion(
+                    v =>
+                        System.Text.Json.JsonSerializer.Serialize(
+                            v,
+                            (System.Text.Json.JsonSerializerOptions?)null
+                        ),
+                    v =>
+                        System.Text.Json.JsonSerializer.Deserialize<
+                            Dictionary<PromptTypeEnumEntity, string>
+                        >(v, (System.Text.Json.JsonSerializerOptions?)null)
+                        ?? throw new InvalidOperationException("Failed to deserialize UsedPrompts")
+                )
+                .HasColumnType("json");
+
             // 1:1 relationship with DigestSummary
             builder
                 .HasOne(d => d.SummaryNav)

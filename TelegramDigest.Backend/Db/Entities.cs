@@ -39,6 +39,11 @@ internal sealed class DigestEntity
     public required Guid Id { get; init; }
 
     /// <summary>
+    /// Stores used prompts for the digest
+    /// </summary>
+    public required Dictionary<PromptTypeEnumEntity, string> UsedPrompts { get; init; }
+
+    /// <summary>
     /// Navigation property to DigestSummaryEntity
     /// </summary>
     public DigestSummaryEntity? SummaryNav { get; init; }
@@ -118,4 +123,14 @@ internal sealed class PostSummaryEntity
     /// Navigation property to DigestEntity
     /// </summary>
     public DigestEntity? DigestNav { get; init; }
+}
+
+/// <summary>
+/// Enum for prompt types used in DigestEntity. Must match PromptTypeEnumModel.
+/// </summary>
+internal enum PromptTypeEnumEntity
+{
+    PostSummary,
+    PostImportance,
+    DigestSummary,
 }

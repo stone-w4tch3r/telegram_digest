@@ -46,6 +46,7 @@
 | [x]  | Simplify env vars handling                                                  | 30min |
 | [x]  | Simplify prompts                                                            | 30min |
 | [x]  | Replace "Back to digests" with "Back"                                       | 30min |
+| [x]  | Load tg rss providers from options                                          | 30min |
 
 ### High priority
 
@@ -58,7 +59,6 @@
 | [ ]  | Bug: use PostSummaries to calculate average importance    | 30min |
 | [ ]  | Bug: add new chanel: backend error not shown until reload | 30min |
 | [ ]  | Support reading complex media or links from RSS           | 30min |
-| [ ]  | Load tg rss providers from options                        | 30min |
 | [ ]  | Digest generation: queue monitor                          | 3h    |
 | [ ]  | Digest generation: cancellation                           | 1h    |
 | [ ]  | Reimplement and test email sending?                       | 2h    |

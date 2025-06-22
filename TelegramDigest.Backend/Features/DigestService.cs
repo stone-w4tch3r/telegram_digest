@@ -154,6 +154,14 @@ internal sealed class DigestService(
         );
 
         var summaries = new List<PostSummaryModel>();
+        var usedPrompts = new Dictionary<PromptTypeEnumModel, string>
+        {
+            [PromptTypeEnumModel.PostSummary] =
+                parameters.PostSummaryUserPromptOverride?.Text ?? string.Empty,
+            [PromptTypeEnumModel.PostImportance] =
+                parameters.PostImportanceUserPromptOverride?.Text ?? string.Empty,
+        };
+
         foreach (var (post, i) in posts.Zip(Enumerable.Range(0, posts.Count)))
         {
             ct.ThrowIfCancellationRequested();
@@ -184,6 +192,9 @@ internal sealed class DigestService(
         }
 
         ct.ThrowIfCancellationRequested();
+        usedPrompts[PromptTypeEnumModel.DigestSummary] =
+            parameters.DigestSummaryUserPromptOverride?.Text ?? string.Empty;
+
         var digestSummaryResult = await aiSummarizer.GeneratePostsSummary(
             posts,
             parameters.DigestSummaryUserPromptOverride,
@@ -205,7 +216,8 @@ internal sealed class DigestService(
         var digest = new DigestModel(
             DigestId: digestId,
             PostsSummaries: summaries,
-            DigestSummary: digestSummaryResult.Value
+            DigestSummary: digestSummaryResult.Value,
+            UsedPrompts: usedPrompts
         );
 
         var saveResult = await digestRepository.SaveDigest(digest, ct);

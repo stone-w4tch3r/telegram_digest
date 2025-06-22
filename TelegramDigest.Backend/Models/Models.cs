@@ -16,10 +16,18 @@ public sealed record PostSummaryModel(
     Importance Importance
 );
 
+public enum PromptTypeEnumModel
+{
+    PostSummary,
+    PostImportance,
+    DigestSummary,
+}
+
 public sealed record DigestModel(
     DigestId DigestId,
     List<PostSummaryModel> PostsSummaries,
-    DigestSummaryModel DigestSummary
+    DigestSummaryModel DigestSummary,
+    Dictionary<PromptTypeEnumModel, string> UsedPrompts
 );
 
 public sealed record DigestSummaryModel(

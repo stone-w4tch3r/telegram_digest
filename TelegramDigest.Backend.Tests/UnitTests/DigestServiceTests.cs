@@ -144,6 +144,10 @@ public sealed class DigestServiceTests
         savedDigest.DigestId.Should().Be(digestId);
         savedDigest.PostsSummaries.Should().ContainSingle().And.Contain(postSummary);
         savedDigest.DigestSummary.Should().BeEquivalentTo(digestSummary);
+        savedDigest.UsedPrompts.Should().NotBeNull();
+        savedDigest.UsedPrompts.Should().ContainKey(PromptTypeEnumModel.PostSummary);
+        savedDigest.UsedPrompts.Should().ContainKey(PromptTypeEnumModel.PostImportance);
+        savedDigest.UsedPrompts.Should().ContainKey(PromptTypeEnumModel.DigestSummary);
     }
 
     [Test]
@@ -297,6 +301,10 @@ public sealed class DigestServiceTests
         savedDigest.DigestId.Should().Be(digestId);
         savedDigest.PostsSummaries.Should().ContainSingle().And.Contain(postSummary);
         savedDigest.DigestSummary.Should().BeEquivalentTo(digestSummary);
+        savedDigest.UsedPrompts.Should().NotBeNull();
+        savedDigest.UsedPrompts.Should().ContainKey(PromptTypeEnumModel.PostSummary);
+        savedDigest.UsedPrompts.Should().ContainKey(PromptTypeEnumModel.PostImportance);
+        savedDigest.UsedPrompts.Should().ContainKey(PromptTypeEnumModel.DigestSummary);
     }
 
     [Test]
@@ -416,6 +424,10 @@ public sealed class DigestServiceTests
         savedDigest.DigestId.Should().Be(digestId);
         savedDigest.PostsSummaries.Should().ContainSingle().And.Contain(postSummary);
         savedDigest.DigestSummary.Should().BeEquivalentTo(digestSummary);
+        savedDigest.UsedPrompts.Should().NotBeNull();
+        savedDigest.UsedPrompts.Should().ContainKey(PromptTypeEnumModel.PostSummary);
+        savedDigest.UsedPrompts.Should().ContainKey(PromptTypeEnumModel.PostImportance);
+        savedDigest.UsedPrompts.Should().ContainKey(PromptTypeEnumModel.DigestSummary);
     }
 
     // Medium Importance Tests

@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using FluentResults;
 using TelegramDigest.Backend.Models;
 
@@ -181,7 +182,11 @@ internal sealed class DigestRepository(
                     Importance: new(p.Importance)
                 )),
             ],
-            DigestSummary: MapToSummaryModel(entity.SummaryNav)
+            DigestSummary: MapToSummaryModel(entity.SummaryNav),
+            UsedPrompts: entity.UsedPrompts.ToDictionary(
+                kvp => MapPromptTypeToModel(kvp.Key),
+                kvp => kvp.Value
+            )
         );
     }
 
@@ -217,6 +222,10 @@ internal sealed class DigestRepository(
                     FeedNav = null, // Will be set by EF Core
                 }),
             ],
+            UsedPrompts = model.UsedPrompts.ToDictionary(
+                kvp => MapPromptTypeToEntity(kvp.Key),
+                kvp => kvp.Value
+            ),
         };
 
         return digestEntity;
@@ -233,4 +242,22 @@ internal sealed class DigestRepository(
             DateFrom: entity.DateFrom,
             DateTo: entity.DateTo
         );
+
+    private static PromptTypeEnumEntity MapPromptTypeToEntity(PromptTypeEnumModel model) =>
+        model switch
+        {
+            PromptTypeEnumModel.PostSummary => PromptTypeEnumEntity.PostSummary,
+            PromptTypeEnumModel.PostImportance => PromptTypeEnumEntity.PostImportance,
+            PromptTypeEnumModel.DigestSummary => PromptTypeEnumEntity.DigestSummary,
+            _ => throw new UnreachableException("Unknown PromptType enum when mapping to entity"),
+        };
+
+    private static PromptTypeEnumModel MapPromptTypeToModel(PromptTypeEnumEntity entity) =>
+        entity switch
+        {
+            PromptTypeEnumEntity.PostSummary => PromptTypeEnumModel.PostSummary,
+            PromptTypeEnumEntity.PostImportance => PromptTypeEnumModel.PostImportance,
+            PromptTypeEnumEntity.DigestSummary => PromptTypeEnumModel.DigestSummary,
+            _ => throw new UnreachableException("Unknown PromptType enum when mapping to model"),
+        };
 }

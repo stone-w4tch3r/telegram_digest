@@ -22,4 +22,17 @@
       <AdditionalFiles Include="Pages\Feeds\Index.cshtml" />
     </ItemGroup>
 
+    <Target Name="NpmInstall" BeforeTargets="Build" Condition=" !Exists('node_modules') ">
+        <Exec Command="npm install" />
+    </Target>
+
+    <Target Name="FrontendBuild" AfterTargets="Build">
+        <Exec Command="npm run build" />
+        <ItemGroup>
+            <DistFiles Include="wwwroot/build/**" />
+        </ItemGroup>
+        <Copy SourceFiles="@(DistFiles)"
+              DestinationFolder="$(PublishDir)wwwroot\build\%(RecursiveDir)" />
+    </Target>
+
 </Project>

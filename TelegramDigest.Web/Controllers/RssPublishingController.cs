@@ -8,10 +8,10 @@ using TelegramDigest.Web.Services;
 
 namespace TelegramDigest.Web.Controllers;
 
-public sealed class RssController(
+public sealed class RssPublishingController(
     BackendClient backendClient,
     IMemoryCache cache,
-    ILogger<RssController> logger
+    ILogger<RssPublishingController> logger
 ) : Controller
 {
     private const string RSS_CONTENT_TYPE = "application/rss+xml";
@@ -25,9 +25,9 @@ public sealed class RssController(
         Location = ResponseCacheLocation.Any,
         NoStore = false
     )]
-    public async Task<IActionResult> GetFeed()
+    public async Task<IActionResult> GetPublishingFeed()
     {
-        const string CacheKey = "RssFeed";
+        const string CacheKey = "RssPublishingFeed";
 
         var isNoCache = Request
             .Headers.CacheControl.ToString()
@@ -36,7 +36,7 @@ public sealed class RssController(
 
         if (isNoCache)
         {
-            var result = await backendClient.GetRssFeed();
+            var result = await backendClient.GetRssPublishingFeed();
             if (!result.IsSuccess)
             {
                 logger.LogWarning(
@@ -50,7 +50,7 @@ public sealed class RssController(
 
         if (!cache.TryGetValue(CacheKey, out string? feed))
         {
-            var result = await backendClient.GetRssFeed();
+            var result = await backendClient.GetRssPublishingFeed();
             if (!result.IsSuccess)
             {
                 logger.LogWarning(

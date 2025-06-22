@@ -5,7 +5,7 @@ using TelegramDigest.Backend.Models;
 
 namespace TelegramDigest.Backend.Features;
 
-internal interface IRssService
+internal interface IRssPublishingService
 {
     /// <summary>
     /// Generates RSS feed containing recent digests
@@ -14,8 +14,10 @@ internal interface IRssService
     Task<Result<SyndicationFeed>> GenerateRssFeed(CancellationToken ct);
 }
 
-internal sealed class RssService(IDigestService digestService, ILogger<RssService> logger)
-    : IRssService
+internal sealed class RssPublishingService(
+    IDigestService digestService,
+    ILogger<RssPublishingService> logger
+) : IRssPublishingService
 {
     private const string FEED_BASE_URL = "https://your-app-url"; // TODO: Move to settings
 

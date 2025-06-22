@@ -213,9 +213,9 @@ public sealed class BackendClient(IMainService mainService, ILogger<BackendClien
         return Result.Ok();
     }
 
-    public async Task<Result<SyndicationFeed>> GetRssFeed()
+    public async Task<Result<SyndicationFeed>> GetRssPublishingFeed()
     {
-        return await mainService.GetRssFeed(CancellationToken.None);
+        return await mainService.GetRssPublishingFeed(CancellationToken.None);
     }
 
     public async Task<Result<DigestProgressViewModel>> GetDigestProgress(Guid id)

@@ -53,7 +53,7 @@ public static class ServiceCollectionExtensions
         builder.Services.AddScoped<IEmailSender, EmailSender>();
         builder.Services.AddScoped<ISettingsManager, FileSettingsManager>();
         builder.Services.AddScoped<IMainService, MainService>();
-        builder.Services.AddScoped<IRssService, RssService>();
+        builder.Services.AddScoped<IRssPublishingService, RssPublishingService>();
         builder.Services.AddScoped<IDigestProcessingOrchestrator, DigestProcessingOrchestrator>();
         builder.Services.AddScoped<IRssProvidersService, TgRssProvidersService>();
 

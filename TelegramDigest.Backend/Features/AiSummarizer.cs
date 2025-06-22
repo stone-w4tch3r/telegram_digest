@@ -10,18 +10,22 @@ internal interface IAiSummarizer
 {
     Task<Result<PostSummaryModel>> GenerateSummary(
         PostModel post,
-        TemplateWithContent? postSummaryUserPromptOverride,
-        TemplateWithContent? postImportanceUserPromptOverride,
+        Prompts prompts,
         CancellationToken ct
     );
 
     Task<Result<DigestSummaryModel>> GeneratePostsSummary(
         List<PostModel> posts,
-        TemplateWithContent? digestSummaryUserPromptOverride,
-        TemplateWithContent? postImportanceUserPromptOverride,
+        Prompts prompts,
         CancellationToken ct
     );
 }
+
+internal record Prompts(
+    TemplateWithContent PostSummaryUserPrompt,
+    TemplateWithContent PostImportanceUserPrompt,
+    TemplateWithContent DigestSummaryUserPrompt
+);
 
 internal sealed class AiSummarizer(
     ISettingsManager settingsManager,
@@ -69,28 +73,12 @@ internal sealed class AiSummarizer(
 
     public async Task<Result<PostSummaryModel>> GenerateSummary(
         PostModel post,
-        TemplateWithContent? postSummaryUserPromptOverride,
-        TemplateWithContent? postImportanceUserPromptOverride,
+        Prompts prompts,
         CancellationToken ct
     )
     {
         try
         {
-            var settingsResult = await settingsManager.LoadSettings(ct);
-            if (settingsResult.IsFailed)
-            {
-                return Result.Fail(settingsResult.Errors);
-            }
-
-            var prompts = settingsResult.Value.PromptSettings;
-            prompts = prompts with
-            {
-                PostSummaryUserPrompt =
-                    postSummaryUserPromptOverride ?? prompts.PostSummaryUserPrompt,
-                PostImportanceUserPrompt =
-                    postImportanceUserPromptOverride ?? prompts.PostImportanceUserPrompt,
-            };
-
             var clientResult = await GetChatClient(ct);
             if (clientResult.IsFailed)
             {
@@ -139,18 +127,12 @@ internal sealed class AiSummarizer(
 
     private async Task<Result<Importance>> EvaluatePostImportance(
         PostModel post,
-        PromptSettingsModel prompts,
+        Prompts prompts,
         CancellationToken ct
     )
     {
         try
         {
-            var settingsResult = await settingsManager.LoadSettings(ct);
-            if (settingsResult.IsFailed)
-            {
-                return Result.Fail(settingsResult.Errors);
-            }
-
             var clientResult = await GetChatClient(ct);
             if (clientResult.IsFailed)
             {
@@ -186,28 +168,12 @@ internal sealed class AiSummarizer(
 
     public async Task<Result<DigestSummaryModel>> GeneratePostsSummary(
         List<PostModel> posts,
-        TemplateWithContent? digestSummaryUserPromptOverride,
-        TemplateWithContent? postImportanceUserPromptOverride,
+        Prompts prompts,
         CancellationToken ct
     )
     {
         try
         {
-            var settingsResult = await settingsManager.LoadSettings(ct);
-            if (settingsResult.IsFailed)
-            {
-                return Result.Fail(settingsResult.Errors);
-            }
-
-            var prompts = settingsResult.Value.PromptSettings;
-            prompts = prompts with
-            {
-                DigestSummaryUserPrompt =
-                    digestSummaryUserPromptOverride ?? prompts.DigestSummaryUserPrompt,
-                PostImportanceUserPrompt =
-                    postImportanceUserPromptOverride ?? prompts.PostImportanceUserPrompt,
-            };
-
             var clientResult = await GetChatClient(ct);
             if (clientResult.IsFailed)
             {
@@ -253,7 +219,7 @@ internal sealed class AiSummarizer(
 
     private async Task<double> CalculateAverageImportance(
         List<PostModel> posts,
-        PromptSettingsModel prompts,
+        Prompts prompts,
         CancellationToken ct
     )
     {

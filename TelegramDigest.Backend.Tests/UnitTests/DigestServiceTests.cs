@@ -18,6 +18,7 @@ public sealed class DigestServiceTests
     private Mock<IAiSummarizer> _aiSummarizerMock;
     private Mock<IDigestStepsService> _digestStepsServiceMock;
     private Mock<ILogger<DigestService>> _loggerMock;
+    private Mock<ISettingsManager> _settingsManagerMock;
 
     private DigestService _digestService;
 
@@ -33,6 +34,7 @@ public sealed class DigestServiceTests
         _aiSummarizerMock = new();
         _digestStepsServiceMock = new();
         _loggerMock = new();
+        _settingsManagerMock = new();
 
         _digestService = new(
             _digestRepositoryMock.Object,
@@ -40,7 +42,8 @@ public sealed class DigestServiceTests
             _feedsRepositoryMock.Object,
             _aiSummarizerMock.Object,
             _digestStepsServiceMock.Object,
-            _loggerMock.Object
+            _loggerMock.Object,
+            _settingsManagerMock.Object
         );
     }
 
@@ -97,8 +100,7 @@ public sealed class DigestServiceTests
             .Setup(x =>
                 x.GenerateSummary(
                     It.IsAny<PostModel>(),
-                    It.IsAny<TemplateWithContent>(),
-                    It.IsAny<TemplateWithContent>(),
+                    It.IsAny<Prompts>(),
                     It.IsAny<CancellationToken>()
                 )
             )
@@ -107,8 +109,7 @@ public sealed class DigestServiceTests
             .Setup(x =>
                 x.GeneratePostsSummary(
                     It.IsAny<List<PostModel>>(),
-                    It.IsAny<TemplateWithContent>(),
-                    It.IsAny<TemplateWithContent>(),
+                    It.IsAny<Prompts>(),
                     It.IsAny<CancellationToken>()
                 )
             )
@@ -266,8 +267,7 @@ public sealed class DigestServiceTests
             .Setup(x =>
                 x.GenerateSummary(
                     It.IsAny<PostModel>(),
-                    It.IsAny<TemplateWithContent>(),
-                    It.IsAny<TemplateWithContent>(),
+                    It.IsAny<Prompts>(),
                     It.IsAny<CancellationToken>()
                 )
             )
@@ -276,8 +276,7 @@ public sealed class DigestServiceTests
             .Setup(x =>
                 x.GeneratePostsSummary(
                     It.IsAny<List<PostModel>>(),
-                    It.IsAny<TemplateWithContent>(),
-                    It.IsAny<TemplateWithContent>(),
+                    It.IsAny<Prompts>(),
                     It.IsAny<CancellationToken>()
                 )
             )
@@ -369,8 +368,7 @@ public sealed class DigestServiceTests
             .Setup(x =>
                 x.GenerateSummary(
                     It.IsAny<PostModel>(),
-                    It.IsAny<TemplateWithContent>(),
-                    It.IsAny<TemplateWithContent>(),
+                    It.IsAny<Prompts>(),
                     It.IsAny<CancellationToken>()
                 )
             )
@@ -379,8 +377,7 @@ public sealed class DigestServiceTests
             .Setup(x =>
                 x.GeneratePostsSummary(
                     It.IsAny<List<PostModel>>(),
-                    It.IsAny<TemplateWithContent>(),
-                    It.IsAny<TemplateWithContent>(),
+                    It.IsAny<Prompts>(),
                     It.IsAny<CancellationToken>()
                 )
             )
@@ -568,8 +565,7 @@ public sealed class DigestServiceTests
             .Setup(x =>
                 x.GenerateSummary(
                     It.IsAny<PostModel>(),
-                    It.IsAny<TemplateWithContent>(),
-                    It.IsAny<TemplateWithContent>(),
+                    It.IsAny<Prompts>(),
                     It.IsAny<CancellationToken>()
                 )
             )
@@ -627,8 +623,7 @@ public sealed class DigestServiceTests
             .Setup(x =>
                 x.GenerateSummary(
                     It.IsAny<PostModel>(),
-                    It.IsAny<TemplateWithContent>(),
-                    It.IsAny<TemplateWithContent>(),
+                    It.IsAny<Prompts>(),
                     It.IsAny<CancellationToken>()
                 )
             )
@@ -637,8 +632,7 @@ public sealed class DigestServiceTests
             .Setup(x =>
                 x.GeneratePostsSummary(
                     It.IsAny<List<PostModel>>(),
-                    It.IsAny<TemplateWithContent>(),
-                    It.IsAny<TemplateWithContent>(),
+                    It.IsAny<Prompts>(),
                     It.IsAny<CancellationToken>()
                 )
             )
@@ -706,8 +700,7 @@ public sealed class DigestServiceTests
             .Setup(x =>
                 x.GenerateSummary(
                     It.IsAny<PostModel>(),
-                    It.IsAny<TemplateWithContent>(),
-                    It.IsAny<TemplateWithContent>(),
+                    It.IsAny<Prompts>(),
                     It.IsAny<CancellationToken>()
                 )
             )
@@ -716,8 +709,7 @@ public sealed class DigestServiceTests
             .Setup(x =>
                 x.GeneratePostsSummary(
                     It.IsAny<List<PostModel>>(),
-                    It.IsAny<TemplateWithContent>(),
-                    It.IsAny<TemplateWithContent>(),
+                    It.IsAny<Prompts>(),
                     It.IsAny<CancellationToken>()
                 )
             )

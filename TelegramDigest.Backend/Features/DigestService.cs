@@ -43,7 +43,8 @@ internal sealed class DigestService(
     IFeedsRepository feedsRepository,
     IAiSummarizer aiSummarizer,
     IDigestStepsService digestStepsService,
-    ILogger<DigestService> logger
+    ILogger<DigestService> logger,
+    ISettingsManager settingsManager
 ) : IDigestService
 {
     /// <summary>
@@ -153,24 +154,39 @@ internal sealed class DigestService(
             new RssReadingFinishedStepModel { DigestId = digestId, PostsCount = posts.Count }
         );
 
-        var summaries = new List<PostSummaryModel>();
+        var promptsSettingsResult = await settingsManager.LoadSettings(ct);
+        if (promptsSettingsResult.IsFailed)
+        {
+            digestStepsService.AddStep(
+                new ErrorStepModel
+                {
+                    DigestId = digestId,
+                    Message = "Failed to load prompts from settings",
+                }
+            );
+            return Result.Fail(promptsSettingsResult.Errors);
+        }
+
+        var promptSettings = promptsSettingsResult.Value.PromptSettings;
+        var prompts = new Prompts(
+            parameters.PostSummaryUserPromptOverride ?? promptSettings.PostSummaryUserPrompt,
+            parameters.PostImportanceUserPromptOverride ?? promptSettings.PostImportanceUserPrompt,
+            parameters.DigestSummaryUserPromptOverride ?? promptSettings.DigestSummaryUserPrompt
+        );
+
         var usedPrompts = new Dictionary<PromptTypeEnumModel, string>
         {
-            [PromptTypeEnumModel.PostSummary] =
-                parameters.PostSummaryUserPromptOverride?.Text ?? string.Empty,
-            [PromptTypeEnumModel.PostImportance] =
-                parameters.PostImportanceUserPromptOverride?.Text ?? string.Empty,
+            [PromptTypeEnumModel.PostSummary] = prompts.PostSummaryUserPrompt.Text,
+            [PromptTypeEnumModel.PostImportance] = prompts.PostImportanceUserPrompt.Text,
+            [PromptTypeEnumModel.DigestSummary] = prompts.DigestSummaryUserPrompt.Text,
         };
+
+        var summaries = new List<PostSummaryModel>();
 
         foreach (var (post, i) in posts.Zip(Enumerable.Range(0, posts.Count)))
         {
             ct.ThrowIfCancellationRequested();
-            var summaryResult = await aiSummarizer.GenerateSummary(
-                post,
-                parameters.PostSummaryUserPromptOverride,
-                parameters.PostImportanceUserPromptOverride,
-                ct
-            );
+            var summaryResult = await aiSummarizer.GenerateSummary(post, prompts, ct);
             if (summaryResult.IsSuccess)
             {
                 digestStepsService.AddStep(
@@ -192,15 +208,7 @@ internal sealed class DigestService(
         }
 
         ct.ThrowIfCancellationRequested();
-        usedPrompts[PromptTypeEnumModel.DigestSummary] =
-            parameters.DigestSummaryUserPromptOverride?.Text ?? string.Empty;
-
-        var digestSummaryResult = await aiSummarizer.GeneratePostsSummary(
-            posts,
-            parameters.DigestSummaryUserPromptOverride,
-            parameters.PostImportanceUserPromptOverride,
-            ct
-        );
+        var digestSummaryResult = await aiSummarizer.GeneratePostsSummary(posts, prompts, ct);
         if (digestSummaryResult.IsFailed)
         {
             digestStepsService.AddStep(

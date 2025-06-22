@@ -27,18 +27,15 @@ public sealed class BackendClient(IMainService mainService, ILogger<BackendClien
                     Title = d.Title,
                     Summary = d.PostsSummary,
                     PostsCount = d.PostsCount,
-                    AverageImportance = d.AverageImportance,
                     CreatedAt = d.CreatedAt,
-                    DateFrom = d.DateFrom,
-                    DateTo = d.DateTo,
                 })
                 .ToList()
         );
     }
 
-    public async Task<
-        Result<(DigestSummaryViewModel summary, PostSummaryViewModel[] posts)>
-    > GetDigest(Guid id)
+    public async Task<Result<(DigestViewModel digest, PostSummaryViewModel[] posts)>> GetDigest(
+        Guid id
+    )
     {
         var result = await mainService.GetDigest(new(id), CancellationToken.None);
         if (result.IsFailed)
@@ -54,7 +51,7 @@ public sealed class BackendClient(IMainService mainService, ILogger<BackendClien
 
         return Result.Ok(
             (
-                new DigestSummaryViewModel
+                new DigestViewModel
                 {
                     Id = result.Value.DigestId.Guid,
                     Title = result.Value.DigestSummary.Title,
@@ -64,6 +61,22 @@ public sealed class BackendClient(IMainService mainService, ILogger<BackendClien
                     CreatedAt = result.Value.DigestSummary.CreatedAt,
                     DateFrom = result.Value.DigestSummary.DateFrom,
                     DateTo = result.Value.DigestSummary.DateTo,
+                    UsedPrompts = result.Value.UsedPrompts.ToDictionary(
+                        kv =>
+                            kv.Key switch
+                            {
+                                PromptTypeEnumModel.PostSummary =>
+                                    PromptTypeEnumViewModel.PostSummary,
+                                PromptTypeEnumModel.PostImportance =>
+                                    PromptTypeEnumViewModel.PostImportance,
+                                PromptTypeEnumModel.DigestSummary =>
+                                    PromptTypeEnumViewModel.DigestSummary,
+                                var e => throw new UnreachableException(
+                                    $"Unknown PromptTypeEnumModel: {e}"
+                                ),
+                            },
+                        kv => kv.Value
+                    ),
                 },
                 result
                     .Value.PostsSummaries.Select(p => new PostSummaryViewModel

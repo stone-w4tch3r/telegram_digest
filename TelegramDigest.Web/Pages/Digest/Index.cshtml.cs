@@ -11,7 +11,7 @@ public sealed class IndexModel(BackendClient backend) : BasePageModel
     [BindProperty(SupportsGet = true)]
     public Guid? Id { get; set; }
 
-    public DigestSummaryViewModel? Summary { get; set; }
+    public DigestViewModel? Summary { get; set; }
 
     public PostSummaryViewModel[]? Posts { get; set; }
 

@@ -155,10 +155,10 @@
     @if (!Model.Progress.CurrentStep.HasValue || !Model.Progress.CurrentStep.Value.IsFinished())
     {
         <script>
-            // Refresh the page every 10 seconds to update progress
+            // Refresh the page every 2 seconds to update progress
             setTimeout(function () {
                 window.location.reload();
-            }, 10000);
+            }, 2000);
         </script>
     }
 }

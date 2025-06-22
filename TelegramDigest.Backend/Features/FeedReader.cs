@@ -2,6 +2,7 @@ using System.ServiceModel.Syndication;
 using System.Xml;
 using FluentResults;
 using TelegramDigest.Backend.Models;
+using TelegramDigest.Backend.Utils;
 
 namespace TelegramDigest.Backend.Features;
 
@@ -51,9 +52,11 @@ internal sealed class FeedReader(ILogger<FeedReader> logger) : IFeedReader
                         .Select(x => new PostModel(
                             FeedUrl: feedUrl,
                             HtmlContent: new(x.Summary.Text),
-                            Url: x.Links.SingleOrDefault()?.Uri
+                            Url: x.Links.Where(l => l.RelationshipType == "alternate")
+                                .SingleOrDefaultIfNotExactlyOne()
+                                ?.Uri
                                 ?? throw new FormatException(
-                                    $"Feed item [{x.Id}] does not have a valid URL [{LinksCollectionToString(x.Links)}]"
+                                    $"Feed item [{x.Id}] has invalid URLs [{LinksCollectionToString(x.Links)}]"
                                 ),
                             PublishedAt: x.PublishDate.DateTime
                         ))
@@ -110,5 +113,5 @@ internal sealed class FeedReader(ILogger<FeedReader> logger) : IFeedReader
         );
 
     private static string LinksCollectionToString(IEnumerable<SyndicationLink> links) =>
-        string.Join(", ", links.Select(link => link.Uri.ToString()));
+        string.Join(", ", links.Select(link => $"{link.Uri} ({link.RelationshipType})"));
 }

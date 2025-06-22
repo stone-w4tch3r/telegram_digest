@@ -1,6 +1,10 @@
 @using System.Diagnostics
 @using FluentResults
 @using Microsoft.AspNetCore.Mvc.ModelBinding
+
+@*                          *@
+@*                          *@
+@* TempData success message *@
 @if (TempData[nameof(BasePageModel.SuccessMessage)] != null)
 {
     <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -8,6 +12,10 @@
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
 }
+
+@*                                                   *@
+@*                                                   *@
+@* ViewData errors (default error handling approach) *@
 @if (ViewData[nameof(BasePageModel.Errors)] is IEnumerable<IError> errors && errors.Any())
 {
     <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -95,6 +103,10 @@
         </ul>
     </div>
 }
+
+@*                     *@
+@*                     *@
+@* Model State section *@
 @if (!ViewData.ModelState.IsValid)
 {
     <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -133,6 +145,9 @@
     </div>
 }
 
+@*                *@
+@*                *@
+@* styles section *@
 <style>
     .exception-card-min {
         display: inline-block;

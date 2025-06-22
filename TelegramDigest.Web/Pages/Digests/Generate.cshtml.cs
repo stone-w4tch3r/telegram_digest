@@ -32,9 +32,6 @@ public sealed class GenerateModel(BackendClient backend) : BasePageModel
         DefaultPostImportanceUserPrompt = settings.PromptPostImportanceUser;
         DefaultDigestSummaryUserPrompt = settings.PromptDigestSummaryUser;
 
-        var currentUtc = DateTime.UtcNow;
-        var digestTimeToday = currentUtc.Date.Add(settings.DigestTimeUtc.ToTimeSpan());
-
         var feedsResult = await backend.GetFeeds();
         if (feedsResult.IsFailed)
         {
@@ -49,9 +46,8 @@ public sealed class GenerateModel(BackendClient backend) : BasePageModel
         var allFeedUrls = Feeds.Select(f => f.Url).ToArray();
         Form = new()
         {
-            DateTo = currentUtc >= digestTimeToday ? currentUtc.Date.AddDays(1) : currentUtc.Date,
-            DateFrom =
-                currentUtc >= digestTimeToday ? currentUtc.Date : currentUtc.Date.AddDays(-1),
+            DateTo = DateTime.Now.ToUniversalTime(),
+            DateFrom =  DateTime.Now.AddDays(-1).ToUniversalTime(),
             SelectedFeedUrls = allFeedUrls,
             PostSummaryUserPromptOverride = settings.PromptPostSummaryUser,
             PostImportanceUserPromptOverride = settings.PromptPostImportanceUser,

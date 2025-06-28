@@ -14,8 +14,4 @@ internal record BackendDeploymentOptions
     [Required(ErrorMessage = "SQL_LITE_CONNECTION_STRING configuration option was not set")]
     [ConfigurationKeyName("SQL_LITE_CONNECTION_STRING")]
     public required string SqlLiteConnectionString { get; init; }
-
-    [Required(ErrorMessage = "SETTINGS_FILE_PATH configuration option was not set")]
-    [ConfigurationKeyName("SETTINGS_FILE_PATH")]
-    public required string SettingsFilePath { get; init; }
 }

@@ -107,7 +107,7 @@ internal sealed partial record Template
         if (!text.Contains(placeholder, StringComparison.OrdinalIgnoreCase))
         {
             throw new ArgumentException(
-                $"Prompt must contain {placeholder} placeholder",
+                $"Template must contain {placeholder} placeholder, but was '{text}'",
                 nameof(text)
             );
         }
@@ -115,7 +115,7 @@ internal sealed partial record Template
         if (text.ToLower().Split([placeholder.ToLower()], StringSplitOptions.None).Length != 2)
         {
             throw new ArgumentException(
-                $"Prompt must contain exactly one {placeholder} placeholder",
+                $"Template must contain exactly one {placeholder} placeholder, but was '{text}'",
                 nameof(text)
             );
         }

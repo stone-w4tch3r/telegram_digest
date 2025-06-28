@@ -1,3 +1,4 @@
+using DotNetEnv;
 using Microsoft.Extensions.Options;
 using TelegramDigest.Backend;
 using TelegramDigest.Web.Options;
@@ -6,7 +7,7 @@ using TelegramDigest.Web.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 // Setup options
-builder.Configuration.AddJsonFile("appsettings.options.json");
+Env.TraversePath().Load("default_options.env");
 builder.Configuration.AddEnvironmentVariables();
 builder.Services.AddOptions<WebDeploymentOptions>().Bind(builder.Configuration).ValidateOnStart();
 

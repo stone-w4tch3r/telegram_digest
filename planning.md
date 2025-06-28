@@ -49,6 +49,7 @@
 | [x]  | Load tg rss providers from options                                          | 30min |
 | [x]  | Override prompt in generate UI                                              | 1h    |
 | [x]  | Tests: unit                                                                 | 2h    |
+| [x]  | Move prompts from settings to table                                         | 1h    |
 
 ### High priority
 
@@ -73,7 +74,6 @@
 |------|-----------------------------------------------------|-------|
 | [ ]  | Add more parameters and jinja template to prompts   | 1h    |
 | [ ]  | Digest generation result: SuccessButSomeFeedsFailed | 2h    |
-| [ ]  | Move prompts from settings to table                 | 1h    |
 | [ ]  | Add XML docs in existing code                       | 1h    |
 | [ ]  | Obtain API key and pay                              | 30min |
 | [ ]  | Error handling: 404 page                            | 30min |

@@ -122,7 +122,7 @@ internal sealed class MainService(
     IFeedsService feedsService,
     IEmailSender emailSender,
     IDigestProcessingOrchestrator digestProcessingOrchestrator,
-    ISettingsManager settingsManager,
+    ISettingsService settingsService,
     IRssPublishingService rssPublishingService,
     ITaskScheduler<DigestId> taskScheduler,
     IDigestStepsService digestStepsService,
@@ -206,12 +206,12 @@ internal sealed class MainService(
 
     public async Task<Result<SettingsModel>> GetSettings(CancellationToken ct)
     {
-        return await settingsManager.LoadSettings(ct);
+        return await settingsService.LoadSettings(ct);
     }
 
     public async Task<Result> UpdateSettings(SettingsModel settings, CancellationToken ct)
     {
-        return await settingsManager.SaveSettings(settings, ct);
+        return await settingsService.SaveSettings(settings, ct);
     }
 
     public async Task<Result<SyndicationFeed>> GetRssPublishingFeed(CancellationToken ct)

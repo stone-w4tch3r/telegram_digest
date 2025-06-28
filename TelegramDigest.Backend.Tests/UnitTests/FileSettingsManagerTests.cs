@@ -11,11 +11,11 @@ using TelegramDigest.Backend.Options;
 namespace TelegramDigest.Backend.Tests.UnitTests;
 
 [TestFixture]
-public sealed class FileSettingsManagerTests
+public sealed class FileSettingsServiceTests
 {
     private Mock<IOptions<BackendDeploymentOptions>> _mockOptions;
-    private Mock<ILogger<FileSettingsManager>> _mockLogger;
-    private FileSettingsManager _settingsManager;
+    private Mock<ILogger<FileSettingsService>> _mockLogger;
+    private FileSettingsService _settingsService;
     private string _settingsFilePath;
 
     [SetUp]
@@ -31,7 +31,7 @@ public sealed class FileSettingsManagerTests
         _mockOptions = new();
         _mockOptions.Setup(o => o.Value).Returns(options);
         _mockLogger = new();
-        _settingsManager = new(_mockOptions.Object, _mockLogger.Object);
+        _settingsService = new(_mockOptions.Object, _mockLogger.Object);
     }
 
     [TearDown]
@@ -93,7 +93,7 @@ public sealed class FileSettingsManagerTests
     public async Task LoadSettings_ShouldCreateAndReturnDefaultSettings_WhenFileDoesNotExist()
     {
         // Act
-        var result = await _settingsManager.LoadSettings(CancellationToken.None);
+        var result = await _settingsService.LoadSettings(CancellationToken.None);
 
         // Assert
         result.IsSuccess.Should().BeTrue();
@@ -107,10 +107,10 @@ public sealed class FileSettingsManagerTests
     {
         // Arrange
         var expectedSettings = CreateDefaultSettings();
-        await _settingsManager.SaveSettings(expectedSettings, CancellationToken.None);
+        await _settingsService.SaveSettings(expectedSettings, CancellationToken.None);
 
         // Act
-        var result = await _settingsManager.LoadSettings(CancellationToken.None);
+        var result = await _settingsService.LoadSettings(CancellationToken.None);
 
         // Assert
         result.IsSuccess.Should().BeTrue();
@@ -130,7 +130,7 @@ public sealed class FileSettingsManagerTests
         await File.WriteAllTextAsync(_settingsFilePath, json.ToString());
 
         // Act
-        var result = await _settingsManager.LoadSettings(CancellationToken.None);
+        var result = await _settingsService.LoadSettings(CancellationToken.None);
 
         // Assert
         result.IsSuccess.Should().BeTrue();
@@ -144,7 +144,7 @@ public sealed class FileSettingsManagerTests
         await File.WriteAllTextAsync(_settingsFilePath, "invalid json");
 
         // Act
-        var result = await _settingsManager.LoadSettings(CancellationToken.None);
+        var result = await _settingsService.LoadSettings(CancellationToken.None);
 
         // Assert
         result.IsSuccess.Should().BeFalse();
@@ -162,7 +162,7 @@ public sealed class FileSettingsManagerTests
         await File.WriteAllTextAsync(_settingsFilePath, json);
 
         // Act
-        var result = await _settingsManager.LoadSettings(CancellationToken.None);
+        var result = await _settingsService.LoadSettings(CancellationToken.None);
 
         // Assert
         result.IsSuccess.Should().BeFalse();
@@ -180,7 +180,7 @@ public sealed class FileSettingsManagerTests
         await File.WriteAllTextAsync(_settingsFilePath, json.ToString());
 
         // Act
-        var result = await _settingsManager.LoadSettings(CancellationToken.None);
+        var result = await _settingsService.LoadSettings(CancellationToken.None);
 
         // Assert
         result.IsSuccess.Should().BeFalse();
@@ -196,7 +196,7 @@ public sealed class FileSettingsManagerTests
         var settings = CreateDefaultSettings();
 
         // Act
-        var result = await _settingsManager.SaveSettings(settings, CancellationToken.None);
+        var result = await _settingsService.SaveSettings(settings, CancellationToken.None);
 
         // Assert
         result.IsSuccess.Should().BeTrue();
@@ -225,10 +225,10 @@ public sealed class FileSettingsManagerTests
             SqlLiteConnectionString = string.Empty,
         };
         _mockOptions.Setup(o => o.Value).Returns(options);
-        _settingsManager = new(_mockOptions.Object, _mockLogger.Object);
+        _settingsService = new(_mockOptions.Object, _mockLogger.Object);
 
         // Act
-        var result = await _settingsManager.SaveSettings(settings, CancellationToken.None);
+        var result = await _settingsService.SaveSettings(settings, CancellationToken.None);
 
         // Assert
         result.IsSuccess.Should().BeTrue();

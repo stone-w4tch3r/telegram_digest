@@ -28,7 +28,7 @@ internal record Prompts(
 );
 
 internal sealed class AiSummarizer(
-    ISettingsManager settingsManager,
+    ISettingsService settingsService,
     IOptions<AiOptions> aiOptions,
     ILogger<AiSummarizer> logger
 ) : IAiSummarizer
@@ -39,7 +39,7 @@ internal sealed class AiSummarizer(
 
     private async Task<Result<ChatClient>> GetChatClient(CancellationToken ct)
     {
-        var settingsResult = await settingsManager.LoadSettings(ct);
+        var settingsResult = await settingsService.LoadSettings(ct);
         if (settingsResult.IsFailed)
         {
             return Result.Fail(settingsResult.Errors);

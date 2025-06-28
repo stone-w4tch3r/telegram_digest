@@ -19,7 +19,7 @@ public sealed class DigestServiceTests
     private Mock<IAiSummarizer> _aiSummarizerMock;
     private Mock<IDigestStepsService> _digestStepsServiceMock;
     private Mock<ILogger<DigestService>> _loggerMock;
-    private Mock<ISettingsManager> _settingsManagerMock;
+    private Mock<ISettingsService> _settingsManagerMock;
 
     private DigestService _digestService;
 

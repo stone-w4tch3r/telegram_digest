@@ -23,7 +23,7 @@ internal sealed class SchedulerBackgroundService(
         {
             // Check settings every minute for schedule changes
             using var scope = scopeFactory.CreateScope();
-            var settingsManager = scope.ServiceProvider.GetRequiredService<ISettingsManager>();
+            var settingsManager = scope.ServiceProvider.GetRequiredService<ISettingsService>();
             var mainService = scope.ServiceProvider.GetRequiredService<IMainService>();
             await UpdateSchedule(settingsManager, mainService, ct);
             await Task.Delay(TimeSpan.FromMinutes(1), ct);
@@ -34,14 +34,14 @@ internal sealed class SchedulerBackgroundService(
     /// Updates the schedule based on settings and creates/updates timer if needed
     /// </summary>
     private async Task UpdateSchedule(
-        ISettingsManager settingsManager,
+        ISettingsService settingsService,
         IMainService mainService,
         CancellationToken ct
     )
     {
         try
         {
-            var settingsResult = await settingsManager.LoadSettings(ct);
+            var settingsResult = await settingsService.LoadSettings(ct);
             if (settingsResult.IsFailed)
             {
                 logger.LogError(

@@ -44,7 +44,7 @@ internal sealed class DigestService(
     IAiSummarizer aiSummarizer,
     IDigestStepsService digestStepsService,
     ILogger<DigestService> logger,
-    ISettingsManager settingsManager
+    ISettingsService settingsService
 ) : IDigestService
 {
     /// <summary>
@@ -161,7 +161,7 @@ internal sealed class DigestService(
             new RssReadingFinishedStepModel { DigestId = digestId, PostsCount = posts.Count }
         );
 
-        var promptsSettingsResult = await settingsManager.LoadSettings(ct);
+        var promptsSettingsResult = await settingsService.LoadSettings(ct);
         if (promptsSettingsResult.IsFailed)
         {
             digestStepsService.AddStep(

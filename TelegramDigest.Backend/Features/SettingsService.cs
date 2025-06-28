@@ -7,7 +7,7 @@ using TelegramDigest.Backend.Options;
 
 namespace TelegramDigest.Backend.Features;
 
-internal interface ISettingsManager
+internal interface ISettingsService
 {
     /// <summary>
     /// Loads application settings from the file system.
@@ -25,10 +25,10 @@ internal interface ISettingsManager
 /// <summary>
 /// Manages application settings with file-based persistence
 /// </summary>
-internal sealed class FileSettingsManager(
+internal sealed class FileSettingsService(
     IOptions<BackendDeploymentOptions> options,
-    ILogger<FileSettingsManager> logger
-) : ISettingsManager
+    ILogger<FileSettingsService> logger
+) : ISettingsService
 {
     private readonly FileInfo _settingsFileInfo = new(options.Value.SettingsFilePath);
     private readonly JsonSerializerOptions _jsonOptions = new()

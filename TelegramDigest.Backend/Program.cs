@@ -51,7 +51,7 @@ public static class ServiceCollectionExtensions
         builder.Services.AddScoped<IDigestStepsRepository, DigestStepsRepository>();
         builder.Services.AddScoped<IAiSummarizer, AiSummarizer>();
         builder.Services.AddScoped<IEmailSender, EmailSender>();
-        builder.Services.AddScoped<ISettingsManager, FileSettingsManager>();
+        builder.Services.AddScoped<ISettingsService, FileSettingsService>();
         builder.Services.AddScoped<IMainService, MainService>();
         builder.Services.AddScoped<IRssPublishingService, RssPublishingService>();
         builder.Services.AddScoped<IDigestProcessingOrchestrator, DigestProcessingOrchestrator>();

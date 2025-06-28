@@ -14,7 +14,7 @@ internal interface IEmailSender
 }
 
 [Obsolete("Will be removed before release")]
-internal sealed class EmailSender(ISettingsManager settingsManager, ILogger<EmailSender> logger)
+internal sealed class EmailSender(ISettingsService settingsService, ILogger<EmailSender> logger)
     : IEmailSender
 {
     /// <summary>
@@ -22,7 +22,7 @@ internal sealed class EmailSender(ISettingsManager settingsManager, ILogger<Emai
     /// </summary>
     public async Task<Result> SendDigest(DigestSummaryModel digest, CancellationToken ct)
     {
-        var settingsResult = await settingsManager.LoadSettings(ct);
+        var settingsResult = await settingsService.LoadSettings(ct);
         if (settingsResult.IsFailed)
         {
             return Result.Fail(settingsResult.Errors);

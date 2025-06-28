@@ -132,6 +132,55 @@ internal sealed class PostSummaryEntity
 }
 
 /// <summary>
+/// Application settings stored in the database (flat structure)
+/// </summary>
+[NullChecks(false)]
+internal sealed class SettingsEntity
+{
+    [Key]
+    public int Id { get; init; } = 1; // TODO use normal ids later
+
+    [MaxLength(200)]
+    public required string EmailRecipient { get; init; }
+
+    [MaxLength(32)]
+    public required string DigestTimeUtc { get; init; }
+
+    [MaxLength(200)]
+    public required string SmtpSettingsHost { get; init; }
+
+    public required int SmtpSettingsPort { get; init; }
+
+    [MaxLength(200)]
+    public required string SmtpSettingsUsername { get; init; }
+
+    [MaxLength(200)]
+    public required string SmtpSettingsPassword { get; init; }
+
+    public required bool SmtpSettingsUseSsl { get; init; }
+
+    [MaxLength(200)]
+    public required string OpenAiSettingsApiKey { get; init; }
+
+    [MaxLength(100)]
+    public required string OpenAiSettingsModel { get; init; }
+
+    public required int OpenAiSettingsMaxTokens { get; init; }
+
+    [MaxLength(200)]
+    public required string OpenAiSettingsEndpoint { get; init; }
+
+    [MaxLength(8192)]
+    public required string PromptSettingsPostSummaryUserPrompt { get; init; }
+
+    [MaxLength(8192)]
+    public required string PromptSettingsPostImportanceUserPrompt { get; init; }
+
+    [MaxLength(8192)]
+    public required string PromptSettingsDigestSummaryUserPrompt { get; init; }
+}
+
+/// <summary>
 /// Enum for prompt types used in DigestEntity. Must match PromptTypeEnumModel.
 /// </summary>
 internal enum PromptTypeEnumEntity

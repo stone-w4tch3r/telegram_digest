@@ -47,7 +47,7 @@ public sealed class GenerateModel(BackendClient backend) : BasePageModel
         Form = new()
         {
             DateTo = DateTime.Now.ToUniversalTime(),
-            DateFrom =  DateTime.Now.AddDays(-1).ToUniversalTime(),
+            DateFrom = DateTime.Now.AddDays(-1).ToUniversalTime(),
             SelectedFeedUrls = allFeedUrls,
             PostSummaryUserPromptOverride = settings.PromptPostSummaryUser,
             PostImportanceUserPromptOverride = settings.PromptPostImportanceUser,

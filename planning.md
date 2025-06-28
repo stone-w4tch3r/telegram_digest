@@ -47,17 +47,20 @@
 | [x]  | Simplify prompts                                                            | 30min |
 | [x]  | Replace "Back to digests" with "Back"                                       | 30min |
 | [x]  | Load tg rss providers from options                                          | 30min |
+| [x]  | Override prompt in generate UI                                              | 1h    |
+| [x]  | Tests: unit                                                                 | 2h    |
 
 ### High priority
 
 | Done | Task                                                      | Time  |
 |------|-----------------------------------------------------------|-------|
 | [ ]  | Bug: newlines in UI                                       | 30min |
-| [ ]  | Bug: hanging on feed addition, timeout?                   | 30min |
+| [ ]  | Bug: hanging on feed addition, add timeout?               | 30min |
 | [ ]  | Bug: generation cancels for unknown reason                | 30min |
 | [ ]  | Bug: spawn multiple generations and see strange stuff     | 30min |
 | [ ]  | Bug: use PostSummaries to calculate average importance    | 30min |
 | [ ]  | Bug: add new chanel: backend error not shown until reload | 30min |
+| [ ]  | Limit max string length of prompts in VM level            | 30min |
 | [ ]  | Support reading complex media or links from RSS           | 30min |
 | [ ]  | Digest generation: queue monitor                          | 3h    |
 | [ ]  | Digest generation: cancellation                           | 1h    |
@@ -71,11 +74,9 @@
 | [ ]  | Add more parameters and jinja template to prompts   | 1h    |
 | [ ]  | Digest generation result: SuccessButSomeFeedsFailed | 2h    |
 | [ ]  | Move prompts from settings to table                 | 1h    |
-| [ ]  | Override prompt in generate UI                      | 1h    |
 | [ ]  | Add XML docs in existing code                       | 1h    |
 | [ ]  | Obtain API key and pay                              | 30min |
 | [ ]  | Error handling: 404 page                            | 30min |
-| [ ]  | Tests: unit                                         | 2h    |
 | [ ]  | Tests: integration                                  | 2h    |
 | [ ]  | Tests: UI                                           | 2h    |
 | [ ]  | Tests: validators                                   | 2h    |
@@ -83,18 +84,15 @@
 | [ ]  | Faster docker build                                 | 1h    |
 | [ ]  | Support cancellation everywhere                     | 1h    |
 | [ ]  | LiveBDD                                             | 1h    |
+| [ ]  | Configure default settings via options              | 1h    |
 
 ### Future
 
 - improve openapi/swagger support in api controller
     - fix error codes
         - 404 / NotFoundError, OneOf?
-- handle 00:00 in GenerateDailyDigest
 - Check code quality
 - use Optional instead of nulls
 - use arrays instead of Lists if data is immutable
 - add users and auth
 - improve error handling by adding error "location" to UI
-- settings migration support
-- simplify db schema (remove digests table)
-- use attributes for entity declaration

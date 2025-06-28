@@ -10,6 +10,7 @@ internal sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext
     internal DbSet<PostSummaryEntity> PostSummaries => Set<PostSummaryEntity>();
     internal DbSet<DigestSummaryEntity> DigestSummaries => Set<DigestSummaryEntity>();
     internal DbSet<DigestStepEntity> DigestSteps => Set<DigestStepEntity>();
+    internal DbSet<SettingsEntity> Settings => Set<SettingsEntity>();
 
     /// <summary>
     /// Applies entity configurations
@@ -21,6 +22,7 @@ internal sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext
         modelBuilder.ApplyConfiguration(new PostSummaryConfiguration());
         modelBuilder.ApplyConfiguration(new DigestSummaryConfiguration());
         modelBuilder.ApplyConfiguration(new DigestStepsConfiguration());
+        modelBuilder.ApplyConfiguration(new SettingsConfiguration());
     }
 
     private sealed class FeedConfiguration : IEntityTypeConfiguration<FeedEntity>
@@ -120,6 +122,29 @@ internal sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext
 
             // Index for faster lookups by Type
             builder.HasIndex(e => e.Type);
+        }
+    }
+
+    internal sealed class SettingsConfiguration : IEntityTypeConfiguration<SettingsEntity>
+    {
+        public void Configure(EntityTypeBuilder<SettingsEntity> builder)
+        {
+            builder.ToTable("Settings");
+            builder.HasKey(e => e.Id);
+            builder.Property(e => e.EmailRecipient).IsRequired();
+            builder.Property(e => e.DigestTimeUtc).IsRequired();
+            builder.Property(e => e.SmtpSettingsHost).IsRequired();
+            builder.Property(e => e.SmtpSettingsPort).IsRequired();
+            builder.Property(e => e.SmtpSettingsUsername).IsRequired();
+            builder.Property(e => e.SmtpSettingsPassword).IsRequired();
+            builder.Property(e => e.SmtpSettingsUseSsl).IsRequired();
+            builder.Property(e => e.OpenAiSettingsApiKey).IsRequired();
+            builder.Property(e => e.OpenAiSettingsModel).IsRequired();
+            builder.Property(e => e.OpenAiSettingsMaxTokens).IsRequired();
+            builder.Property(e => e.OpenAiSettingsEndpoint).IsRequired();
+            builder.Property(e => e.PromptSettingsPostSummaryUserPrompt).IsRequired();
+            builder.Property(e => e.PromptSettingsPostImportanceUserPrompt).IsRequired();
+            builder.Property(e => e.PromptSettingsDigestSummaryUserPrompt).IsRequired();
         }
     }
 }

@@ -4,7 +4,7 @@ using FluentResults;
 using TelegramDigest.Backend.Models;
 using TelegramDigest.Backend.Utils;
 
-namespace TelegramDigest.Backend.Features;
+namespace TelegramDigest.Backend.Features.DigestFromRssGeneration;
 
 internal record ReadPostModel(Html HtmlContent, Uri Url, DateTime PublishedAt);
 

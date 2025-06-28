@@ -3,7 +3,7 @@ using TelegramDigest.Backend.Db;
 using TelegramDigest.Backend.Features.DigestSteps;
 using TelegramDigest.Backend.Models;
 
-namespace TelegramDigest.Backend.Features;
+namespace TelegramDigest.Backend.Features.DigestFromRssGeneration;
 
 internal interface IDigestService
 {

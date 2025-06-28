@@ -4,7 +4,7 @@ using OpenAI.Chat;
 using TelegramDigest.Backend.Models;
 using TelegramDigest.Backend.Options;
 
-namespace TelegramDigest.Backend.Features;
+namespace TelegramDigest.Backend.Features.DigestFromRssGeneration;
 
 internal interface IAiSummarizer
 {

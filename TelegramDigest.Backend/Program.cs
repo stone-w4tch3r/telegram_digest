@@ -3,6 +3,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using TelegramDigest.Backend.Db;
 using TelegramDigest.Backend.Features;
+using TelegramDigest.Backend.Features.DigestFromRssGeneration;
 using TelegramDigest.Backend.Features.DigestParallelProcessing;
 using TelegramDigest.Backend.Features.DigestSteps;
 using TelegramDigest.Backend.Models;

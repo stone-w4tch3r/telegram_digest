@@ -1,5 +1,6 @@
 using FluentResults;
 using TelegramDigest.Backend.Db;
+using TelegramDigest.Backend.Features.DigestFromRssGeneration;
 using TelegramDigest.Backend.Models;
 
 namespace TelegramDigest.Backend.Features;

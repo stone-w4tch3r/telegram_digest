@@ -1,5 +1,6 @@
 using FluentResults;
 using Microsoft.Extensions.DependencyInjection;
+using TelegramDigest.Backend.Features.DigestFromRssGeneration;
 using TelegramDigest.Backend.Features.DigestSteps;
 using TelegramDigest.Backend.Models;
 

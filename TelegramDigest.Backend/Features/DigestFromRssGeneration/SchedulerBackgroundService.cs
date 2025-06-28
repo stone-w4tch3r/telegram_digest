@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using TelegramDigest.Backend.Models;
 
-namespace TelegramDigest.Backend.Features;
+namespace TelegramDigest.Backend.Features.DigestFromRssGeneration;
 
 /// <summary>
 /// Background service that schedules and executes daily digest generation

@@ -1,6 +1,7 @@
 using System.ServiceModel.Syndication;
 using System.Text;
 using FluentResults;
+using TelegramDigest.Backend.Features.DigestFromRssGeneration;
 using TelegramDigest.Backend.Models;
 
 namespace TelegramDigest.Backend.Features;

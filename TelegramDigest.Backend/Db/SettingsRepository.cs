@@ -35,7 +35,7 @@ internal sealed class SettingsRepository(
         try
         {
             var entity = MapToEntity(settings);
-            var existing = await dbContext.Settings.FirstOrDefaultAsync(ct);
+            var existing = await dbContext.Settings.FirstOrDefaultAsync(ct); // TODO add user
             if (existing != null)
             {
                 dbContext.Entry(existing).CurrentValues.SetValues(entity);

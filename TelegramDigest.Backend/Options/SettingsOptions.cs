@@ -1,8 +1,10 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
+using RuntimeNullables;
 
 namespace TelegramDigest.Backend.Options;
 
+[NullChecks(false)]
 internal sealed record SettingsJson(
     [property: JsonRequired] string EmailRecipient,
     [property: JsonRequired] TimeOnly DigestTime,
@@ -11,12 +13,14 @@ internal sealed record SettingsJson(
     [property: JsonRequired] PromptSettingsJson PromptSettings
 );
 
+[NullChecks(false)]
 internal sealed record PromptSettingsJson(
     [property: JsonRequired] string PostSummaryUserPrompt,
     [property: JsonRequired] string PostImportanceUserPrompt,
     [property: JsonRequired] string DigestSummaryUserPrompt
 );
 
+[NullChecks(false)]
 internal sealed record SmtpSettingsJson(
     [property: JsonRequired] string Host,
     [property: JsonRequired] int Port,
@@ -25,6 +29,7 @@ internal sealed record SmtpSettingsJson(
     [property: JsonRequired] bool UseSsl
 );
 
+[NullChecks(false)]
 internal sealed record OpenAiSettingsJson(
     [property: JsonRequired] string ApiKey,
     [property: JsonRequired] string Model,
@@ -32,6 +37,7 @@ internal sealed record OpenAiSettingsJson(
     [property: JsonRequired] Uri Endpoint
 );
 
+[NullChecks(false)]
 internal class SettingsOptions
 {
     [Required(ErrorMessage = "DEFAULT_SETTINGS configuration option was not set")]

@@ -36,6 +36,13 @@ public static class ServiceCollectionExtensions
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
+        // Default settings options
+        builder
+            .Services.AddOptions<SettingsOptions>()
+            .Bind(builder.Configuration)
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
         // Application services
         builder.Services.AddHostedService<DigestProcessor>();
         builder.Services.AddHostedService<SchedulerBackgroundService>();

@@ -25,8 +25,8 @@ internal sealed class SettingsRepository(
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Failed to load settings");
-            return Result.Fail(new Error("Database operation failed").CausedBy(ex));
+            logger.LogError(ex, "Failed to load settings from database");
+            return Result.Fail(new Error("Failed to load settings from database").CausedBy(ex));
         }
     }
 
@@ -49,8 +49,8 @@ internal sealed class SettingsRepository(
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Failed to save settings");
-            return Result.Fail(new Error("Database operation failed").CausedBy(ex));
+            logger.LogError(ex, "Failed to save settings to database");
+            return Result.Fail(new Error("Failed to save settings to database").CausedBy(ex));
         }
     }
 

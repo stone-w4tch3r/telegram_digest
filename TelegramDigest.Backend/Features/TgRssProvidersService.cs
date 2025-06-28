@@ -1,11 +1,10 @@
+using System.Text.Json;
+using FluentResults;
 using Microsoft.Extensions.Options;
+using TelegramDigest.Backend.Models;
 using TelegramDigest.Backend.Options;
 
 namespace TelegramDigest.Backend.Features;
-
-using System.Text.Json;
-using FluentResults;
-using Models;
 
 public interface IRssProvidersService
 {

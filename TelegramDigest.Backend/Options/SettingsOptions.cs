@@ -38,7 +38,7 @@ internal sealed record OpenAiSettingsJson(
 );
 
 [NullChecks(false)]
-internal class SettingsOptions
+internal sealed record SettingsOptions
 {
     [Required(ErrorMessage = "DEFAULT_SETTINGS configuration option was not set")]
     [JsonString(DisplayName = "DEFAULT_SETTINGS")]

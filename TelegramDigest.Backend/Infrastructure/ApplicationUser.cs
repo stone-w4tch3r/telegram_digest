@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Identity;
 
-namespace TelegramDigest.Backend.Infrastructure.Identity;
+namespace TelegramDigest.Backend.Infrastructure;
 
 /// <summary>
 /// Application user for Identity, using GUID as a primary key.
 /// </summary>
-public class ApplicationUser : IdentityUser<Guid>;
+public sealed class ApplicationUser : IdentityUser<Guid>;

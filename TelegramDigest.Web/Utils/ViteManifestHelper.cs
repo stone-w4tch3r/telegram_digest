@@ -10,7 +10,7 @@ namespace TelegramDigest.Web.Utils;
 public static class ViteManifestHelper
 {
     [UsedImplicitly]
-    private class ManifestEntry
+    private sealed record ManifestEntry
     {
         [JsonPropertyName("file")]
         public string? File { get; set; }

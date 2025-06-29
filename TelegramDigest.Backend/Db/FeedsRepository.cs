@@ -1,4 +1,5 @@
 using FluentResults;
+using TelegramDigest.Backend.Infrastructure;
 using TelegramDigest.Backend.Models;
 
 namespace TelegramDigest.Backend.Db;
@@ -12,7 +13,8 @@ internal interface IFeedsRepository
 
 internal sealed class FeedsRepository(
     ApplicationDbContext dbContext,
-    ILogger<FeedsRepository> logger
+    ILogger<FeedsRepository> logger,
+    ICurrentUserContext currentUserContext
 ) : IFeedsRepository
 {
     public async Task<Result> SaveFeed(FeedModel feed, CancellationToken cancellationToken)
@@ -26,9 +28,14 @@ internal sealed class FeedsRepository(
                 Description = feed.Description,
                 ImageUrl = feed.ImageUrl.ToString(),
                 IsDeleted = false,
+                UserId = currentUserContext.UserId,
             };
 
-            var existing = await dbContext.Feeds.FindAsync([entity.RssUrl], cancellationToken);
+            var existing = await dbContext
+                .Feeds.Where(f =>
+                    f.UserId == currentUserContext.UserId && f.RssUrl == entity.RssUrl
+                )
+                .SingleOrDefaultAsync(cancellationToken);
             if (existing != null)
             {
                 dbContext.Entry(existing).CurrentValues.SetValues(entity);
@@ -53,7 +60,7 @@ internal sealed class FeedsRepository(
         try
         {
             var entities = await dbContext
-                .Feeds.Where(e => !e.IsDeleted)
+                .Feeds.Where(e => !e.IsDeleted && e.UserId == currentUserContext.UserId)
                 .ToListAsync(cancellationToken);
 
             var feeds = entities
@@ -78,7 +85,11 @@ internal sealed class FeedsRepository(
     {
         try
         {
-            var entity = await dbContext.Feeds.FindAsync([feedUrl.ToString()], cancellationToken);
+            var entity = await dbContext
+                .Feeds.Where(f =>
+                    f.UserId == currentUserContext.UserId && f.RssUrl == feedUrl.ToString()
+                )
+                .SingleOrDefaultAsync(cancellationToken);
             if (entity == null)
             {
                 return Result.Ok(); // Already deleted

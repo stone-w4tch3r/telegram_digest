@@ -30,7 +30,7 @@ It assumes the current code base of **TelegramDigest**:
 
 4. **Configuration**
 
-   - New `AuthenticationOptions` record placed in `Backend/Options` with env-var mapping.
+   - New `AuthenticationOptions` record placed in `Web/Options` with env-var mapping.
    - `.env` / Kubernetes secrets control behaviour; no code changes are required to toggle modes.
 
 5. **Handlers**
@@ -61,7 +61,7 @@ It assumes the current code base of **TelegramDigest**:
 _Prerequisite_: none
 _Tasks_
 
-- [ ] Create `Backend/Options/AuthenticationOptions.cs` record mirroring the pattern in [BackendDeploymentOptions](file:///Users/user1/Projects/telegram_digest/TelegramDigest.Backend/Options/BackendDeploymentOptions.cs).
+- [ ] Create `Web/Options/AuthenticationOptions.cs` record mirroring the pattern in [BackendDeploymentOptions](file:///Users/user1/Projects/telegram_digest/TelegramDigest.Backend/Options/BackendDeploymentOptions.cs).
 - [ ] Include fields: `SingleUserMode`, `Authority`, `ClientId`, `ClientSecret`, `ProxyHeaderEmail`, `ProxyHeaderId`, `CookieName`.
 - [ ] Add `AuthConsistencyAttribute` to validate the options.
 - [ ] Bind `AuthenticationOptions` in `Program.cs`, following patterns of other options.
@@ -108,6 +108,7 @@ _Tasks_
 _Prerequisite_: Step 3
 _Tasks_
 
+- [ ] Create `BackendAuthenticationConfiguration` in `Backend/Infrastructure`, register and populate in `Web/Program.cs`.
 - [ ] Create `ICurrentUserContext` + implementation reading `HttpContext.User`.
 - [ ] Inject into all repositories; apply `Where(e => e.UserId == current)` for GET/UPDATE queries.
 - [ ] In single-user mode, return `Guid.Empty`.

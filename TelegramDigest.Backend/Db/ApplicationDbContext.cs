@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using TelegramDigest.Backend.Infrastructure.Identity;
+using TelegramDigest.Backend.Infrastructure;
 
 namespace TelegramDigest.Backend.Db;
 

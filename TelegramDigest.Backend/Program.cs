@@ -6,6 +6,7 @@ using TelegramDigest.Backend.Features;
 using TelegramDigest.Backend.Features.DigestFromRssGeneration;
 using TelegramDigest.Backend.Features.DigestParallelProcessing;
 using TelegramDigest.Backend.Features.DigestSteps;
+using TelegramDigest.Backend.Infrastructure;
 using TelegramDigest.Backend.Models;
 using TelegramDigest.Backend.Options;
 
@@ -44,6 +45,7 @@ public static class ServiceCollectionExtensions
         // Scoped
         builder.Services.AddScoped<IFeedReader, FeedReader>();
         builder.Services.AddScoped<IFeedsService, FeedsService>();
+        builder.Services.AddScoped<ICurrentUserContext, CurrentUserContext>();
         builder.Services.AddScoped<IFeedsRepository, FeedsRepository>();
         builder.Services.AddScoped<IDigestService, DigestService>();
         builder.Services.AddScoped<IDigestService, DigestService>();

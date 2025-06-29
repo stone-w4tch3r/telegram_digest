@@ -4,7 +4,6 @@ using TelegramDigest.Backend.Models;
 
 namespace TelegramDigest.Backend.Features;
 
-[Obsolete("Will be removed before release")]
 internal interface IEmailSender
 {
     /// <summary>
@@ -13,7 +12,6 @@ internal interface IEmailSender
     public Task<Result> SendDigest(DigestSummaryModel digest, CancellationToken ct);
 }
 
-[Obsolete("Will be removed before release")]
 internal sealed class EmailSender(ISettingsService settingsService, ILogger<EmailSender> logger)
     : IEmailSender
 {

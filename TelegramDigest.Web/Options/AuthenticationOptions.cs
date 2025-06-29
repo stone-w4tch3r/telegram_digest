@@ -9,7 +9,7 @@ namespace TelegramDigest.Web.Options;
 /// </summary>
 [NullChecks(false)]
 [AuthOptionsConsistency]
-internal record AuthenticationOptions
+internal sealed record AuthenticationOptions
 {
     /// <summary>
     /// If true, enables dummy local authentication (single-user mode). All other auth fields must be unset.

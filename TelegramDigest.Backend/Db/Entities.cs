@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using RuntimeNullables;
-using TelegramDigest.Backend.Infrastructure.Identity;
+using TelegramDigest.Backend.Infrastructure;
 using TelegramDigest.Backend.Options;
 
 namespace TelegramDigest.Backend.Db;

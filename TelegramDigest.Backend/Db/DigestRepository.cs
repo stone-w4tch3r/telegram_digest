@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Text.Json;
 using FluentResults;
+using TelegramDigest.Backend.Infrastructure;
 using TelegramDigest.Backend.Models;
 
 namespace TelegramDigest.Backend.Db;
@@ -35,7 +36,8 @@ internal interface IDigestRepository
 
 internal sealed class DigestRepository(
     ApplicationDbContext dbContext,
-    ILogger<DigestRepository> logger
+    ILogger<DigestRepository> logger,
+    ICurrentUserContext currentUserContext
 ) : IDigestRepository
 {
     public async Task<Result<DigestModel?>> LoadDigest(DigestId digestId, CancellationToken ct)
@@ -47,7 +49,8 @@ internal sealed class DigestRepository(
                 .Digests.Include(d => d.PostsNav)!
                 .ThenInclude(p => p.FeedNav)
                 .Include(d => d.SummaryNav)
-                .FirstOrDefaultAsync(d => d.Id == digestId.Guid, ct);
+                .Where(d => d.UserId == currentUserContext.UserId)
+                .SingleOrDefaultAsync(d => d.Id == digestId.Guid, ct);
 
             if (digest is null)
             {
@@ -71,7 +74,7 @@ internal sealed class DigestRepository(
     {
         try
         {
-            var entity = MapToEntity(digest);
+            var entity = MapToEntity(digest, currentUserContext.UserId);
             await dbContext.Digests.AddAsync(entity, ct);
             await dbContext.SaveChangesAsync(ct);
             return Result.Ok();
@@ -108,6 +111,7 @@ internal sealed class DigestRepository(
                 .Digests.Include(d => d.PostsNav)!
                 .ThenInclude(p => p.FeedNav)
                 .Include(d => d.SummaryNav)
+                .Where(d => d.UserId == currentUserContext.UserId)
                 .ToListAsync(ct);
 
             if (digests.Any(d => d.SummaryNav == null || d.PostsNav == null))
@@ -131,7 +135,8 @@ internal sealed class DigestRepository(
             var digest = await dbContext
                 .Digests.Include(d => d.PostsNav) // Load the related posts
                 .Include(d => d.SummaryNav) // Load the related summary
-                .FirstOrDefaultAsync(d => d.Id == digestId.Guid, ct);
+                .Where(d => d.UserId == currentUserContext.UserId)
+                .SingleOrDefaultAsync(d => d.Id == digestId.Guid, ct);
 
             if (digest == null)
             {
@@ -222,11 +227,12 @@ internal sealed class DigestRepository(
         );
     }
 
-    private static DigestEntity MapToEntity(DigestModel model)
+    private static DigestEntity MapToEntity(DigestModel model, Guid userId)
     {
         var digestEntity = new DigestEntity
         {
             Id = model.DigestId.Guid,
+            UserId = userId,
             SummaryNav = new()
             {
                 Id = model.DigestId.Guid,

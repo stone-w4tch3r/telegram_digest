@@ -1,4 +1,5 @@
 using FluentResults;
+using TelegramDigest.Backend.Infrastructure;
 using TelegramDigest.Backend.Models;
 
 namespace TelegramDigest.Backend.Db;
@@ -11,14 +12,18 @@ internal interface ISettingsRepository
 
 internal sealed class SettingsRepository(
     ApplicationDbContext dbContext,
-    ILogger<SettingsRepository> logger
+    ILogger<SettingsRepository> logger,
+    ICurrentUserContext currentUserContext
 ) : ISettingsRepository
 {
     public async Task<Result<SettingsModel?>> LoadSettings(CancellationToken ct)
     {
         try
         {
-            var entity = await dbContext.Settings.AsNoTracking().FirstOrDefaultAsync(ct);
+            var entity = await dbContext
+                .Settings.Where(s => s.UserId == currentUserContext.UserId)
+                .AsNoTracking()
+                .SingleOrDefaultAsync(ct);
             return entity == null
                 ? Result.Ok<SettingsModel?>(null)
                 : Result.Ok<SettingsModel?>(MapToModel(entity));
@@ -34,8 +39,10 @@ internal sealed class SettingsRepository(
     {
         try
         {
-            var entity = MapToEntity(settings);
-            var existing = await dbContext.Settings.FirstOrDefaultAsync(ct); // TODO add user
+            var entity = MapToEntity(settings, currentUserContext.UserId);
+            var existing = await dbContext
+                .Settings.Where(s => s.UserId == currentUserContext.UserId)
+                .SingleOrDefaultAsync(ct);
             if (existing != null)
             {
                 dbContext.Entry(existing).CurrentValues.SetValues(entity);
@@ -80,10 +87,11 @@ internal sealed class SettingsRepository(
         );
     }
 
-    private static SettingsEntity MapToEntity(SettingsModel model)
+    private static SettingsEntity MapToEntity(SettingsModel model, Guid userId)
     {
         return new()
         {
+            UserId = userId,
             EmailRecipient = model.EmailRecipient,
             DigestTimeUtc = model.DigestTime.ToString(),
             SmtpSettingsHost = model.SmtpSettings.Host.ToString(),

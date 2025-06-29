@@ -1,9 +1,12 @@
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using TelegramDigest.Backend.Infrastructure.Identity;
 
 namespace TelegramDigest.Backend.Db;
 
 internal sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-    : DbContext(options)
+    : IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>(options)
 {
     internal DbSet<FeedEntity> Feeds => Set<FeedEntity>();
     internal DbSet<DigestEntity> Digests => Set<DigestEntity>();
@@ -17,6 +20,7 @@ internal sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext
     /// </summary>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder);
         modelBuilder.ApplyConfiguration(new FeedConfiguration());
         modelBuilder.ApplyConfiguration(new DigestConfiguration());
         modelBuilder.ApplyConfiguration(new PostSummaryConfiguration());

@@ -80,12 +80,8 @@ internal sealed class SettingsService(
 
     private Result<SettingsModel> LoadDefaultSettings()
     {
-        var settingsJsonResult = Result.Try(
-            () =>
-                JsonSerializer.Deserialize<SettingsJson>(
-                    options.Value.DefaultSettings,
-                    _jsonOptions
-                )
+        var settingsJsonResult = Result.Try(() =>
+            JsonSerializer.Deserialize<SettingsJson>(options.Value.DefaultSettings, _jsonOptions)
         );
         if (!settingsJsonResult.IsSuccess || settingsJsonResult.Value == null)
         {

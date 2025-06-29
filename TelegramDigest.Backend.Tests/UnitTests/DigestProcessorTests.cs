@@ -197,25 +197,24 @@ public sealed class DigestProcessorTests
 
         _mockTaskTracker
             .Setup(t => t.DequeueWaitingTask())
-            .ReturnsAsync(
-                () =>
-                    (
-                        async (ct, _) =>
+            .ReturnsAsync(() =>
+                (
+                    async (ct, _) =>
+                    {
+                        taskStarted.SetResult();
+                        try
                         {
-                            taskStarted.SetResult();
-                            try
-                            {
-                                await Task.Delay(Timeout.Infinite, ct);
-                            }
-                            catch (OperationCanceledException)
-                            {
-                                taskCancelled.SetResult(true);
-                                throw;
-                            }
-                        },
-                        null,
-                        digestId
-                    )
+                            await Task.Delay(Timeout.Infinite, ct);
+                        }
+                        catch (OperationCanceledException)
+                        {
+                            taskCancelled.SetResult(true);
+                            throw;
+                        }
+                    },
+                    null,
+                    digestId
+                )
             );
 
         _mockTaskTracker
@@ -247,25 +246,24 @@ public sealed class DigestProcessorTests
 
         _mockTaskTracker
             .Setup(t => t.DequeueWaitingTask())
-            .ReturnsAsync(
-                () =>
-                    (
-                        async (ct, _) =>
+            .ReturnsAsync(() =>
+                (
+                    async (ct, _) =>
+                    {
+                        taskStarted.SetResult();
+                        try
                         {
-                            taskStarted.SetResult();
-                            try
-                            {
-                                await Task.Delay(5000, ct);
-                            }
-                            catch (OperationCanceledException)
-                            {
-                                taskCancelled.SetResult(true);
-                                throw;
-                            }
-                        },
-                        null,
-                        digestId
-                    )
+                            await Task.Delay(5000, ct);
+                        }
+                        catch (OperationCanceledException)
+                        {
+                            taskCancelled.SetResult(true);
+                            throw;
+                        }
+                    },
+                    null,
+                    digestId
+                )
             );
 
         // Act
@@ -291,17 +289,16 @@ public sealed class DigestProcessorTests
 
         _mockTaskTracker
             .Setup(t => t.DequeueWaitingTask())
-            .ReturnsAsync(
-                () =>
-                    (
-                        (_, _) => throw exception,
-                        (Exception ex) =>
-                        {
-                            exceptionHandled.SetResult(ex);
-                            return Task.CompletedTask;
-                        },
-                        digestId
-                    )
+            .ReturnsAsync(() =>
+                (
+                    (_, _) => throw exception,
+                    (Exception ex) =>
+                    {
+                        exceptionHandled.SetResult(ex);
+                        return Task.CompletedTask;
+                    },
+                    digestId
+                )
             );
 
         // Act

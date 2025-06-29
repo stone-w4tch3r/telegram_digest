@@ -43,7 +43,7 @@ internal sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext
             builder.HasIndex(e => e.IsDeleted);
 
             // User ownership
-            builder.Property(e => e.UserId).IsRequired().HasDefaultValue(Guid.Empty);
+            builder.Property(e => e.UserId).IsRequired();
             builder
                 .HasOne(e => e.UserNav)
                 .WithMany()
@@ -62,7 +62,7 @@ internal sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext
             builder.Property(e => e.UsedPrompts).HasColumnType("json");
 
             // User ownership
-            builder.Property(e => e.UserId).IsRequired().HasDefaultValue(Guid.Empty);
+            builder.Property(e => e.UserId).IsRequired();
             builder
                 .HasOne(e => e.UserNav)
                 .WithMany()
@@ -96,7 +96,7 @@ internal sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext
             builder.Property(e => e.Url).IsRequired();
 
             // User ownership
-            builder.Property(e => e.UserId).IsRequired().HasDefaultValue(Guid.Empty);
+            builder.Property(e => e.UserId).IsRequired();
             builder
                 .HasOne(e => e.UserNav)
                 .WithMany()
@@ -175,7 +175,6 @@ internal sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext
             builder.Property(e => e.PromptSettingsDigestSummaryUserPrompt).IsRequired();
 
             // User ownership
-            builder.Property(e => e.UserId).IsRequired().HasDefaultValue(Guid.Empty);
             builder
                 .HasOne(e => e.UserNav)
                 .WithMany()

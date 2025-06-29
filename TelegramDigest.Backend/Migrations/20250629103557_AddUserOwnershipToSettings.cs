@@ -11,25 +11,23 @@ namespace TelegramDigest.Backend.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropPrimaryKey(
-                name: "PK_Settings",
-                table: "Settings");
+            migrationBuilder.DropPrimaryKey(name: "PK_Settings", table: "Settings");
 
-            migrationBuilder.DropColumn(
-                name: "Id",
-                table: "Settings");
+            migrationBuilder.DropColumn(name: "Id", table: "Settings");
 
             migrationBuilder.AddColumn<Guid>(
                 name: "UserId",
                 table: "Settings",
                 type: "TEXT",
                 nullable: false,
-                defaultValue: new Guid("00000000-0000-0000-0000-000000000000"));
+                defaultValue: new Guid("00000000-0000-0000-0000-000000000000")
+            );
 
             migrationBuilder.AddPrimaryKey(
                 name: "PK_Settings",
                 table: "Settings",
-                column: "UserId");
+                column: "UserId"
+            );
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Settings_AspNetUsers_UserId",
@@ -37,7 +35,8 @@ namespace TelegramDigest.Backend.Migrations
                 column: "UserId",
                 principalTable: "AspNetUsers",
                 principalColumn: "Id",
-                onDelete: ReferentialAction.Restrict);
+                onDelete: ReferentialAction.Restrict
+            );
         }
 
         /// <inheritdoc />
@@ -45,28 +44,24 @@ namespace TelegramDigest.Backend.Migrations
         {
             migrationBuilder.DropForeignKey(
                 name: "FK_Settings_AspNetUsers_UserId",
-                table: "Settings");
+                table: "Settings"
+            );
 
-            migrationBuilder.DropPrimaryKey(
-                name: "PK_Settings",
-                table: "Settings");
+            migrationBuilder.DropPrimaryKey(name: "PK_Settings", table: "Settings");
 
-            migrationBuilder.DropColumn(
-                name: "UserId",
-                table: "Settings");
+            migrationBuilder.DropColumn(name: "UserId", table: "Settings");
 
-            migrationBuilder.AddColumn<int>(
-                name: "Id",
-                table: "Settings",
-                type: "INTEGER",
-                nullable: false,
-                defaultValue: 0)
+            migrationBuilder
+                .AddColumn<int>(
+                    name: "Id",
+                    table: "Settings",
+                    type: "INTEGER",
+                    nullable: false,
+                    defaultValue: 0
+                )
                 .Annotation("Sqlite:Autoincrement", true);
 
-            migrationBuilder.AddPrimaryKey(
-                name: "PK_Settings",
-                table: "Settings",
-                column: "Id");
+            migrationBuilder.AddPrimaryKey(name: "PK_Settings", table: "Settings", column: "Id");
         }
     }
 }

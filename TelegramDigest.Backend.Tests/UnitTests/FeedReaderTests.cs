@@ -1,7 +1,6 @@
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Moq;
-using TelegramDigest.Backend.Features;
 using TelegramDigest.Backend.Features.DigestFromRssGeneration;
 using TelegramDigest.Backend.Models;
 

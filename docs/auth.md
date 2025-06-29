@@ -61,10 +61,13 @@ It assumes the current code base of **TelegramDigest**:
 _Prerequisite_: none
 _Tasks_
 
-- [ ] Create `Backend/Options/AuthenticationOptions.cs` record mirroring the pattern in [BackendDeploymentOptions](file:///Users/user1/Projects/telegram_digest/TelegramDigest.Backend/Options/BackendDeploymentOptions.cs).
+- [ ] Create `Web/Options/AuthenticationOptions.cs` record mirroring the pattern in [BackendDeploymentOptions](file:///Users/user1/Projects/telegram_digest/TelegramDigest.Backend/Options/BackendDeploymentOptions.cs).
 - [ ] Include fields: `SingleUserMode`, `Authority`, `ClientId`, `ClientSecret`, `ProxyHeaderEmail`, `ProxyHeaderId`, `CookieName`.
+- [ ] Add `AuthConsistencyAttribute` to validate the options.
+- [ ] Bind `AuthenticationOptions` in `Web/Program.cs`, following patterns of other options.
+- [ ] Add doc comments to all options.
       _Verification_
-- [ ] Read the file and ensure it is well-formatted.
+- [ ] Read the file again and ensure it is well-formatted.
 - [ ] `dotnet build` succeeds.
 
 ---
@@ -79,7 +82,7 @@ _Tasks_
 - [ ] Change `ApplicationDbContext` base class to `IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>` and keep existing `DbSet`s.
 - [ ] Migration **AddIdentity**; update DB.
       _Verification_
-- [ ] Read all modified files and ensure they are well-formatted.
+- [ ] Read all modified files again and ensure they are well-formatted.
 - [ ] `dotnet build` succeeds.
 - [ ] `dotnet ef migrations bundle` succeeds; AspNet\* tables exist.
 
@@ -97,7 +100,7 @@ _Tasks_
 - [ ] Migration **AddUserOwnership** with default `Guid.Empty`.
       _Verification_
 - [ ] SQL generated includes new `UserId` columns and FK constraints.
-- [ ] Read all modified files and ensure they are well-formatted.
+- [ ] Read all modified files again and ensure they are well-formatted.
 - [ ] `dotnet build` and `dotnet test` succeed.
 
 ---
@@ -112,7 +115,7 @@ _Tasks_
 - [ ] In single-user mode, return `Guid.Empty`.
 - [ ] Write unit tests for all repositories.
       _Verification_
-- [ ] Read all modified files and ensure they are well-formatted.
+- [ ] Read all modified files again and ensure they are well-formatted.
 - [ ] `dotnet build` and `dotnet test` succeed.
 - [ ] Unit tests confirm users cannot access others’ data.
 
@@ -123,14 +126,13 @@ _Tasks_
 _Prerequisite_: Steps 1-4
 _Tasks_
 
-- [ ] Bind `AuthenticationOptions` in `Program.cs`, following patterns of other options.
 - [ ] Add `AddAuthentication`/`AddAuthorization` as described:
   - single-user → add `SingleUser` scheme & auto-sign-in.
   - authority set → `OpenIdConnect`.
   - else → `ProxyHeader` scheme.
 - [ ] Optional cookie naming from options.
       _Verification_
-- [ ] Read all modified files and ensure they are well-formatted.
+- [ ] Read all modified files again and ensure they are well-formatted.
 - [ ] `dotnet build` and `dotnet test` succeed.
 - [ ] Unit tests confirm users cannot access others’ data.
 - [ ] Running with each env set yields correct `AuthenticationSchemeProvider.DefaultAuthenticateScheme`.
@@ -147,7 +149,7 @@ _Tasks_
       _Verification_
 - [ ] Middleware functional tests with TestServer simulate requests.
 - [ ] `dotnet build` and `dotnet test` succeed.
-- [ ] Read all modified files and ensure they are well-formatted.
+- [ ] Read all modified files again and ensure they are well-formatted.
 
 ---
 
@@ -162,7 +164,7 @@ _Tasks_
       _Verification_
 - [ ] Manual browser check by developer: link toggles and email appears.
 - [ ] `dotnet build` and `dotnet test` succeed.
-- [ ] Read all modified files and ensure they are well-formatted.
+- [ ] Read all modified files again and ensure they are well-formatted.
 
 ---
 
@@ -176,7 +178,7 @@ _Tasks_
       _Verification_
 - [ ] After migration, queries in SingleUser mode still return original data.
 - [ ] `dotnet build` and `dotnet test` succeed.
-- [ ] Read all modified files and ensure they are well-formatted.
+- [ ] Read all modified files again and ensure they are well-formatted.
 
 ---
 

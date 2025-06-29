@@ -9,7 +9,16 @@ var builder = WebApplication.CreateBuilder(args);
 // Setup options
 Env.TraversePath().Load("default_options.env");
 builder.Configuration.AddEnvironmentVariables();
-builder.Services.AddOptions<WebDeploymentOptions>().Bind(builder.Configuration).ValidateOnStart();
+builder
+    .Services.AddOptions<WebDeploymentOptions>()
+    .Bind(builder.Configuration)
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
+builder
+    .Services.AddOptions<AuthenticationOptions>()
+    .Bind(builder.Configuration)
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
 
 // Backend configuration
 builder.AddBackend();

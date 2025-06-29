@@ -15,28 +15,21 @@ public static class ServiceCollectionExtensions
 {
     public static void AddBackend(this IHostApplicationBuilder builder)
     {
-        // Deployment options
         builder
             .Services.AddOptions<BackendDeploymentOptions>()
             .Bind(builder.Configuration)
             .ValidateDataAnnotations()
             .ValidateOnStart();
-
-        // AI options
         builder
             .Services.AddOptions<AiOptions>()
             .Bind(builder.Configuration)
             .ValidateDataAnnotations()
             .ValidateOnStart();
-
-        // RSS Providers options
         builder
             .Services.AddOptions<TgRssProvidersOptions>()
             .Bind(builder.Configuration)
             .ValidateDataAnnotations()
             .ValidateOnStart();
-
-        // Default settings options
         builder
             .Services.AddOptions<SettingsOptions>()
             .Bind(builder.Configuration)

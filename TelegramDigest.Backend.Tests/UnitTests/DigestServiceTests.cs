@@ -7,7 +7,6 @@ using TelegramDigest.Backend.Features;
 using TelegramDigest.Backend.Features.DigestFromRssGeneration;
 using TelegramDigest.Backend.Features.DigestSteps;
 using TelegramDigest.Backend.Models;
-using TelegramDigest.Types.Host;
 
 namespace TelegramDigest.Backend.Tests.UnitTests;
 

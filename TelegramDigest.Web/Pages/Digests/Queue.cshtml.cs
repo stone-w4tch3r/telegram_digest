@@ -1,9 +1,11 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TelegramDigest.Web.Pages.Shared;
 using TelegramDigest.Web.Services;
 
 namespace TelegramDigest.Web.Pages.Digests;
 
+[Authorize]
 public sealed class QueueModel(BackendClient backend) : BasePageModel
 {
     public Guid[] InProgressDigests { get; private set; } = [];

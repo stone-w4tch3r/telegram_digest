@@ -6,6 +6,9 @@ using TelegramDigest.Web.Services;
 
 namespace TelegramDigest.Web.Pages.Settings;
 
+using Microsoft.AspNetCore.Authorization;
+
+[Authorize]
 public sealed class IndexModel(BackendClient backend) : BasePageModel
 {
     [BindProperty]

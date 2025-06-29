@@ -2,12 +2,14 @@ using System.Diagnostics;
 using System.ServiceModel.Syndication;
 using System.Text;
 using System.Xml;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using TelegramDigest.Web.Services;
 
 namespace TelegramDigest.Web.Controllers;
 
+[Authorize]
 public sealed class RssPublishingController(
     BackendClient backendClient,
     IMemoryCache cache,

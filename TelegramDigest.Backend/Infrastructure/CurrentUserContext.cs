@@ -31,21 +31,15 @@ internal sealed class CurrentUserContext(
             );
         }
 
-        // Try Proxy header first
-        if (
-            authOptions.Mode == AuthenticationMode.ReverseProxy
-            && string.IsNullOrEmpty(authOptions.ProxyHeaderId)
-        )
+        if (authOptions.Mode == AuthenticationMode.ReverseProxy)
         {
-            throw new AuthenticationException(
-                "Auth misconfigured or failed: proxy header is not configured for reverse proxy auth mode"
-            );
-        }
-        if (
-            authOptions.Mode == AuthenticationMode.ReverseProxy
-            && !string.IsNullOrEmpty(authOptions.ProxyHeaderId)
-        )
-        {
+            if (string.IsNullOrWhiteSpace(authOptions.ProxyHeaderId))
+            {
+                throw new AuthenticationException(
+                    "Auth misconfigured or failed: proxy header is not configured for reverse proxy auth mode"
+                );
+            }
+
             var proxyId = ctx.Request.Headers[authOptions.ProxyHeaderId].ToString();
             if (!Guid.TryParse(proxyId, out var guidFromHeader))
             {

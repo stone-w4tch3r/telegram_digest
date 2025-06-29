@@ -23,8 +23,8 @@ internal sealed class ProxyHeaderHandler(
 
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {
-        var emailHeaderName = _authOptions.ProxyHeaderEmail ?? EMAIL_HEADER_NAME;
-        var idHeaderName = _authOptions.ProxyHeaderId ?? ID_HEADER_NAME;
+        var emailHeaderName = _authOptions.ReverseProxyHeaderEmail ?? EMAIL_HEADER_NAME;
+        var idHeaderName = _authOptions.ReverseProxyHeaderId ?? ID_HEADER_NAME;
         var emailHeader = Context.Request.Headers[emailHeaderName].ToString();
         var idHeader = Context.Request.Headers[idHeaderName].ToString();
         if (string.IsNullOrWhiteSpace(emailHeader) || string.IsNullOrWhiteSpace(idHeader))

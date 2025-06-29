@@ -16,7 +16,7 @@ public enum AuthMode
 /// Controls SingleUser, Reverse Proxy, and OpenID Connect authentication modes.
 /// </summary>
 [NullChecks(false)]
-[AuthOptionsConsistency]
+[AuthOptionsValidation]
 public sealed record AuthOptions
 {
     /// <summary>
@@ -27,34 +27,52 @@ public sealed record AuthOptions
     public required bool SingleUserMode { get; init; }
 
     /// <summary>
+    /// User ID for SingleUser mode. Optional; defaults to Guid.Empty if unset.
+    /// </summary>
+    [ConfigurationKeyName("SINGLE_USER_ID")]
+    public string? SingleUserId { get; init; }
+
+    /// <summary>
+    /// Email for SingleUser mode. Optional; defaults to singleuser@localhost if unset.
+    /// </summary>
+    [ConfigurationKeyName("SINGLE_USER_EMAIL")]
+    public string? SingleUserEmail { get; init; }
+
+    /// <summary>
     /// OpenID Connect authority URL. Required in OpenID Connect mode.
     /// </summary>
-    [ConfigurationKeyName("AUTHORITY")]
-    public string? Authority { get; init; }
+    [ConfigurationKeyName("OPENID_AUTHORITY")]
+    public string? OpenIdAuthority { get; init; }
 
     /// <summary>
     /// OpenID Connect client ID. Required in OpenID Connect mode.
     /// </summary>
-    [ConfigurationKeyName("CLIENT_ID")]
-    public string? ClientId { get; init; }
+    [ConfigurationKeyName("OPENID_CLIENT_ID")]
+    public string? OpenIdClientId { get; init; }
 
     /// <summary>
     /// OpenID Connect client secret. Required in OpenID Connect mode.
     /// </summary>
-    [ConfigurationKeyName("CLIENT_SECRET")]
-    public string? ClientSecret { get; init; }
+    [ConfigurationKeyName("OPENID_CLIENT_SECRET")]
+    public string? OpenIdClientSecret { get; init; }
 
     /// <summary>
     /// Name of the HTTP header containing the user's email. Required in reverse proxy mode.
     /// </summary>
-    [ConfigurationKeyName("PROXY_HEADER_EMAIL")]
-    public string? ProxyHeaderEmail { get; init; }
+    [ConfigurationKeyName("REVERSE_PROXY_HEADER_EMAIL")]
+    public string? ReverseProxyHeaderEmail { get; init; }
 
     /// <summary>
     /// Name of the HTTP header containing the user's unique ID. Required in reverse proxy mode.
     /// </summary>
-    [ConfigurationKeyName("PROXY_HEADER_ID")]
-    public string? ProxyHeaderId { get; init; }
+    [ConfigurationKeyName("REVERSE_PROXY_HEADER_ID")]
+    public string? ReverseProxyHeaderId { get; init; }
+
+    /// <summary>
+    /// External logout URL for Reverse Proxy mode. If set, logout will redirect here.
+    /// </summary>
+    [ConfigurationKeyName("REVERSE_PROXY_LOGOUT_URL")]
+    public string? ReverseProxyLogoutUrl { get; init; }
 
     /// <summary>
     /// Cookie name for ASP authentication cookie. Optional; default is used if unset. Can be configured for any mode.
@@ -67,8 +85,8 @@ public sealed record AuthOptions
     /// </summary>
     public AuthMode Mode =>
         SingleUserMode ? AuthMode.SingleUser
-        : Authority is not null ? AuthMode.OpenIdConnect
-        : ProxyHeaderEmail is not null ? AuthMode.ReverseProxy
+        : OpenIdAuthority is not null ? AuthMode.OpenIdConnect
+        : ReverseProxyHeaderEmail is not null ? AuthMode.ReverseProxy
         : throw new UnreachableException(
             "Authentication is misconfigured and early validation broke and did not catch it"
         );

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TelegramDigest.Web.Models.ViewModels;
 using TelegramDigest.Web.Pages.Shared;
@@ -11,6 +12,7 @@ public sealed record FeedWithMetadata(FeedViewModel Feed, bool IsTelegramFeed)
         new(feed, feed.Url.StartsWith("https://t.me/", StringComparison.OrdinalIgnoreCase));
 }
 
+[Authorize]
 public sealed class IndexModel(BackendClient backend) : BasePageModel
 {
     public List<FeedWithMetadata>? Feeds { get; set; }

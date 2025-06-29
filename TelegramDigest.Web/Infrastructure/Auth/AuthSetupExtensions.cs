@@ -84,18 +84,18 @@ public static class AuthSetupExtensions
                 "oidc",
                 options =>
                 {
-                    options.Authority = authOptions.Authority;
+                    options.Authority = authOptions.OpenIdAuthority;
                     options.ClientId =
-                        authOptions.ClientId
+                        authOptions.OpenIdClientId
                         ?? throw new UnreachableException(
-                            "ClientId is required for OIDC, auth is misconfigured"
-                                + " and early validation broke and didn't catch this"
+                            $"{authOptions.OpenIdClientId} is required for OIDC, auth is"
+                                + $" misconfigured,  early validation broke and didn't catch this"
                         );
                     options.ClientSecret =
-                        authOptions.ClientSecret
+                        authOptions.OpenIdClientSecret
                         ?? throw new UnreachableException(
-                            "ClientSecret required for OIDC, auth is misconfigured"
-                                + " and early validation broke and didn't catch this"
+                            $"{authOptions.OpenIdClientSecret} is required for OIDC, auth is "
+                                + $"misconfigured, early validation broke and didn't catch this"
                         );
                     options.ResponseType = "code";
                     options.SaveTokens = true;

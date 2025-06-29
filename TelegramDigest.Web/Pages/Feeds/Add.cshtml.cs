@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Timeouts;
 using Microsoft.AspNetCore.Mvc;
 using RuntimeNullables;
@@ -9,6 +10,7 @@ using TelegramDigest.Web.Services;
 
 namespace TelegramDigest.Web.Pages.Feeds;
 
+[Authorize]
 [RequestTimeout(10)]
 public sealed class AddModel(BackendClient backend) : BasePageModel
 {

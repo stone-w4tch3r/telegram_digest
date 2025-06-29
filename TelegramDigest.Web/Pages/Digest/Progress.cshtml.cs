@@ -5,6 +5,9 @@ using TelegramDigest.Web.Services;
 
 namespace TelegramDigest.Web.Pages.Digest;
 
+using Microsoft.AspNetCore.Authorization;
+
+[Authorize]
 public sealed class ProgressModel(BackendClient backend) : BasePageModel
 {
     public DigestProgressViewModel? Progress { get; set; }

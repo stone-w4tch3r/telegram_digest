@@ -7,6 +7,9 @@ using TelegramDigest.Web.Services;
 
 namespace TelegramDigest.Web.Pages.Digests;
 
+using Microsoft.AspNetCore.Authorization;
+
+[Authorize]
 public sealed class GenerateModel(BackendClient backend) : BasePageModel
 {
     [BindProperty]

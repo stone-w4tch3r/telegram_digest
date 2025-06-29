@@ -5,6 +5,9 @@ using TelegramDigest.Web.Services;
 
 namespace TelegramDigest.Web.Pages.Digests;
 
+using Microsoft.AspNetCore.Authorization;
+
+[Authorize]
 public sealed class IndexModel(BackendClient backend) : BasePageModel
 {
     public List<DigestSummaryViewModel> Digests { get; set; } = new();

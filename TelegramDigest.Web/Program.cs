@@ -30,6 +30,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddControllers();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<BackendClient>();
+builder.Services.AddSession();
 
 builder.Services.AddAuthenticationCustom();
 
@@ -38,7 +39,7 @@ builder.Services.AddTransient(provider =>
 {
     var authOptions = provider.GetRequiredService<IOptions<AuthOptions>>().Value;
     return new BackendAuthenticationConfiguration(
-        authOptions.ProxyHeaderId,
+        authOptions.ReverseProxyHeaderId,
         authOptions.Mode switch
         {
             AuthMode.SingleUser => AuthenticationMode.SingleUser,
@@ -65,9 +66,10 @@ var deploymentOptions = app.Services.GetRequiredService<IOptions<WebDeploymentOp
 
 app.UsePathBase(deploymentOptions.BasePath);
 app.UseStaticFiles();
+app.UseRouting();
+app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseRouting();
 app.MapRazorPages();
 app.MapControllers();
 

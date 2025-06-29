@@ -215,3 +215,7 @@ echo "Secrets initialized. Edit .env and run: docker compose up -d"
 ---
 
 **End of file – hand to DevOps and enjoy the one-command deploy.**
+
+# TODO
+
+- add logout url for reverse proxy mode + authentik outpost

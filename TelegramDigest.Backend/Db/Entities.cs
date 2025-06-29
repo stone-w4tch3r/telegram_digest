@@ -167,13 +167,16 @@ internal sealed class PostSummaryEntity : IUserOwnedEntity
 }
 
 /// <summary>
-/// Application settings stored in the database (flat structure)
+/// Application inittings stored in the database (flat structure)
 /// </summary>
 [NullChecks(false)]
-internal sealed class SettingsEntity
+internal sealed class SettingsEntity : IUserOwnedEntity
 {
+    /// <summary>
+    /// Primary key and foreign key to user
+    /// </summary>
     [Key]
-    public int Id { get; init; } = 1; // TODO use normal ids later
+    public Guid UserId { get; init; }
 
     [MaxLength(200)]
     public required string EmailRecipient { get; init; }
@@ -213,6 +216,9 @@ internal sealed class SettingsEntity
 
     [MaxLength(8192)]
     public required string PromptSettingsDigestSummaryUserPrompt { get; init; }
+
+    /// <inheritdoc/>
+    public ApplicationUser? UserNav { get; init; }
 }
 
 /// <summary>

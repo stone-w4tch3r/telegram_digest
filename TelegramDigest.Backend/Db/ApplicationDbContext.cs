@@ -158,7 +158,7 @@ internal sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext
         public void Configure(EntityTypeBuilder<SettingsEntity> builder)
         {
             builder.ToTable("Settings");
-            builder.HasKey(e => e.Id);
+            builder.HasKey(e => e.UserId);
             builder.Property(e => e.EmailRecipient).IsRequired();
             builder.Property(e => e.DigestTimeUtc).IsRequired();
             builder.Property(e => e.SmtpSettingsHost).IsRequired();
@@ -173,6 +173,14 @@ internal sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext
             builder.Property(e => e.PromptSettingsPostSummaryUserPrompt).IsRequired();
             builder.Property(e => e.PromptSettingsPostImportanceUserPrompt).IsRequired();
             builder.Property(e => e.PromptSettingsDigestSummaryUserPrompt).IsRequired();
+
+            // User ownership
+            builder.Property(e => e.UserId).IsRequired().HasDefaultValue(Guid.Empty);
+            builder
+                .HasOne(e => e.UserNav)
+                .WithMany()
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

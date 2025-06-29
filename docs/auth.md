@@ -77,7 +77,7 @@ _Prerequisite_: Step 1
 _Tasks_
 
 - [ ] Add NuGet: `Microsoft.AspNetCore.Identity.EntityFrameworkCore` to `Backend/Backend.csproj`.
-- [ ] Create `Infrastructure/Identity/ApplicationUser : IdentityUser<Guid>` (override **only** `Email`).
+- [ ] Create `Infrastructure/Identity/ApplicationUser : IdentityUser<Guid>` (no overrides).
 - [ ] Change `ApplicationDbContext` base class to `IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>` and keep existing `DbSet`s.
 - [ ] Migration **AddIdentity**; update DB.
       _Verification_
@@ -93,7 +93,7 @@ _Prerequisite_: Step 2
 _Tasks_
 
 - [ ] Create `IUserOwnedEntity` interface to [Entities.cs](file:///Users/user1/Projects/telegram_digest/TelegramDigest.Backend/Db/Entities.cs).
-- [ ] Implement it in `FeedEntity`, `DigestEntity`, `PostSummaryEntity`.
+- [ ] Implement it in `FeedEntity`, `DigestEntity`, `PostSummaryEntity`, `SettingsEntity`.
 - [ ] Add `UserId` (Guid, non-nullable) + `ApplicationUser? UserNav` to those entities.
 - [ ] Configure FKs in `OnModelCreating`.
 - [ ] Migration **AddUserOwnership** with default `Guid.Empty`.

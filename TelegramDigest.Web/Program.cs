@@ -1,7 +1,9 @@
+using System.Diagnostics;
 using DotNetEnv;
 using Microsoft.Extensions.Options;
 using TelegramDigest.Backend;
 using TelegramDigest.Backend.Infrastructure;
+using TelegramDigest.Web.Infrastructure.Auth;
 using TelegramDigest.Web.Options;
 using TelegramDigest.Web.Services;
 
@@ -22,13 +24,14 @@ builder
     .ValidateOnStart();
 
 // Backend configuration
-builder.AddBackend();
+builder.AddBackendCustom();
 
-// Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddControllers();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<BackendClient>();
+
+builder.Services.AddAuthenticationCustom();
 
 // Pass authentication configuration to the backend
 builder.Services.AddTransient(provider =>
@@ -36,21 +39,18 @@ builder.Services.AddTransient(provider =>
     var authOptions = provider.GetRequiredService<IOptions<AuthenticationOptions>>().Value;
     return new BackendAuthenticationConfiguration(
         authOptions.ProxyHeaderId,
-        authOptions switch
+        authOptions.Mode switch
         {
-            _ when authOptions.SingleUserMode => AuthenticationMode.SingleUser,
-            _ when authOptions.ProxyHeaderId != null => AuthenticationMode.ReverseProxy,
-            _ when authOptions.Authority != null => AuthenticationMode.OpenIdConnect,
-            _ => throw new InvalidOperationException(
-                $"{nameof(AuthenticationOptions)} is misconfigured"
-            ),
+            AuthMode.SingleUser => AuthenticationMode.SingleUser,
+            AuthMode.ReverseProxy => AuthenticationMode.ReverseProxy,
+            AuthMode.OpenIdConnect => AuthenticationMode.OpenIdConnect,
+            _ => throw new UnreachableException($"Unknown auth mode: {authOptions.Mode}"),
         }
     );
 });
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
@@ -65,10 +65,12 @@ var deploymentOptions = app.Services.GetRequiredService<IOptions<WebDeploymentOp
 
 app.UsePathBase(deploymentOptions.BasePath);
 app.UseStaticFiles();
+app.UseAuthentication();
+app.UseAuthorization();
 app.UseRouting();
 app.MapRazorPages();
 app.MapControllers();
 
-await app.Services.UseBackend();
+await app.Services.UseBackendCustom();
 
 app.Run();

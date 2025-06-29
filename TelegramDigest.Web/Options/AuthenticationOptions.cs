@@ -1,7 +1,15 @@
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
 using RuntimeNullables;
 
 namespace TelegramDigest.Web.Options;
+
+internal enum AuthMode
+{
+    SingleUser,
+    ReverseProxy,
+    OpenIdConnect,
+}
 
 /// <summary>
 /// Authentication configuration options for TelegramDigest.
@@ -53,4 +61,15 @@ internal sealed record AuthenticationOptions
     /// </summary>
     [ConfigurationKeyName("COOKIE_NAME")]
     public string? CookieName { get; init; }
+
+    /// <summary>
+    /// Get the current authentication mode based on fields.
+    /// </summary>
+    public AuthMode Mode =>
+        SingleUserMode ? AuthMode.SingleUser
+        : Authority is not null ? AuthMode.OpenIdConnect
+        : ProxyHeaderEmail is not null ? AuthMode.ReverseProxy
+        : throw new UnreachableException(
+            "Authentication is misconfigured and early validation broke and did not catch it"
+        );
 }

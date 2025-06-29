@@ -146,7 +146,6 @@ _Tasks_
 - [ ] `SingleUserAuthHandler` – returns fixed `ClaimsPrincipal` (UserId = Guid.Empty, email = single@local).
 - [ ] `ProxyHeaderHandler` – reads headers to build claims; reject if absent.
       _Verification_
-- [ ] Middleware functional tests with TestServer simulate requests.
 - [ ] `dotnet build` and `dotnet test` succeed.
 - [ ] Read all modified files and ensure they are well-formatted.
 

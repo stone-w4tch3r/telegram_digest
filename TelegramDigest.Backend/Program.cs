@@ -14,7 +14,7 @@ namespace TelegramDigest.Backend;
 
 public static class ServiceCollectionExtensions
 {
-    public static void AddBackend(this IHostApplicationBuilder builder)
+    public static void AddBackendCustom(this IHostApplicationBuilder builder)
     {
         builder
             .Services.AddOptions<BackendDeploymentOptions>()
@@ -91,7 +91,7 @@ public static class ServiceCollectionExtensions
         });
     }
 
-    public static async Task UseBackend(this IServiceProvider services)
+    public static async Task UseBackendCustom(this IServiceProvider services)
     {
         // Database initial migration
         using var scope = services.CreateScope();

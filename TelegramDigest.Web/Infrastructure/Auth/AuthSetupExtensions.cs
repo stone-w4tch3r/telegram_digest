@@ -1,0 +1,109 @@
+using System.Diagnostics;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.Extensions.Options;
+using TelegramDigest.Web.Options;
+using AuthenticationOptions = TelegramDigest.Web.Options.AuthenticationOptions;
+
+namespace TelegramDigest.Web.Infrastructure.Auth;
+
+public static class AuthSetupExtensions
+{
+    public static IServiceCollection AddAuthenticationCustom(this IServiceCollection services)
+    {
+        // Build a temporary provider to resolve IOptions<AuthenticationOptions>
+        using var sp = services.BuildServiceProvider();
+        var authOptions = sp.GetRequiredService<IOptions<AuthenticationOptions>>().Value;
+
+        services.AddAuthorization();
+
+        switch (authOptions.Mode)
+        {
+            case AuthMode.SingleUser:
+                ConfigureSingleUserAuth(services);
+                break;
+            case AuthMode.OpenIdConnect:
+                ConfigureOidcAuth(services, authOptions);
+                break;
+            case AuthMode.ReverseProxy:
+                ConfigureReverseProxyAuth(services);
+                break;
+            default:
+                throw new UnreachableException($"Unknown auth mode: {authOptions.Mode}");
+        }
+
+        if (!string.IsNullOrWhiteSpace(authOptions.CookieName))
+        {
+            services.Configure<CookieAuthenticationOptions>(options =>
+                options.Cookie.Name = authOptions.CookieName
+            );
+        }
+
+        return services;
+    }
+
+    private static void ConfigureSingleUserAuth(IServiceCollection services)
+    {
+        services
+            .AddAuthentication(options =>
+            {
+                options.DefaultScheme = SingleUserAuthHandler.SCHEME_NAME;
+                options.DefaultAuthenticateScheme = SingleUserAuthHandler.SCHEME_NAME;
+                options.DefaultChallengeScheme = SingleUserAuthHandler.SCHEME_NAME;
+            })
+            .AddScheme<AuthenticationSchemeOptions, SingleUserAuthHandler>(
+                SingleUserAuthHandler.SCHEME_NAME,
+                _ => { }
+            );
+    }
+
+    private static void ConfigureReverseProxyAuth(IServiceCollection services)
+    {
+        services
+            .AddAuthentication(options =>
+            {
+                options.DefaultScheme = ProxyHeaderHandler.SCHEME_NAME;
+                options.DefaultAuthenticateScheme = ProxyHeaderHandler.SCHEME_NAME;
+                options.DefaultChallengeScheme = ProxyHeaderHandler.SCHEME_NAME;
+            })
+            .AddScheme<AuthenticationSchemeOptions, ProxyHeaderHandler>(
+                ProxyHeaderHandler.SCHEME_NAME,
+                _ => { }
+            );
+    }
+
+    private static void ConfigureOidcAuth(
+        IServiceCollection services,
+        AuthenticationOptions authOptions
+    )
+    {
+        services
+            .AddAuthentication(options =>
+            {
+                options.DefaultScheme = "oidc";
+                options.DefaultAuthenticateScheme = "oidc";
+                options.DefaultChallengeScheme = "oidc";
+            })
+            .AddOpenIdConnect(
+                "oidc",
+                options =>
+                {
+                    options.Authority = authOptions.Authority;
+                    options.ClientId =
+                        authOptions.ClientId
+                        ?? throw new UnreachableException(
+                            "ClientId is required for OIDC, auth is misconfigured"
+                                + " and early validation broke and didn't catch this"
+                        );
+                    options.ClientSecret =
+                        authOptions.ClientSecret
+                        ?? throw new UnreachableException(
+                            "ClientSecret required for OIDC, auth is misconfigured"
+                                + " and early validation broke and didn't catch this"
+                        );
+                    options.ResponseType = "code";
+                    options.SaveTokens = true;
+                }
+            );
+    }
+}

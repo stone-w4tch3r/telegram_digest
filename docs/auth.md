@@ -30,7 +30,7 @@ It assumes the current code base of **TelegramDigest**:
 
 4. **Configuration**
 
-   - New `AuthenticationOptions` record placed in `Web/Options` with env-var mapping.
+   - New `AuthOptions` record placed in `Web/Options` with env-var mapping.
    - `.env` / Kubernetes secrets control behaviour; no code changes are required to toggle modes.
 
 5. **Handlers**
@@ -56,15 +56,15 @@ It assumes the current code base of **TelegramDigest**:
 
 ## Steps Section (One Deliverable per Step)
 
-### ✅ Step 1 – Add `AuthenticationOptions`
+### ✅ Step 1 – Add `AuthOptions`
 
 _Prerequisite_: none
 _Tasks_
 
-- [ ] Create `Web/Options/AuthenticationOptions.cs` record mirroring the pattern in [BackendDeploymentOptions](file:///Users/user1/Projects/telegram_digest/TelegramDigest.Backend/Options/BackendDeploymentOptions.cs).
+- [ ] Create `Web/Options/AuthOptions.cs` record mirroring the pattern in [BackendDeploymentOptions](file:///Users/user1/Projects/telegram_digest/TelegramDigest.Backend/Options/BackendDeploymentOptions.cs).
 - [ ] Include fields: `SingleUserMode`, `Authority`, `ClientId`, `ClientSecret`, `ProxyHeaderEmail`, `ProxyHeaderId`, `CookieName`.
 - [ ] Add `AuthConsistencyAttribute` to validate the options.
-- [ ] Bind `AuthenticationOptions` in `Program.cs`, following patterns of other options.
+- [ ] Bind `AuthOptions` in `Program.cs`, following patterns of other options.
       _Verification_
 - [ ] Read the file and ensure it is well-formatted.
 - [ ] `dotnet build` succeeds.
@@ -156,8 +156,8 @@ _Tasks_
 _Prerequisite_: Step 6
 _Tasks_
 
-- [ ] Add `/Account/Login` that calls `Challenge` (OIDC) or no-op (other modes).
-- [ ] Add `/Account/Logout` to sign out cookie & OIDC if applicable.
+- [ ] Add `/Auth/Login` that calls `Challenge` (OIDC) or no-op (other modes).
+- [ ] Add `/Auth/Logout` to sign out cookie & OIDC if applicable.
 - [ ] Update `_Layout.cshtml` to show user email & Login/Logout link (uses `@User.Identity.IsAuthenticated`).
       _Verification_
 - [ ] Manual browser check by developer: link toggles and email appears.
@@ -170,13 +170,13 @@ _Tasks_
 
 _Prerequisite_: Step 7
 _Tasks_
+none
 
-- [ ] Seed `ApplicationUser` with `Guid.Empty` & email `single@local`.
-- [ ] SQL UPDATE existing rows to `UserId = Guid.Empty`.
-      _Verification_
-- [ ] After migration, queries in SingleUser mode still return original data.
-- [ ] `dotnet build` and `dotnet test` succeed.
-- [ ] Read all modified files and ensure they are well-formatted.
+_Verification_
+
+- [ ] Make sure data migrated successfully.
+- [ ] Make sure app works with empty DB.
+- [ ] Make sure all modes work.
 
 ---
 

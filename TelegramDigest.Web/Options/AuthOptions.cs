@@ -4,7 +4,7 @@ using RuntimeNullables;
 
 namespace TelegramDigest.Web.Options;
 
-internal enum AuthMode
+public enum AuthMode
 {
     SingleUser,
     ReverseProxy,
@@ -17,7 +17,7 @@ internal enum AuthMode
 /// </summary>
 [NullChecks(false)]
 [AuthOptionsConsistency]
-internal sealed record AuthenticationOptions
+public sealed record AuthOptions
 {
     /// <summary>
     /// If true, enables dummy local authentication (single-user mode). All other auth fields must be unset.

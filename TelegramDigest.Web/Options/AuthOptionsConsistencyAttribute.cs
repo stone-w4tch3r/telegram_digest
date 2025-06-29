@@ -7,7 +7,7 @@ public sealed class AuthOptionsConsistencyAttribute : ValidationAttribute
 {
     protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
     {
-        if (value is not AuthenticationOptions o)
+        if (value is not AuthOptions o)
         {
             return ValidationResult.Success;
         }

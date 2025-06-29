@@ -11,7 +11,7 @@ internal sealed class ProxyHeaderHandler(
     IOptionsMonitor<AuthenticationSchemeOptions> options,
     ILoggerFactory logger,
     UrlEncoder encoder,
-    IOptions<AuthenticationOptions> authOptions
+    IOptions<AuthOptions> authOptions
 ) : AuthenticationHandler<AuthenticationSchemeOptions>(options, logger, encoder)
 {
     public const string SCHEME_NAME = "ProxyHeader";
@@ -19,7 +19,7 @@ internal sealed class ProxyHeaderHandler(
     private const string EMAIL_HEADER_NAME = "X-Proxy-Email";
     private const string ID_HEADER_NAME = "X-Proxy-Id";
 
-    private readonly AuthenticationOptions _authOptions = authOptions.Value;
+    private readonly AuthOptions _authOptions = authOptions.Value;
 
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {

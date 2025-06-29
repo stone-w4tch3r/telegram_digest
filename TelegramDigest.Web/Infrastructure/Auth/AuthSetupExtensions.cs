@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.Options;
 using TelegramDigest.Web.Options;
-using AuthenticationOptions = TelegramDigest.Web.Options.AuthenticationOptions;
 
 namespace TelegramDigest.Web.Infrastructure.Auth;
 
@@ -13,7 +12,7 @@ public static class AuthSetupExtensions
     {
         // Build a temporary provider to resolve IOptions<AuthenticationOptions>
         using var sp = services.BuildServiceProvider();
-        var authOptions = sp.GetRequiredService<IOptions<AuthenticationOptions>>().Value;
+        var authOptions = sp.GetRequiredService<IOptions<AuthOptions>>().Value;
 
         services.AddAuthorization();
 
@@ -72,10 +71,7 @@ public static class AuthSetupExtensions
             );
     }
 
-    private static void ConfigureOidcAuth(
-        IServiceCollection services,
-        AuthenticationOptions authOptions
-    )
+    private static void ConfigureOidcAuth(IServiceCollection services, AuthOptions authOptions)
     {
         services
             .AddAuthentication(options =>

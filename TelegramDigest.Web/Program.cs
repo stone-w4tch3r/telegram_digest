@@ -18,7 +18,7 @@ builder
     .ValidateDataAnnotations()
     .ValidateOnStart();
 builder
-    .Services.AddOptions<AuthenticationOptions>()
+    .Services.AddOptions<AuthOptions>()
     .Bind(builder.Configuration)
     .ValidateDataAnnotations()
     .ValidateOnStart();
@@ -36,7 +36,7 @@ builder.Services.AddAuthenticationCustom();
 // Pass authentication configuration to the backend
 builder.Services.AddTransient(provider =>
 {
-    var authOptions = provider.GetRequiredService<IOptions<AuthenticationOptions>>().Value;
+    var authOptions = provider.GetRequiredService<IOptions<AuthOptions>>().Value;
     return new BackendAuthenticationConfiguration(
         authOptions.ProxyHeaderId,
         authOptions.Mode switch

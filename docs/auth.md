@@ -40,6 +40,7 @@ It assumes the current code base of **TelegramDigest**:
    - `OpenIdConnect` (built-in) when Authority is provided.
 
 6. **Verification**
+
    - Unit tests ensure repositories filter by `CurrentUserId`.
    - `dotnet build` and `dotnet test` succeed.
    - Run `dotnet csharpier .` on solution to ensure code style is consistent.
@@ -186,7 +187,7 @@ _Tasks_
 - [ ] Create `docs/authentication.md` summarising modes, env-vars, and reverse-proxy headers.
 - [ ] Provide sample `.env` for each mode.
       _Verification_
-- [ ] Tech-writer review; 
+- [ ] Tech-writer review;
 
 ---
 

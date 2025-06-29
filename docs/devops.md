@@ -1,26 +1,26 @@
 # Specification: **Simple-VPS Deployment (Docker Compose) with Header-Based Auth**
 
-This document tells a DevOps engineer exactly **what**, **why**, and **how** to deploy **TelegramDigest** in the “one-command VPS” scenario.  
+This document tells a DevOps engineer exactly **what**, **why**, and **how** to preconfigure deployment of **TelegramDigest** in the “one-command VPS” scenario.  
 It assumes no Kubernetes and no external IdP registration: authentication is handled by **Authentik + Outpost** which injects `X-Email` / `X-UserId` headers trusted by the app.
 
 ---
 
 ## 1 — Common Section (Background & Goals)
 
-| Goal | Design choice | Rationale |
-|------|---------------|-----------|
-| One-liner install on any clean VPS | `docker compose up -d` | Minimises operator actions. |
-| End-to-end HTTPS | Traefik v3 + Let’s Encrypt | Automatic certs / renewals. |
-| Self-contained user management | Authentik server + Outpost (ForwardAuth) | Admin never touches OAuth client IDs; only e-mail & password. |
-| Zero public ports except 80/443 | Private Docker network | Prevents DB/IdP leaks. |
-| App sees *only* headers | `ProxyHeaderHandler` already in code | No changes to backend logic. |
+| Goal                               | Design choice                            | Rationale                                                     |
+| ---------------------------------- | ---------------------------------------- | ------------------------------------------------------------- |
+| One-liner install on any clean VPS | `docker compose up -d`                   | Minimises operator actions.                                   |
+| End-to-end HTTPS                   | Traefik v3 + Let’s Encrypt               | Automatic certs / renewals.                                   |
+| Self-contained user management     | Authentik server + Outpost (ForwardAuth) | Admin never touches OAuth client IDs; only e-mail & password. |
+| Zero public ports except 80/443    | Private Docker network                   | Prevents DB/IdP leaks.                                        |
+| App sees _only_ headers            | `ProxyHeaderHandler` already in code     | No changes to backend logic.                                  |
 
 ### Header contract
 
-| Header | Value produced by Outpost |
-|--------|---------------------------|
-| `X-Email` | Primary e-mail of logged-in user |
-| `X-UserId` | Stable UUID (`sub` claim) |
+| Header     | Value produced by Outpost        |
+| ---------- | -------------------------------- |
+| `X-Email`  | Primary e-mail of logged-in user |
+| `X-UserId` | Stable UUID (`sub` claim)        |
 
 ---
 
@@ -108,11 +108,11 @@ services:
     restart: unless-stopped
     depends_on: [postgres]
     environment:
-      ASPNETCORE_URLS:            "http://+:8080"
-      ASPNETCORE_ENVIRONMENT:     "Production"
-      SINGLEUSERMODE:             "false"
-      PROXYHEADEREMAIL:           "X-Email"
-      PROXYHEADERID:              "X-UserId"
+      ASPNETCORE_URLS: "http://+:8080"
+      ASPNETCORE_ENVIRONMENT: "Production"
+      SINGLEUSERMODE: "false"
+      PROXYHEADEREMAIL: "X-Email"
+      PROXYHEADERID: "X-UserId"
       CONNECTIONSTRINGS__DEFAULT: >
         Host=postgres;Port=5432;Database=digest;
         Username=postgres;Password=${POSTGRES_PASSWORD};
@@ -165,51 +165,51 @@ set -e
 [[ -f .env ]] || cp env.sample .env
 grep -q AK_SECRET .env || \
   echo "AK_SECRET=$(openssl rand -hex 32)" >> .env
-echo "Secrets initialised. Edit .env and run: docker compose up -d"
+echo "Secrets initialized. Edit .env and run: docker compose up -d"
 ```
 
 ---
 
 ## 5 — Operator Checklist
 
-| Step | Command / action |
-|------|------------------|
-| 1. Install Docker & Git | `curl -fsSL https://get.docker.com | sh` |
-| 2. Clone repo | `git clone https://github.com/you/telegramdigest && cd deploy/simple-vps` |
-| 3. Generate secrets | `./first-run.sh` |
-| 4. Edit `.env` | set `DOMAIN`, `LE_EMAIL`, strong `POSTGRES_PASSWORD` |
-| 5. Initialise acme store | `touch acme.json && chmod 600 acme.json` |
-| 6. Launch stack | `docker compose --env-file .env up -d` |
-| 7. First-run wizard | Visit `https://<DOMAIN>/if/flow/initial-setup/` → set admin e-mail & password, decide “Allow self-registration?”. |
-| 8. Verify login | Browse to `https://<DOMAIN>/` → you should be redirected to Authentik login, then land in TelegramDigest logged in as your e-mail. |
+| Step                     | Command / action                                                                                                                   |
+| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------- | --- |
+| 1. Install Docker & Git  | `curl -fsSL https://get.docker.com                                                                                                 | sh` |
+| 2. Clone repo            | `git clone https://github.com/you/telegramdigest && cd deploy/simple-vps`                                                          |
+| 3. Generate secrets      | `./first-run.sh`                                                                                                                   |
+| 4. Edit `.env`           | set `DOMAIN`, `LE_EMAIL`, strong `POSTGRES_PASSWORD`                                                                               |
+| 5. Initialise acme store | `touch acme.json && chmod 600 acme.json`                                                                                           |
+| 6. Launch stack          | `docker compose --env-file .env up -d`                                                                                             |
+| 7. First-run wizard      | Visit `https://<DOMAIN>/if/flow/initial-setup/` → set admin e-mail & password, decide “Allow self-registration?”.                  |
+| 8. Verify login          | Browse to `https://<DOMAIN>/` → you should be redirected to Authentik login, then land in TelegramDigest logged in as your e-mail. |
 
 ---
 
 ## 6 — Smoke-Test Matrix
 
-| Scenario | Expected result |
-|----------|-----------------|
-| Unauthenticated request to `/` | 302 → Authentik login page |
-| Valid login | 200 OK, user e-mail visible in app navbar |
+| Scenario                        | Expected result                                              |
+| ------------------------------- | ------------------------------------------------------------ |
+| Unauthenticated request to `/`  | 302 → Authentik login page                                   |
+| Valid login                     | 200 OK, user e-mail visible in app navbar                    |
 | Second request (cookie present) | No redirect; headers `X-Email`, `X-UserId` arrive at backend |
-| Wrong password | Authentik shows error; backend never hit |
-| Traefik dashboard | `https://<DOMAIN>/dashboard/#/` shows routers **green** |
+| Wrong password                  | Authentik shows error; backend never hit                     |
+| Traefik dashboard               | `https://<DOMAIN>/dashboard/#/` shows routers **green**      |
 
 ---
 
 ## 7 — Operational Notes
 
-* **Back-ups** – persist `pgdata/` volume and `acme.json`. Authentik stores config in its own SQLite inside the `ak-server` container; back up `/media` if custom themes are added.
-* **Upgrades** – pull newer tags and `docker compose pull && docker compose up -d`. Schema migrations for Authentik are automatic.
-* **User self-service** – toggle in Authentik UI → *Flows* → *default-authentication* → “Enrollment” stage.
+- **Back-ups** – persist `pgdata/` volume and `acme.json`. Authentik stores config in its own SQLite inside the `ak-server` container; back up `/media` if custom themes are added.
+- **Upgrades** – pull newer tags and `docker compose pull && docker compose up -d`. Schema migrations for Authentik are automatic.
+- **User self-service** – toggle in Authentik UI → _Flows_ → _default-authentication_ → “Enrollment” stage.
 
 ---
 
 ## 8 — Deliverable Acceptance
 
-1. `docker compose up -d` succeeds on a fresh Ubuntu 24.04 VPS.  
-2. HTTPS cert issued by Let’s Encrypt within 60 seconds.  
-3. Login / logout flows work; headers visible via `curl -I -H "Cookie:…" https://<DOMAIN>/` for debugging.  
+1. `docker compose up -d` succeeds on a fresh Ubuntu 24.04 VPS.
+2. HTTPS cert issued by Let’s Encrypt within 60 seconds.
+3. Login / logout flows work; headers visible via `curl -I -H "Cookie:…" https://<DOMAIN>/` for debugging.
 4. No container exposes ports other than 80/443 to the host when you run `docker ps`.
 
 ---

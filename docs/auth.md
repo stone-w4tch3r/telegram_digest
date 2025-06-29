@@ -92,13 +92,12 @@ _Tasks_
 _Prerequisite_: Step 2
 _Tasks_
 
-- [ ] Create `IUserOwnedEntity` interface.
-- [ ] Implement it in [FeedEntity](file:///Users/user1/Projects/telegram_digest/TelegramDigest.Backend/Db/Entities.cs), [DigestEntity](file:///Users/user1/Projects/telegram_digest/TelegramDigest.Backend/Db/Entities.cs), [PostSummaryEntity](file:///Users/user1/Projects/telegram_digest/TelegramDigest.Backend/Db/Entities.cs), etc.
+- [ ] Create `IUserOwnedEntity` interface to [Entities.cs](file:///Users/user1/Projects/telegram_digest/TelegramDigest.Backend/Db/Entities.cs).
+- [ ] Implement it in `FeedEntity`, `DigestEntity`, `PostSummaryEntity`.
 - [ ] Add `UserId` (Guid, non-nullable) + `ApplicationUser? UserNav` to those entities.
 - [ ] Configure FKs in `OnModelCreating`.
 - [ ] Migration **AddUserOwnership** with default `Guid.Empty`.
       _Verification_
-- [ ] SQL generated includes new `UserId` columns and FK constraints.
 - [ ] Read all modified files and ensure they are well-formatted.
 - [ ] `dotnet build` and `dotnet test` succeed.
 

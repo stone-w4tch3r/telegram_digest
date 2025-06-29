@@ -1,14 +1,31 @@
 using System.ComponentModel.DataAnnotations;
 using RuntimeNullables;
+using TelegramDigest.Backend.Infrastructure.Identity;
 using TelegramDigest.Backend.Options;
 
 namespace TelegramDigest.Backend.Db;
 
 /// <summary>
+/// Interface for entities owned by a user.
+/// </summary>
+internal interface IUserOwnedEntity
+{
+    /// <summary>
+    /// The owning user's ID.
+    /// </summary>
+    Guid UserId { get; init; }
+
+    /// <summary>
+    /// Navigation property to the owning ApplicationUser.
+    /// </summary>
+    ApplicationUser? UserNav { get; init; }
+}
+
+/// <summary>
 /// Represents a RSS feed
 /// </summary>
 [NullChecks(false)]
-internal sealed class FeedEntity
+internal sealed class FeedEntity : IUserOwnedEntity
 {
     /// <summary>
     /// RSS feed URL
@@ -29,13 +46,19 @@ internal sealed class FeedEntity
     /// Soft delete flag
     /// </summary>
     public required bool IsDeleted { get; set; }
+
+    /// <inheritdoc/>
+    public Guid UserId { get; init; } = Guid.Empty;
+
+    /// <inheritdoc/>
+    public ApplicationUser? UserNav { get; init; }
 }
 
 /// <summary>
 /// Digest that has multiple posts from different feeds
 /// </summary>
 [NullChecks(false)]
-internal sealed class DigestEntity
+internal sealed class DigestEntity : IUserOwnedEntity
 {
     public required Guid Id { get; init; }
 
@@ -55,6 +78,12 @@ internal sealed class DigestEntity
     /// Navigation property to PostSummaryEntities
     /// </summary>
     public ICollection<PostSummaryEntity>? PostsNav { get; init; }
+
+    /// <inheritdoc/>
+    public Guid UserId { get; init; } = Guid.Empty;
+
+    /// <inheritdoc/>
+    public ApplicationUser? UserNav { get; init; }
 }
 
 /// <summary>
@@ -94,7 +123,7 @@ internal sealed class DigestSummaryEntity
 /// AI generated summary of a post and post info
 /// </summary>
 [NullChecks(false)]
-internal sealed class PostSummaryEntity
+internal sealed class PostSummaryEntity : IUserOwnedEntity
 {
     public required Guid Id { get; init; }
 
@@ -129,6 +158,12 @@ internal sealed class PostSummaryEntity
     /// Navigation property to DigestEntity
     /// </summary>
     public DigestEntity? DigestNav { get; init; }
+
+    /// <inheritdoc/>
+    public Guid UserId { get; init; } = Guid.Empty;
+
+    /// <inheritdoc/>
+    public ApplicationUser? UserNav { get; init; }
 }
 
 /// <summary>

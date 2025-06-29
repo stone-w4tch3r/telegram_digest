@@ -41,6 +41,14 @@ internal sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext
             builder.Property(e => e.ImageUrl).IsRequired();
             builder.Property(e => e.IsDeleted).IsRequired();
             builder.HasIndex(e => e.IsDeleted);
+
+            // User ownership
+            builder.Property(e => e.UserId).IsRequired().HasDefaultValue(Guid.Empty);
+            builder
+                .HasOne(e => e.UserNav)
+                .WithMany()
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 
@@ -52,6 +60,14 @@ internal sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext
             builder.HasKey(e => e.Id);
 
             builder.Property(e => e.UsedPrompts).HasColumnType("json");
+
+            // User ownership
+            builder.Property(e => e.UserId).IsRequired().HasDefaultValue(Guid.Empty);
+            builder
+                .HasOne(e => e.UserNav)
+                .WithMany()
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             // 1:1 relationship with DigestSummary
             builder
@@ -78,6 +94,14 @@ internal sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext
             builder.Property(e => e.FeedUrl).IsRequired();
             builder.Property(e => e.Summary).IsRequired();
             builder.Property(e => e.Url).IsRequired();
+
+            // User ownership
+            builder.Property(e => e.UserId).IsRequired().HasDefaultValue(Guid.Empty);
+            builder
+                .HasOne(e => e.UserNav)
+                .WithMany()
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
             builder.Property(e => e.PublishedAt).IsRequired();
             builder.Property(e => e.Importance).IsRequired();
 

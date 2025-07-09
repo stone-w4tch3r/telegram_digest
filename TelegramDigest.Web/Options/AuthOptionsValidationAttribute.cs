@@ -17,7 +17,7 @@ public sealed class AuthOptionsValidationAttribute : ValidationAttribute
         // SingleUserMode: No OIDC or Proxy fields allowed, other SingleUser fields must be set
         if (o.SingleUserMode)
         {
-            if (string.IsNullOrWhiteSpace(o.SingleUserId))
+            if (o.SingleUserId == null)
             {
                 failures.Add(
                     new("SINGLE_USER_ID must be set in SingleUserMode.", [nameof(o.SingleUserId)])

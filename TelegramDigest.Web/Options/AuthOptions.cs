@@ -27,13 +27,13 @@ public sealed record AuthOptions
     public required bool SingleUserMode { get; init; }
 
     /// <summary>
-    /// User ID for SingleUser mode. Optional; defaults to Guid.Empty if unset.
+    /// User ID for SingleUser mode. Required in SingleUser mode.
     /// </summary>
     [ConfigurationKeyName("SINGLE_USER_ID")]
-    public string? SingleUserId { get; init; }
+    public Guid? SingleUserId { get; init; }
 
     /// <summary>
-    /// Email for SingleUser mode. Optional; defaults to singleuser@localhost if unset.
+    /// Email for SingleUser mode. Required in SingleUser mode.
     /// </summary>
     [ConfigurationKeyName("SINGLE_USER_EMAIL")]
     public string? SingleUserEmail { get; init; }

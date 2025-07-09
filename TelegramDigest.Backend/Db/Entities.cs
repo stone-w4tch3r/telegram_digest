@@ -48,7 +48,7 @@ internal sealed class FeedEntity : IUserOwnedEntity
     public required bool IsDeleted { get; set; }
 
     /// <inheritdoc/>
-    public Guid UserId { get; init; } = Guid.Empty;
+    public Guid UserId { get; init; }
 
     /// <inheritdoc/>
     public ApplicationUser? UserNav { get; init; }
@@ -80,7 +80,7 @@ internal sealed class DigestEntity : IUserOwnedEntity
     public ICollection<PostSummaryEntity>? PostsNav { get; init; }
 
     /// <inheritdoc/>
-    public Guid UserId { get; init; } = Guid.Empty;
+    public Guid UserId { get; init; }
 
     /// <inheritdoc/>
     public ApplicationUser? UserNav { get; init; }
@@ -160,7 +160,7 @@ internal sealed class PostSummaryEntity : IUserOwnedEntity
     public DigestEntity? DigestNav { get; init; }
 
     /// <inheritdoc/>
-    public Guid UserId { get; init; } = Guid.Empty;
+    public Guid UserId { get; init; }
 
     /// <inheritdoc/>
     public ApplicationUser? UserNav { get; init; }

@@ -38,7 +38,7 @@ builder.Services.AddAuthenticationCustom();
 builder.Services.AddTransient(provider =>
 {
     var authOptions = provider.GetRequiredService<IOptions<AuthOptions>>().Value;
-    return new BackendAuthenticationConfiguration(
+    return new BackendAuthConfiguration(
         authOptions.ReverseProxyHeaderId,
         authOptions.Mode switch
         {
@@ -46,7 +46,8 @@ builder.Services.AddTransient(provider =>
             AuthMode.ReverseProxy => AuthenticationMode.ReverseProxy,
             AuthMode.OpenIdConnect => AuthenticationMode.OpenIdConnect,
             _ => throw new UnreachableException($"Unknown auth mode: {authOptions.Mode}"),
-        }
+        },
+        authOptions.SingleUserId
     );
 });
 
@@ -73,6 +74,6 @@ app.UseAuthorization();
 app.MapRazorPages();
 app.MapControllers();
 
-await app.Services.UseBackendCustom();
+await app.UseBackendCustom();
 
 app.Run();

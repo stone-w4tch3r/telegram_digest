@@ -9,8 +9,14 @@ internal static class SerializationOptions
         Converters = { new ExceptionJsonConverter() },
     };
 
-    public static readonly JsonSerializerOptions FeedUrlSerializerOptions = new()
+    public static readonly JsonSerializerOptions FeedsSerializerOptions = new()
     {
         Converters = { new FeedUrlJsonConverter() },
+    };
+
+    public static readonly JsonSerializerOptions HumanReadableSerializerOptions = new()
+    {
+        AllowTrailingCommas = true,
+        ReadCommentHandling = JsonCommentHandling.Skip,
     };
 }

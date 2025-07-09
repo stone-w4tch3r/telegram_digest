@@ -156,8 +156,9 @@ _Tasks_
 _Prerequisite_: Step 6
 _Tasks_
 
-- [ ] Add `/Auth/Login` that calls `Challenge` (OIDC) or no-op (other modes).
-- [ ] Add `/Auth/Logout` to sign out cookie & OIDC if applicable.
+- [ ] Create `AuthController` with `Login` and `Logout` actions.
+- [ ] Add `/Auth/Login` that calls `Challenge` (OIDC), cookie sign in (single-user), or no-op (reverse proxy).
+- [ ] Add `/Auth/Logout` to sign out cookie/oidc/redirect to logout for reverse proxy.
 - [ ] Update `_Layout.cshtml` to show user email & Login/Logout link (uses `@User.Identity.IsAuthenticated`).
       _Verification_
 - [ ] Manual browser check by developer: link toggles and email appears.

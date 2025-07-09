@@ -3,6 +3,7 @@ using System.Text.Json;
 using FluentResults;
 using TelegramDigest.Backend.Infrastructure;
 using TelegramDigest.Backend.Models;
+using TelegramDigest.Shared;
 
 namespace TelegramDigest.Backend.Db;
 
@@ -11,27 +12,32 @@ internal interface IDigestRepository
     /// <summary>
     /// Loads complete digest including all post summaries and metadata
     /// </summary>
-    public Task<Result<DigestModel?>> LoadDigest(DigestId digestId, CancellationToken ct);
+    public Task<Result<DigestModel?>> LoadDigestForCurrentUser(
+        DigestId digestId,
+        CancellationToken ct
+    );
 
     /// <summary>
     /// Saves a digest to the database
     /// </summary>
-    public Task<Result> SaveDigest(DigestModel digest, CancellationToken ct);
+    public Task<Result> SaveDigestForCurrentUser(DigestModel digest, CancellationToken ct);
 
     /// <summary>
     /// Loads all digest summaries from the database (without posts)
     /// </summary>
-    public Task<Result<DigestSummaryModel[]>> LoadAllDigestSummaries(CancellationToken ct);
+    public Task<Result<DigestSummaryModel[]>> LoadAllDigestSummariesForCurrentUser(
+        CancellationToken ct
+    );
 
     /// <summary>
     /// Loads all digests including all post summaries and metadata
     /// </summary>
-    public Task<Result<DigestModel[]>> LoadAllDigests(CancellationToken ct);
+    public Task<Result<DigestModel[]>> LoadAllDigestsForCurrentUser(CancellationToken ct);
 
     /// <summary>
     /// Deletes a digest and all associated posts.
     /// </summary>
-    public Task<Result> DeleteDigest(DigestId digestId, CancellationToken ct);
+    public Task<Result> DeleteDigestForCurrentUser(DigestId digestId, CancellationToken ct);
 }
 
 internal sealed class DigestRepository(
@@ -40,7 +46,10 @@ internal sealed class DigestRepository(
     ICurrentUserContext currentUserContext
 ) : IDigestRepository
 {
-    public async Task<Result<DigestModel?>> LoadDigest(DigestId digestId, CancellationToken ct)
+    public async Task<Result<DigestModel?>> LoadDigestForCurrentUser(
+        DigestId digestId,
+        CancellationToken ct
+    )
     {
         try
         {
@@ -70,7 +79,7 @@ internal sealed class DigestRepository(
         }
     }
 
-    public async Task<Result> SaveDigest(DigestModel digest, CancellationToken ct)
+    public async Task<Result> SaveDigestForCurrentUser(DigestModel digest, CancellationToken ct)
     {
         try
         {
@@ -86,12 +95,17 @@ internal sealed class DigestRepository(
         }
     }
 
-    public async Task<Result<DigestSummaryModel[]>> LoadAllDigestSummaries(CancellationToken ct)
+    public async Task<Result<DigestSummaryModel[]>> LoadAllDigestSummariesForCurrentUser(
+        CancellationToken ct
+    )
     {
         try
         {
             var summaries = await dbContext
-                .DigestSummaries.OrderByDescending(s => s.CreatedAt)
+                .Digests.Where(d => d.UserId == currentUserContext.UserId)
+                .Select(d => d.SummaryNav)
+                .WhereNotNull()
+                .OrderByDescending(s => s.CreatedAt)
                 .ToListAsync(ct);
 
             return Result.Ok(summaries.Select(MapToSummaryModel).ToArray());
@@ -103,7 +117,7 @@ internal sealed class DigestRepository(
         }
     }
 
-    public async Task<Result<DigestModel[]>> LoadAllDigests(CancellationToken ct)
+    public async Task<Result<DigestModel[]>> LoadAllDigestsForCurrentUser(CancellationToken ct)
     {
         try
         {
@@ -128,7 +142,7 @@ internal sealed class DigestRepository(
         }
     }
 
-    public async Task<Result> DeleteDigest(DigestId digestId, CancellationToken ct)
+    public async Task<Result> DeleteDigestForCurrentUser(DigestId digestId, CancellationToken ct)
     {
         try
         {

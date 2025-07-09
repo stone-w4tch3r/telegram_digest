@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
@@ -46,6 +47,7 @@ public static class ServiceCollectionExtensions
         builder.Services.AddScoped<IFeedReader, FeedReader>();
         builder.Services.AddScoped<IFeedsService, FeedsService>();
         builder.Services.AddScoped<ICurrentUserContext, CurrentUserContext>();
+        builder.Services.AddScoped<IUserPersistenceService, UserPersistenceService>();
         builder.Services.AddScoped<IFeedsRepository, FeedsRepository>();
         builder.Services.AddScoped<IDigestService, DigestService>();
         builder.Services.AddScoped<IDigestService, DigestService>();
@@ -60,6 +62,7 @@ public static class ServiceCollectionExtensions
         builder.Services.AddScoped<IRssPublishingService, RssPublishingService>();
         builder.Services.AddScoped<IDigestProcessingOrchestrator, DigestProcessingOrchestrator>();
         builder.Services.AddScoped<IRssProvidersService, TgRssProvidersService>();
+        builder.Services.AddScoped<UserPersistenceMiddleware>();
 
         // Singletons
         builder.Services.AddSingleton<IDigestStepsChannel, DigestStepsChannel>();
@@ -91,10 +94,12 @@ public static class ServiceCollectionExtensions
         });
     }
 
-    public static async Task UseBackendCustom(this IServiceProvider services)
+    public static async Task UseBackendCustom(this IApplicationBuilder app)
     {
+        app.UseMiddleware<UserPersistenceMiddleware>(); // TODO use service instead of middleware
+
         // Database initial migration
-        using var scope = services.CreateScope();
+        using var scope = app.ApplicationServices.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         await context.Database.MigrateAsync();
     }

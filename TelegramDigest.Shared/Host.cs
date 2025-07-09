@@ -4,7 +4,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text.Json.Serialization;
 
-namespace TelegramDigest.Types.Host;
+namespace TelegramDigest.Shared;
 
 public sealed record Host
 {

@@ -27,7 +27,7 @@
         />
     </ItemGroup>
     <ItemGroup>
-        <ProjectReference Include="..\TelegramDigest.Types.Host\TelegramDigest.Types.Host.csproj" />
+        <ProjectReference Include="..\TelegramDigest.Shared\TelegramDigest.Shared.csproj" />
     </ItemGroup>
     <ItemGroup>
         <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">

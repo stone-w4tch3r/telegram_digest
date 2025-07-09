@@ -1,4 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <AssemblyName>TelegramDigest.Shared</AssemblyName>
+        <RootNamespace>TelegramDigest.Shared</RootNamespace>
+    </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="Fody" Version="6.9.2" />
         <PackageReference Include="RuntimeNullables.Fody" Version="2.0.0" PrivateAssets="all" />

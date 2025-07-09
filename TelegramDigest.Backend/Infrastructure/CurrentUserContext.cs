@@ -11,16 +11,16 @@ internal interface ICurrentUserContext
 
 internal sealed class CurrentUserContext(
     IHttpContextAccessor httpContextAccessor,
-    BackendAuthenticationConfiguration authOptions
+    BackendAuthConfiguration authConfig
 ) : ICurrentUserContext
 {
     public Guid UserId => ResolveUserId();
 
     private Guid ResolveUserId()
     {
-        if (authOptions.Mode == AuthenticationMode.SingleUser)
+        if (authConfig.IsSingleUserMode)
         {
-            return Guid.Empty;
+            return authConfig.SingleUserId.Value;
         }
 
         var ctx = httpContextAccessor.HttpContext;
@@ -31,16 +31,9 @@ internal sealed class CurrentUserContext(
             );
         }
 
-        if (authOptions.Mode == AuthenticationMode.ReverseProxy)
+        if (authConfig.IsReverseProxyMode)
         {
-            if (string.IsNullOrWhiteSpace(authOptions.ProxyHeaderId))
-            {
-                throw new AuthenticationException(
-                    "Auth misconfigured or failed: proxy header is not configured for reverse proxy auth mode"
-                );
-            }
-
-            var proxyId = ctx.Request.Headers[authOptions.ProxyHeaderId].ToString();
+            var proxyId = ctx.Request.Headers[authConfig.ProxyHeaderId].ToString();
             if (!Guid.TryParse(proxyId, out var guidFromHeader))
             {
                 throw new AuthenticationException(

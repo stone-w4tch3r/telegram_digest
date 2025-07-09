@@ -122,7 +122,9 @@ public sealed class DigestServiceTests
             )
             .ReturnsAsync(Result.Ok(digestSummary));
         _digestRepositoryMock
-            .Setup(x => x.SaveDigest(It.IsAny<DigestModel>(), It.IsAny<CancellationToken>()))
+            .Setup(x =>
+                x.SaveDigestForCurrentUser(It.IsAny<DigestModel>(), It.IsAny<CancellationToken>())
+            )
             .ReturnsAsync(Result.Ok())
             .Callback<DigestModel, CancellationToken>((digest, _) => savedDigest = digest);
 
@@ -142,7 +144,7 @@ public sealed class DigestServiceTests
         );
         _digestRepositoryMock.Verify(
             x =>
-                x.SaveDigest(
+                x.SaveDigestForCurrentUser(
                     It.Is<DigestModel>(d => d.DigestId == digestId),
                     It.IsAny<CancellationToken>()
                 ),
@@ -209,7 +211,7 @@ public sealed class DigestServiceTests
         );
         _digestRepositoryMock.Verify(
             x =>
-                x.SaveDigest(
+                x.SaveDigestForCurrentUser(
                     It.Is<DigestModel>(d => d.DigestId == digestId),
                     It.IsAny<CancellationToken>()
                 ),
@@ -306,7 +308,9 @@ public sealed class DigestServiceTests
             )
             .ReturnsAsync(Result.Ok(digestSummary));
         _digestRepositoryMock
-            .Setup(x => x.SaveDigest(It.IsAny<DigestModel>(), It.IsAny<CancellationToken>()))
+            .Setup(x =>
+                x.SaveDigestForCurrentUser(It.IsAny<DigestModel>(), It.IsAny<CancellationToken>())
+            )
             .ReturnsAsync(Result.Ok())
             .Callback<DigestModel, CancellationToken>((digest, _) => savedDigest = digest);
 
@@ -413,7 +417,9 @@ public sealed class DigestServiceTests
             )
             .ReturnsAsync(Result.Ok(digestSummary));
         _digestRepositoryMock
-            .Setup(x => x.SaveDigest(It.IsAny<DigestModel>(), It.IsAny<CancellationToken>()))
+            .Setup(x =>
+                x.SaveDigestForCurrentUser(It.IsAny<DigestModel>(), It.IsAny<CancellationToken>())
+            )
             .ReturnsAsync(Result.Ok())
             .Callback<DigestModel, CancellationToken>((digest, _) => savedDigest = digest);
 
@@ -771,7 +777,9 @@ public sealed class DigestServiceTests
             )
             .ReturnsAsync(Result.Ok(digestSummary));
         _digestRepositoryMock
-            .Setup(x => x.SaveDigest(It.IsAny<DigestModel>(), It.IsAny<CancellationToken>()))
+            .Setup(x =>
+                x.SaveDigestForCurrentUser(It.IsAny<DigestModel>(), It.IsAny<CancellationToken>())
+            )
             .ReturnsAsync(Result.Fail("DB error"));
 
         // Act

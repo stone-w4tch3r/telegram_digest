@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using RuntimeNullables;
 using TelegramDigest.Backend.Models;
-using Host = TelegramDigest.Types.Host.Host;
+using Host = TelegramDigest.Shared.Host;
 
 namespace TelegramDigest.Web.Models.ViewModels;
 

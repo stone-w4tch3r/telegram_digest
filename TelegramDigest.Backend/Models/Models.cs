@@ -1,4 +1,4 @@
-using TelegramDigest.Types.Host;
+using TelegramDigest.Shared;
 
 namespace TelegramDigest.Backend.Models;
 

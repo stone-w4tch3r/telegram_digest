@@ -234,7 +234,7 @@ internal sealed class DigestService(
             UsedPrompts: usedPrompts
         );
 
-        var saveResult = await digestRepository.SaveDigest(digest, ct);
+        var saveResult = await digestRepository.SaveDigestForCurrentUser(digest, ct);
         if (!saveResult.IsSuccess)
         {
             digestStepsService.AddStep(
@@ -251,21 +251,21 @@ internal sealed class DigestService(
 
     public async Task<Result<DigestModel?>> GetDigest(DigestId digestId, CancellationToken ct)
     {
-        return await digestRepository.LoadDigest(digestId, ct);
+        return await digestRepository.LoadDigestForCurrentUser(digestId, ct);
     }
 
     public async Task<Result<DigestSummaryModel[]>> GetDigestSummaries(CancellationToken ct)
     {
-        return await digestRepository.LoadAllDigestSummaries(ct);
+        return await digestRepository.LoadAllDigestSummariesForCurrentUser(ct);
     }
 
     public async Task<Result<DigestModel[]>> GetAllDigests(CancellationToken ct)
     {
-        return await digestRepository.LoadAllDigests(ct);
+        return await digestRepository.LoadAllDigestsForCurrentUser(ct);
     }
 
     public async Task<Result> DeleteDigest(DigestId digestId, CancellationToken ct)
     {
-        return await digestRepository.DeleteDigest(digestId, ct);
+        return await digestRepository.DeleteDigestForCurrentUser(digestId, ct);
     }
 }

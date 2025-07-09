@@ -51,7 +51,7 @@ public sealed class UserIsolationTests
             var repoA = CreateDigestRepo(ctx, userA);
             var digestIdA = new DigestId(Guid.NewGuid());
             var digestA = new DigestModel(digestIdA, [], MakeSummary(digestIdA, "titleA"), new());
-            await repoA.SaveDigest(digestA, CancellationToken.None);
+            await repoA.SaveDigestForCurrentUser(digestA, CancellationToken.None);
         }
         // User B saves a digest
         await using (var ctx = CreateDbContext(dbName))
@@ -59,13 +59,13 @@ public sealed class UserIsolationTests
             var repoB = CreateDigestRepo(ctx, userB);
             var digestIdB = new DigestId(Guid.NewGuid());
             var digestB = new DigestModel(digestIdB, [], MakeSummary(digestIdB, "titleB"), new());
-            await repoB.SaveDigest(digestB, CancellationToken.None);
+            await repoB.SaveDigestForCurrentUser(digestB, CancellationToken.None);
         }
         // User A only sees their digest
         await using (var ctx = CreateDbContext(dbName))
         {
             var repoA = CreateDigestRepo(ctx, userA);
-            var result = await repoA.LoadAllDigests(CancellationToken.None);
+            var result = await repoA.LoadAllDigestsForCurrentUser(CancellationToken.None);
             result.IsSuccess.Should().BeTrue();
             var digests = result.Value;
             digests.Should().ContainSingle();
@@ -75,7 +75,7 @@ public sealed class UserIsolationTests
         await using (var ctx = CreateDbContext(dbName))
         {
             var repoB = CreateDigestRepo(ctx, userB);
-            var result = await repoB.LoadAllDigests(CancellationToken.None);
+            var result = await repoB.LoadAllDigestsForCurrentUser(CancellationToken.None);
             result.IsSuccess.Should().BeTrue();
             var digests = result.Value;
             digests.Should().ContainSingle();

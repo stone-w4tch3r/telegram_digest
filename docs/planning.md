@@ -70,21 +70,23 @@
 
 ### Low priority
 
-| Done | Task                                                | Time  |
-|------|-----------------------------------------------------|-------|
-| [ ]  | Add more parameters and jinja template to prompts   | 1h    |
-| [ ]  | Digest generation result: SuccessButSomeFeedsFailed | 2h    |
-| [ ]  | Add XML docs in existing code                       | 1h    |
-| [ ]  | Obtain API key and pay                              | 30min |
-| [ ]  | Error handling: 404 page                            | 30min |
-| [ ]  | Tests: integration                                  | 2h    |
-| [ ]  | Tests: UI                                           | 2h    |
-| [ ]  | Tests: validators                                   | 2h    |
-| [ ]  | Allow empty API key                                 | 1h    |
-| [ ]  | Faster docker build                                 | 1h    |
-| [ ]  | Support cancellation everywhere                     | 1h    |
-| [ ]  | LiveBDD                                             | 1h    |
-| [ ]  | Configure default settings via options              | 1h    |
+| Done | Task                                                   | Time  |
+|------|--------------------------------------------------------|-------|
+| [ ]  | Add more parameters and jinja template to prompts      | 1h    |
+| [ ]  | Use OneOf in auth options                              | 1h    |
+| [ ]  | Use service instead of middleware for user persistence | 1h    |
+| [ ]  | Digest generation result: SuccessButSomeFeedsFailed    | 2h    |
+| [ ]  | Add XML docs in existing code                          | 1h    |
+| [ ]  | Obtain API key and pay                                 | 30min |
+| [ ]  | Error handling: 404 page                               | 30min |
+| [ ]  | Tests: integration                                     | 2h    |
+| [ ]  | Tests: UI                                              | 2h    |
+| [ ]  | Tests: validators                                      | 2h    |
+| [ ]  | Allow empty API key                                    | 1h    |
+| [ ]  | Faster docker build                                    | 1h    |
+| [ ]  | Support cancellation everywhere                        | 1h    |
+| [ ]  | LiveBDD                                                | 1h    |
+| [ ]  | Configure default settings via options                 | 1h    |
 
 ### Future
 

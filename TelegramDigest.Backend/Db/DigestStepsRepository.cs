@@ -83,7 +83,7 @@ internal sealed class DigestStepsRepository(
                     e.FeedsJson != null
                         ? JsonSerializer.Deserialize<FeedUrl[]>(
                             e.FeedsJson,
-                            SerializationOptions.FeedUrlSerializerOptions
+                            SerializationOptions.FeedsSerializerOptions
                         ) ?? []
                         : [],
                 Message = entity.Message,
@@ -141,7 +141,7 @@ internal sealed class DigestStepsRepository(
                 Message = model.Message,
                 FeedsJson = JsonSerializer.Serialize(
                     m.Feeds,
-                    SerializationOptions.FeedUrlSerializerOptions
+                    SerializationOptions.FeedsSerializerOptions
                 ),
                 Timestamp = model.Timestamp,
             },

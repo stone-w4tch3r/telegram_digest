@@ -31,9 +31,9 @@ public sealed class SingleUserAuthHandler(
         }
 
         // Use configured SingleUserId and SingleUserEmail, or sensible defaults
-        var userId = !string.IsNullOrWhiteSpace(_authOptions.SingleUserId)
-            ? _authOptions.SingleUserId
-            : throw new UnreachableException(
+        var userId =
+            _authOptions.SingleUserId
+            ?? throw new UnreachableException(
                 $"{nameof(_authOptions.SingleUserId)} must be set for SingleUserMode, early validation broke and did not catch it"
             );
         var userEmail = !string.IsNullOrWhiteSpace(_authOptions.SingleUserEmail)
@@ -43,7 +43,7 @@ public sealed class SingleUserAuthHandler(
             );
         var claims = new[]
         {
-            new Claim(ClaimTypes.NameIdentifier, userId),
+            new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
             new Claim(ClaimTypes.Email, userEmail),
         };
         var identity = new ClaimsIdentity(claims, SCHEME_NAME);

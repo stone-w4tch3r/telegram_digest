@@ -1,5 +1,5 @@
 using FluentAssertions;
-using TelegramDigest.Types.Host;
+using TelegramDigest.Shared;
 
 namespace TelegramDigest.Backend.Tests.UnitTests;
 

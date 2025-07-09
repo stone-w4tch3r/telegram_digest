@@ -3,6 +3,7 @@ using FluentResults;
 using Microsoft.Extensions.Options;
 using TelegramDigest.Backend.Models;
 using TelegramDigest.Backend.Options;
+using TelegramDigest.Backend.Serialization;
 
 namespace TelegramDigest.Backend.Features;
 
@@ -19,7 +20,8 @@ internal sealed class TgRssProvidersService(IOptions<TgRssProvidersOptions> opti
         try
         {
             var providers = JsonSerializer.Deserialize<List<TgRssProviderModel>>(
-                options.Value.TgRssProviders
+                options.Value.TgRssProviders,
+                SerializationOptions.HumanReadableSerializerOptions
             );
             if (providers == null)
             {

@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using TelegramDigest.Backend.Db;
 using TelegramDigest.Backend.Models;
 using TelegramDigest.Backend.Options;
+using TelegramDigest.Backend.Serialization;
 
 namespace TelegramDigest.Backend.Features;
 
@@ -29,8 +30,6 @@ internal sealed class SettingsService(
     IOptions<SettingsOptions> options
 ) : ISettingsService
 {
-    private readonly JsonSerializerOptions _jsonOptions = new() { IncludeFields = true };
-
     public async Task<Result<SettingsModel>> LoadSettings(CancellationToken ct)
     {
         try
@@ -81,7 +80,10 @@ internal sealed class SettingsService(
     private Result<SettingsModel> LoadDefaultSettings()
     {
         var settingsJsonResult = Result.Try(() =>
-            JsonSerializer.Deserialize<SettingsJson>(options.Value.DefaultSettings, _jsonOptions)
+            JsonSerializer.Deserialize<SettingsJson>(
+                options.Value.DefaultSettings,
+                SerializationOptions.HumanReadableSerializerOptions
+            )
         );
         if (!settingsJsonResult.IsSuccess || settingsJsonResult.Value == null)
         {

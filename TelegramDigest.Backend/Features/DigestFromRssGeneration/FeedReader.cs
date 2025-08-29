@@ -56,7 +56,7 @@ internal sealed class FeedReader(ILogger<FeedReader> logger) : IFeedReader
                             Url: x.Links.Where(l => l.RelationshipType == "alternate")
                                 .SingleOrDefaultIfNotExactlyOne()
                                 ?.Uri
-                                ?? throw new FormatException(
+                            ?? throw new FormatException(
                                     $"Feed item [{x.Id}] has invalid URLs [{LinksCollectionToString(x.Links)}]"
                                 ),
                             PublishedAt: x.PublishDate.DateTime
